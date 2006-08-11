@@ -1,34 +1,14 @@
 [libdefaults]
-    default_realm = APPLECONNECT.APPLE.COM
+    default_realm = EXAMPLE.COM
     dns_fallback = NO
     default_tkt_enctypes = des-cbc-crc
     default_tgs_enctypes = des-cbc-crc
 
 [realms]
-	KRB-DEV.APPLE.COM = {
-		kdc = krb-dev.apple.com:4160
-	}
 	APPLECONNECT.APPLE.COM = {
-		kdc = wdg1.apple.com:4160
-		kdc = lancaster.corp.apple.com:4160
-		kdc = manchester.corp.apple.com:4160
-		kdc = wdg1-alt.apple.com:4160
-		kdc = thornbill.corp.apple.com:4160
-	}
-	KRB-AT.APPLE.COM = {
-		kdc = wdg1-at.apple.com:4160
-	}
-	AC-AT.APPLE.COM = {
-		kdc = wdg1-alt-at.apple.com:4160
-	}
-	AC-MAINT.APPLE.COM = {
-		kdc = wdg1-maint.apple.com:4160
-		kdc = wdg1-alt-maint.apple.com:4160
-	}
-	AC-DSR-DEV.APPLE.COM = {
-		kdc = dstest2.corp.apple.com:4160
+		kdc = kdc.example.com
 	}
 
 [domain_realm]
-	.apple.com = APPLECONNECT.APPLE.COM
-	apple.com = APPLECONNECT.APPLE.COM
+	.example.com = EXAMPLE.COM
+	example.com = EXAMPLE.COM
