@@ -33,7 +33,7 @@ CONTENTS
     config/            : directory of useful Kerberos config files.
       edu.mit.Kerberos : example Kerberos .ini file configured for use with AppleConnect.
     README.txt         : this file!
-    FUNCTIONS.py       : Python api documentation.
+    kerberos.py        : Python api documentation/stub implementation.
 
 =====
 BUILD
@@ -66,4 +66,4 @@ Then run test.py with suitable command line arguments:
 Python APIs
 ===========
 
-See FUNCTIONS.py.
+See kerberos.py.

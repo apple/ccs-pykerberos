@@ -17,21 +17,43 @@
 ##
 
 from distutils.core import setup, Extension
+import sys
 
-module1 = Extension(
-    'kerberos',
-    extra_link_args = ['-framework', 'Kerberos'],
-    sources = [
-        'src/kerberos.c',
-        'src/kerberosbasic.c',
-        'src/kerberosgss.c',
-        'src/base64.c'
-    ],
-)
+if sys.platform in ["darwin", "macosx"]: 
 
-setup (
-    name = 'kerberos',
-    version = '1.0',
-    description = 'This is a high-level interface to the Kerberos.framework',
-    ext_modules = [module1]
-)
+    """
+    On Mac OS X we build the actual Python module linking to the
+    Kerberos.framework.
+    """
+
+    module1 = Extension(
+        'kerberos',
+        extra_link_args = ['-framework', 'Kerberos'],
+        sources = [
+            'src/kerberos.c',
+            'src/kerberosbasic.c',
+            'src/kerberosgss.c',
+            'src/base64.c'
+        ],
+    )
+    
+    setup (
+        name = 'kerberos',
+        version = '1.0',
+        description = 'This is a high-level interface to the Kerberos.framework',
+        ext_modules = [module1]
+    )
+
+else:
+    """
+    On other OS's we simply include a stub file of prototypes.
+    Eventually we should build the proper Kerberos module and link
+    with appropriate local Kerberos libraries.
+    """
+
+    setup (
+        name = 'kerberos',
+        version = '1.0',
+        description = 'This is a high-level interface to the Kerberos.framework',
+        py_modules = ['kerberos']
+    )
