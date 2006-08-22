@@ -20,7 +20,7 @@ limitations under the License.
 This Python package is a high-level wrapper for Kerberos (GSSAPI) operations.
 The goal is to avoid having to build a module that wraps the entire Kerberos.framework,
 and instead offer a limited set of functions that do what is needed for client/server
-Kerberos authentication based on <http://www.ietf.org/internet-drafts/draft-jaganathan-kerberos-http-01.txt>.
+Kerberos authentication based on <http://www.ietf.org/rfc/rfc4559.txt>.
 
 Much of the C-code here is adapted from Appache's mod_auth_kerb-5.0rc7.
 
@@ -31,7 +31,7 @@ CONTENTS
     src/               : directory in which C source code resides.
     setup.py           : Python distutils extension build script.
     config/            : directory of useful Kerberos config files.
-      edu.mit.Kerberos : example Kerberos .ini file configured for use with AppleConnect.
+      edu.mit.Kerberos : example Kerberos .ini file.
     README.txt         : this file!
     kerberos.py        : Python api documentation/stub implementation.
 
