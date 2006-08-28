@@ -55,5 +55,6 @@ else:
         name = 'kerberos',
         version = '1.0',
         description = 'This is a high-level interface to the Kerberos.framework',
-        py_modules = ['kerberos']
+        package_dir={'': 'pysrc'},
+        packages=['']
     )
