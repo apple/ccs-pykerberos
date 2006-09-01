@@ -23,8 +23,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <Kerberos/KerberosLogin.h>
-
 #define PRINTFS
 
 static const char *get_gss_error(char *p, int psize, OM_uint32 err_maj, OM_uint32 err_min, char *prefix);
