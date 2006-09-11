@@ -21,7 +21,7 @@
 #include <stdio.h>
 #include <string.h>
 
-/*#define PRINTFS*/
+#undef PRINTFS
 
 static krb5_error_code verify_krb5_user(krb5_context context, krb5_principal principal, const char *password, krb5_principal server);
 
@@ -39,7 +39,7 @@ int authenticate_user_krb5pwd(const char *user, const char *pswd, const char *se
 	if (code)
 	{
 #ifdef PRINTFS
-		printf("Cannot initialize Kerberos5 context (%d)", code);
+		printf("Cannot initialize Kerberos5 context (%d)\n", code);
 #endif
 		return 0;
 	}
@@ -49,7 +49,7 @@ int authenticate_user_krb5pwd(const char *user, const char *pswd, const char *se
 	if (ret)
 	{
 #ifdef PRINTFS
-		printf("Error parsing server name (%s): %s", service, krb5_get_err_text(kcontext, ret));
+		printf("Error parsing server name (%s): %s\n", service, krb5_get_err_text(kcontext, ret));
 #endif
 		ret = 0;
 		goto end;
@@ -59,13 +59,13 @@ int authenticate_user_krb5pwd(const char *user, const char *pswd, const char *se
 	if (code)
 	{
 #ifdef PRINTFS
-		printf("krb5_unparse_name() failed: %s", krb5_get_err_text(kcontext, code));
+		printf("krb5_unparse_name() failed: %s\n", krb5_get_err_text(kcontext, code));
 #endif
 		ret = 0;
 		goto end;
 	}
 #ifdef PRINTFS
-	printf("Using %s as server principal for password verification", name);
+	printf("Using %s as server principal for password verification\n", name);
 #endif
 	free(name);
 	name = NULL;
@@ -85,7 +85,7 @@ int authenticate_user_krb5pwd(const char *user, const char *pswd, const char *se
 	if (code)
 	{
 #ifdef PRINTFS
-		printf("krb5_parse_name() failed: %s", krb5_get_err_text(kcontext, code));
+		printf("krb5_parse_name() failed: %s\n", krb5_get_err_text(kcontext, code));
 #endif
 		ret = 0;
 		goto end;
@@ -103,7 +103,7 @@ int authenticate_user_krb5pwd(const char *user, const char *pswd, const char *se
 	
 end:
 #ifdef PRINTFS
-	printf("kerb_authenticate_user_krb5pwd ret=%d user=%s authtype=%s", ret, user, "Basic");
+	printf("kerb_authenticate_user_krb5pwd ret=%d user=%s authtype=%s\n", ret, user, "Basic");
 #endif
 	if (name)
 		free(name);
@@ -130,7 +130,7 @@ static krb5_error_code verify_krb5_user(krb5_context context, krb5_principal pri
 	if (ret == 0)
 	{
 #ifdef PRINTFS
-		printf("Trying to get TGT for user %s", name);
+		printf("Trying to get TGT for user %s\n", name);
 #endif
 		free(name);
 	}
@@ -139,7 +139,7 @@ static krb5_error_code verify_krb5_user(krb5_context context, krb5_principal pri
 	if (ret)
 	{
 #ifdef PRINTFS
-		printf("krb5_get_init_creds_password() failed: %s",  krb5_get_err_text(context, ret));
+		printf("krb5_get_init_creds_password() failed: %s\n",  krb5_get_err_text(context, ret));
 #endif
 		goto end;
 	}
