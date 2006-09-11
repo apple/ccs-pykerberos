@@ -21,6 +21,7 @@
 #include "base64.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #undef PRINTFS
