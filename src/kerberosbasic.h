@@ -16,9 +16,9 @@
  * DRI: Cyrus Daboo, cdaboo@apple.com
  **/
 
-#include <Kerberos/gssapi.h>
-#include <Kerberos/gssapi_generic.h>
-#include <Kerberos/gssapi_krb5.h>
+#include <gssapi.h>
+#include <gssapi_generic.h>
+#include <gssapi_krb5.h>
 
 #define krb5_get_err_text(context,code) error_message(code)
 
