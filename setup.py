@@ -20,12 +20,6 @@ from distutils.core import setup, Extension
 import sys
 import commands
 
-if sys.platform == "darwin":
-    # krb5-config --cflags is broken on OS X
-    include_dirs = ["/System/Library/Frameworks/Kerberos.framework/Versions/Current/Headers"]
-else:
-    include_dirs = []
-
 setup (
     name = "kerberos",
     version = "1.0",
@@ -35,7 +29,6 @@ setup (
             "kerberos",
             extra_link_args = commands.getoutput("krb5-config --libs gssapi").split(),
             extra_compile_args = commands.getoutput("krb5-config --cflags gssapi").split(),
-            include_dirs = include_dirs,
             sources = [
                 "src/kerberos.c",
                 "src/kerberosbasic.c",
