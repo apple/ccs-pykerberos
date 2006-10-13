@@ -56,7 +56,7 @@ def main():
         print "\n*** Skipping basic test: no user or password specified"
 
     print "\n*** Running GSSAPI test"
-    #testGSSAPI(service)
+    testGSSAPI(service)
 
     print "\n*** Running HTTP test"
     testHTTP(host, port, ssl, service)
@@ -64,11 +64,12 @@ def main():
     print "\n*** Done\n"
 
 def testCheckpassword(user, pswd, service, realm):
-    result = kerberos.checkPassword(user, pswd, service, realm)
-    if result:
-        print "Kerberos authentication for %s succeeded" % user
+    try:
+        kerberos.checkPassword(user, pswd, service, realm)
+    except kerberos.BasicAuthError, e:
+        print "Kerberos authentication for %s failed: %s" % (user, e[0])
     else:
-        print "Kerberos authentication for %s failed" % user
+        print "Kerberos authentication for %s succeeded" % user
 
 def testGSSAPI(service):
     def statusText(r):
@@ -129,7 +130,8 @@ def testHTTP(host, port, ssl, service):
         return response
 
     # Initial request without auth header
-    response = sendRequest(host, port, ssl, "OPTIONS", "/", {})
+    uri = "/"
+    response = sendRequest(host, port, ssl, "OPTIONS", uri, {})
     
     if response is None:
         print "Initial HTTP request to server failed"
@@ -151,28 +153,30 @@ def testHTTP(host, port, ssl, service):
         print "Incorrect www-authenticate header in initial HTTP response: %s" % hdr        
         return
 
-    rc, vc = kerberos.authGSSClientInit(service);
-    if rc != 1:
-        print "Could not initialize GSSAPI"
+    try:
+        rc, vc = kerberos.authGSSClientInit(service);
+    except kerberos.GSSError, e:
+        print "Could not initialize GSSAPI: %s/%s" % (e[0][0], e[1][0])
         return
 
-    rc = kerberos.authGSSClientStep(vc, "");
-    if rc != 0:
-        print "Could not do GSSAPI setp with continue"
+    try:
+        kerberos.authGSSClientStep(vc, "");
+    except kerberos.GSSError, e:
+        print "Could not do GSSAPI setp with continue: %s/%s" % (e[0][0], e[1][0])
         return
 
     hdrs = {}
     hdrs["Authorization"] = "negotiate %s" % kerberos.authGSSClientResponse(vc)    
 
     # Second request with auth header
-    response = sendRequest(host, port, ssl, "OPTIONS", "/", hdrs)
+    response = sendRequest(host, port, ssl, "OPTIONS", uri, hdrs)
     
     if response is None:
         print "Second HTTP request to server failed"
         return
     
     if response.status/100 != 2:
-        print "Second HTTP request did not result in a 2xx response"
+        print "Second HTTP request did not result in a 2xx response: %d" % (response.status,)
         return
     
     hdrs = response.msg.getheaders("www-authenticate")
@@ -180,22 +184,24 @@ def testHTTP(host, port, ssl, service):
         print "No www-authenticate header in second HTTP response."
         return
     if len(hdrs) != 1:
-        print "Too many www-authenticate headers in second HTTP response."
+        print "Too many www-authenticate headers in second HTTP response: %d." % (len(hdrs),)
         return
     hdr = hdrs[0].strip()
     splits = hdr.split(' ', 1)
     if (len(splits) != 2) or (splits[0].lower() != "negotiate"):
-        print "Incorrect www-authenticate header in second HTTP response: %s" % hdr        
+        print "Incorrect www-authenticate header in second HTTP response: %s" % hdr
         return
     
-    rc = kerberos.authGSSClientStep(vc, splits[1]);
-    if rc != 1:
-        print "Could not verify server www-authenticate header in second HTTP response"
+    try:
+        kerberos.authGSSClientStep(vc, splits[1])
+    except kerberos.GSSError, e:
+        print "Could not verify server www-authenticate header in second HTTP response: %s/%s" % (e[0][0], e[1][0])
         return
     
-    rc = kerberos.authGSSClientClean(vc);
-    if rc != 1:
-        print "Could not clean-up GSSAPI"
+    try:
+        rc = kerberos.authGSSClientClean(vc);
+    except kerberos.GSSError, e:
+        print "Could not clean-up GSSAPI: %s/%s" % (e[0][0], e[1][0])
         return
 
     return

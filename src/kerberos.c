@@ -21,6 +21,10 @@
 #include "kerberosbasic.h"
 #include "kerberosgss.h"
 
+PyObject *KrbException_class;
+PyObject *BasicAuthException_class;
+PyObject *GssException_class;
+
 static PyObject *checkPassword(PyObject *self, PyObject *args)
 {
     const char *user;
@@ -37,7 +41,7 @@ static PyObject *checkPassword(PyObject *self, PyObject *args)
 	if (result)
 		return Py_INCREF(Py_True), Py_True;
 	else
-		return Py_INCREF(Py_False), Py_False;
+		return NULL;
 }
 
 static PyObject *authGSSClientInit(PyObject *self, PyObject *args)
@@ -54,6 +58,8 @@ static PyObject *authGSSClientInit(PyObject *self, PyObject *args)
 	pystate = PyCObject_FromVoidPtr(state, NULL);
 	
 	result = authenticate_gss_client_init(service, state);
+	if (result == AUTH_GSS_ERROR)
+		return NULL;
 	
     return Py_BuildValue("(iO)", result, pystate);
 }
@@ -94,6 +100,8 @@ static PyObject *authGSSClientStep(PyObject *self, PyObject *args)
 		return NULL;
 
 	result = authenticate_gss_client_step(state, challenge);
+	if (result == AUTH_GSS_ERROR)
+		return NULL;
 	
     return Py_BuildValue("i", result);
 }
@@ -142,6 +150,8 @@ static PyObject *authGSSServerInit(PyObject *self, PyObject *args)
 	pystate = PyCObject_FromVoidPtr(state, NULL);
 	
 	result = authenticate_gss_server_init(service, state);
+	if (result == AUTH_GSS_ERROR)
+		return NULL;
 	
     return Py_BuildValue("(iO)", result, pystate);
 }
@@ -182,6 +192,8 @@ static PyObject *authGSSServerStep(PyObject *self, PyObject *args)
 		return NULL;
 	
 	result = authenticate_gss_server_step(state, challenge);
+	if (result == AUTH_GSS_ERROR)
+		return NULL;
 	
     return Py_BuildValue("i", result);
 }
@@ -216,7 +228,7 @@ static PyObject *authGSSServerUserName(PyObject *self, PyObject *args)
     return Py_BuildValue("s", state->username);
 }
 
-static PyMethodDef SpamMethods[] = {
+static PyMethodDef KerberosMethods[] = {
     {"checkPassword",  checkPassword, METH_VARARGS,
 		"Check the supplied user/password against Kerberos KDC."},
     {"authGSSClientInit",  authGSSClientInit, METH_VARARGS,
@@ -244,5 +256,30 @@ static PyMethodDef SpamMethods[] = {
 
 PyMODINIT_FUNC initkerberos(void)
 {
-    (void) Py_InitModule("kerberos", SpamMethods);
+    PyObject *m,*d;
+
+    m = Py_InitModule("kerberos", KerberosMethods);
+
+    d = PyModule_GetDict(m);
+
+    /* create the base exception class */
+    if (!(KrbException_class = PyErr_NewException("kerberos.KrbError", NULL, NULL)))
+        goto error;
+    PyDict_SetItemString(d, "KrbError", KrbException_class);
+    Py_INCREF(KrbException_class);
+
+    /* ...and the derived exceptions */
+    if (!(BasicAuthException_class = PyErr_NewException("kerberos.BasicAuthError", KrbException_class, NULL)))
+    	goto error;
+    Py_INCREF(BasicAuthException_class);
+    PyDict_SetItemString(d, "BasicAuthError", BasicAuthException_class);
+
+    if (!(GssException_class = PyErr_NewException("kerberos.GSSError", KrbException_class, NULL)))
+		goto error;
+    Py_INCREF(GssException_class);
+    PyDict_SetItemString(d, "GSSError", GssException_class);
+
+error:
+    if (PyErr_Occurred())
+		PyErr_SetString(PyExc_ImportError, "kerberos: init failed");
 }

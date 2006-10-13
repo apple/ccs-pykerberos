@@ -20,6 +20,15 @@
 PyKerberos Function Description.
 """
 
+class KrbError(Exception):
+    pass
+
+class BasicAuthError(KrbError):
+    pass
+
+class GSSError(KrbError):
+    pass
+
 def checkPassword(user, pswd, service, default_realm):
     """
     This function provides a simple way to verify that a user name and password match

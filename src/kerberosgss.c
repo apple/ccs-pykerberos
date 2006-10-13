@@ -16,6 +16,7 @@
  * DRI: Cyrus Daboo, cdaboo@apple.com
  **/
 
+#include <Python.h>
 #include "kerberosgss.h"
 
 #include "base64.h"
@@ -24,17 +25,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-#undef PRINTFS
+static void set_gss_error(OM_uint32 err_maj, OM_uint32 err_min);
 
-static const char *get_gss_error(char *p, int psize, OM_uint32 err_maj, OM_uint32 err_min, char *prefix);
+extern PyObject *GssException_class;
+extern PyObject *KrbException_class;
 
 int authenticate_gss_client_init(const char* service, gss_client_state *state)
 {
 	OM_uint32 maj_stat;
 	OM_uint32 min_stat;
-#ifdef PRINTFS
-	char buf[1024];
-#endif
 	gss_buffer_desc name_token = GSS_C_EMPTY_BUFFER;
 	int ret = AUTH_GSS_COMPLETE;
 
@@ -45,15 +44,13 @@ int authenticate_gss_client_init(const char* service, gss_client_state *state)
 	
 	// Import server name first
 	name_token.length = strlen(service);
-    name_token.value = (char *)service;
+	name_token.value = (char *)service;
 	
 	maj_stat = gss_import_name(&min_stat, &name_token, gss_krb5_nt_service_name, &state->server_name);
 	
 	if (GSS_ERROR(maj_stat))
 	{
-#ifdef PRINTFS
-		printf("%s\n", get_gss_error(buf, 1024, maj_stat, min_stat, "gss_import_name() failed"));
-#endif
+		set_gss_error(maj_stat, min_stat);
 		ret = AUTH_GSS_ERROR;
 		goto end;
 	}
@@ -90,9 +87,6 @@ int authenticate_gss_client_step(gss_client_state *state, const char* challenge)
 {
 	OM_uint32 maj_stat;
 	OM_uint32 min_stat;
-#ifdef PRINTFS
-	char buf[1024];
-#endif
 	gss_buffer_desc input_token = GSS_C_EMPTY_BUFFER;
 	gss_buffer_desc output_token = GSS_C_EMPTY_BUFFER;
 	int ret = AUTH_GSS_CONTINUE;
@@ -129,9 +123,7 @@ int authenticate_gss_client_step(gss_client_state *state, const char* challenge)
 	
 	if ((maj_stat != GSS_S_COMPLETE) && (maj_stat != GSS_S_CONTINUE_NEEDED))
 	{
-#ifdef PRINTFS
-		printf("%s\n", get_gss_error(buf, 1024, maj_stat, min_stat, "gss_init_sec_context() failed"));
-#endif
+		set_gss_error(maj_stat, min_stat);
 		ret = AUTH_GSS_ERROR;
 		goto end;
 	}
@@ -151,9 +143,7 @@ int authenticate_gss_client_step(gss_client_state *state, const char* challenge)
 	    maj_stat = gss_inquire_context(&min_stat, state->context, &gssuser, NULL, NULL, NULL,  NULL, NULL, NULL);
 		if (GSS_ERROR(maj_stat))
 		{
-#ifdef PRINTFS
-			printf("%s\n", get_gss_error(buf, 1024, maj_stat, min_stat, "gss_inquire_context() failed"));
-#endif
+			set_gss_error(maj_stat, min_stat);
 			ret = AUTH_GSS_ERROR;
 			goto end;
 		}
@@ -167,9 +157,7 @@ int authenticate_gss_client_step(gss_client_state *state, const char* challenge)
 			    gss_release_buffer(&min_stat, &name_token);
 			gss_release_name(&min_stat, &gssuser);
 			
-#ifdef PRINTFS
-			printf("%s\n", get_gss_error(buf, 1024, maj_stat, min_stat, "gss_display_name() failed"));
-#endif
+			set_gss_error(maj_stat, min_stat);
 			ret = AUTH_GSS_ERROR;
 			goto end;
 		}
@@ -194,9 +182,6 @@ int authenticate_gss_server_init(const char* service, gss_server_state *state)
 {
 	OM_uint32 maj_stat;
 	OM_uint32 min_stat;
-#ifdef PRINTFS
-	char buf[1024];
-#endif
 	gss_buffer_desc name_token = GSS_C_EMPTY_BUFFER;
 	int ret = AUTH_GSS_COMPLETE;
 	
@@ -216,9 +201,7 @@ int authenticate_gss_server_init(const char* service, gss_server_state *state)
 	
 	if (GSS_ERROR(maj_stat))
 	{
-#ifdef PRINTFS
-		printf("%s\n", get_gss_error(buf, 1024, maj_stat, min_stat, "gss_import_name() failed"));
-#endif
+		set_gss_error(maj_stat, min_stat);
 		ret = AUTH_GSS_ERROR;
 		goto end;
 	}
@@ -229,9 +212,7 @@ int authenticate_gss_server_init(const char* service, gss_server_state *state)
 
 	if (GSS_ERROR(maj_stat))
 	{
-#ifdef PRINTFS
-		printf("%s\n", get_gss_error(buf, 1024, maj_stat, min_stat, "gss_acquire_cred() failed"));
-#endif
+		set_gss_error(maj_stat, min_stat);
 		ret = AUTH_GSS_ERROR;
 		goto end;
 	}
@@ -274,9 +255,6 @@ int authenticate_gss_server_step(gss_server_state *state, const char *challenge)
 {
 	OM_uint32 maj_stat;
 	OM_uint32 min_stat;
-#ifdef PRINTFS
-	char buf[1024];
-#endif
 	gss_buffer_desc input_token = GSS_C_EMPTY_BUFFER;
 	gss_buffer_desc output_token = GSS_C_EMPTY_BUFFER;
 	int ret = AUTH_GSS_CONTINUE;
@@ -297,9 +275,7 @@ int authenticate_gss_server_step(gss_server_state *state, const char *challenge)
 	}
 	else
 	{
-#ifdef PRINTFS
-		printf("No challenge parameter in request from client\n");
-#endif
+		PyErr_SetString(KrbException_class, "No challenge parameter in request from client");
 		ret = AUTH_GSS_ERROR;
 		goto end;
 	}
@@ -318,9 +294,7 @@ int authenticate_gss_server_step(gss_server_state *state, const char *challenge)
 	
 	if (GSS_ERROR(maj_stat))
 	{
-#ifdef PRINTFS
-		printf("%s\n", get_gss_error(buf, 1024, maj_stat, min_stat, "gss_accept_sec_context() failed"));
-#endif
+		set_gss_error(maj_stat, min_stat);
 		ret = AUTH_GSS_ERROR;
 		goto end;
 	}
@@ -335,9 +309,7 @@ int authenticate_gss_server_step(gss_server_state *state, const char *challenge)
 	maj_stat = gss_display_name(&min_stat, state->client_name, &output_token, NULL);
 	if (GSS_ERROR(maj_stat))
 	{
-#ifdef PRINTFS
-		printf("%s\n", get_gss_error(buf, 1024, maj_stat, min_stat, "gss_display_name() failed"));
-#endif
+		set_gss_error(maj_stat, min_stat);
 		ret = AUTH_GSS_ERROR;
 		goto end;
 	}
@@ -355,13 +327,15 @@ end:
 	return ret;
 }
 
-const char *get_gss_error(char *p, int psize, OM_uint32 err_maj, OM_uint32 err_min, char *prefix)
+
+static void set_gss_error(OM_uint32 err_maj, OM_uint32 err_min)
 {
 	OM_uint32 maj_stat, min_stat; 
 	OM_uint32 msg_ctx = 0;
 	gss_buffer_desc status_string;
+	char buf_maj[512];
+	char buf_min[512];
 	
-	strncpy(p, prefix, psize);
 	do
 	{
 		maj_stat = gss_display_status (&min_stat,
@@ -372,8 +346,7 @@ const char *get_gss_error(char *p, int psize, OM_uint32 err_maj, OM_uint32 err_m
 									   &status_string);
 		if (GSS_ERROR(maj_stat))
 			break;
-		strncat(p, ": ", psize);
-		strncat(p, (char*) status_string.value, psize);
+		strncpy(buf_maj, (char*) status_string.value, sizeof(buf_maj));
 		gss_release_buffer(&min_stat, &status_string);
 		
 		maj_stat = gss_display_status (&min_stat,
@@ -384,12 +357,11 @@ const char *get_gss_error(char *p, int psize, OM_uint32 err_maj, OM_uint32 err_m
 									   &status_string);
 		if (!GSS_ERROR(maj_stat))
 		{
-			strncat(p, " (", psize);
-			strncat(p, (char*) status_string.value, psize);
-			strncat(p, ")", psize);
+			strncpy(buf_min, (char*) status_string.value, sizeof(buf_min));
 			gss_release_buffer(&min_stat, &status_string);
 		}
 	} while (!GSS_ERROR(maj_stat) && msg_ctx != 0);
 	
-	return p;
+	PyErr_SetObject(GssException_class, Py_BuildValue("((s:i)(s:i))", buf_maj, err_maj, buf_min, err_min));
 }
+

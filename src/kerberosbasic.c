@@ -16,6 +16,7 @@
  * DRI: Cyrus Daboo, cdaboo@apple.com
  **/
 
+#include <Python.h>
 #include "kerberosbasic.h"
 
 #include <stdio.h>
@@ -23,6 +24,9 @@
 #include <string.h>
 
 #undef PRINTFS
+
+extern PyObject *BasicAuthException_class;
+static void set_basicauth_error(krb5_context context, krb5_error_code code);
 
 static krb5_error_code verify_krb5_user(krb5_context context, krb5_principal principal, const char *password, krb5_principal server);
 
@@ -39,9 +43,8 @@ int authenticate_user_krb5pwd(const char *user, const char *pswd, const char *se
 	code = krb5_init_context(&kcontext);
 	if (code)
 	{
-#ifdef PRINTFS
-		printf("Cannot initialize Kerberos5 context (%d)\n", code);
-#endif
+		PyErr_SetObject(BasicAuthException_class, Py_BuildValue("((s:i))",
+						"Cannot initialize Kerberos5 context", code));
 		return 0;
 	}
 	
@@ -49,9 +52,7 @@ int authenticate_user_krb5pwd(const char *user, const char *pswd, const char *se
 	
 	if (ret)
 	{
-#ifdef PRINTFS
-		printf("Error parsing server name (%s): %s\n", service, krb5_get_err_text(kcontext, ret));
-#endif
+		set_basicauth_error(kcontext, ret);
 		ret = 0;
 		goto end;
 	}
@@ -59,9 +60,7 @@ int authenticate_user_krb5pwd(const char *user, const char *pswd, const char *se
 	code = krb5_unparse_name(kcontext, server, &name);
 	if (code)
 	{
-#ifdef PRINTFS
-		printf("krb5_unparse_name() failed: %s\n", krb5_get_err_text(kcontext, code));
-#endif
+		set_basicauth_error(kcontext, code);
 		ret = 0;
 		goto end;
 	}
@@ -85,9 +84,7 @@ int authenticate_user_krb5pwd(const char *user, const char *pswd, const char *se
 	code = krb5_parse_name(kcontext, name, &client);
 	if (code)
 	{
-#ifdef PRINTFS
-		printf("krb5_parse_name() failed: %s\n", krb5_get_err_text(kcontext, code));
-#endif
+		set_basicauth_error(kcontext, code);
 		ret = 0;
 		goto end;
 	}
@@ -113,7 +110,6 @@ end:
 	if (server)
 		krb5_free_principal(kcontext, server);
 	krb5_free_context(kcontext);
-
 	
 	return ret;
 }
@@ -139,9 +135,7 @@ static krb5_error_code verify_krb5_user(krb5_context context, krb5_principal pri
 	ret = krb5_get_init_creds_password(context, &creds, principal, (char *)password, NULL, NULL, 0, NULL, NULL);
 	if (ret)
 	{
-#ifdef PRINTFS
-		printf("krb5_get_init_creds_password() failed: %s\n",  krb5_get_err_text(context, ret));
-#endif
+		set_basicauth_error(context, ret);
 		goto end;
 	}
 	
@@ -151,3 +145,7 @@ end:
 	return ret;
 }
 
+static void set_basicauth_error(krb5_context context, krb5_error_code code)
+{
+	PyErr_SetObject(BasicAuthException_class, Py_BuildValue("(s:i)", krb5_get_err_text(context, code), code));
+}
