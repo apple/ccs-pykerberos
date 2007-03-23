@@ -43,6 +43,8 @@ typedef struct {
 	char*			response;
 } gss_server_state;
 
+char* server_principal_details(const char* service, const char* hostname);
+
 int authenticate_gss_client_init(const char* service, gss_client_state *state);
 int authenticate_gss_client_clean(gss_client_state *state);
 int authenticate_gss_client_step(gss_client_state *state, const char *challenge);

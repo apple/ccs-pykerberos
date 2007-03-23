@@ -16,7 +16,7 @@
  * DRI: Cyrus Daboo, cdaboo@apple.com
  **/
 
-#include <Python.h>
+#include <Python/Python.h>
 #include "kerberosgss.h"
 
 #include "base64.h"
@@ -29,6 +29,76 @@ static void set_gss_error(OM_uint32 err_maj, OM_uint32 err_min);
 
 extern PyObject *GssException_class;
 extern PyObject *KrbException_class;
+
+char* server_principal_details(const char* service, const char* hostname)
+{
+	char match[1024];
+	int match_len = 0;
+	char* result = NULL;
+
+	int code;
+    krb5_context kcontext;
+    krb5_keytab kt = NULL;
+    krb5_kt_cursor cursor = NULL;
+    krb5_keytab_entry entry;
+    char* pname = NULL;
+
+	// Generate the principal prefix we want to match
+	snprintf(match, 1024, "%s/%s@", service, hostname);
+	match_len = strlen(match);
+
+	code = krb5_init_context(&kcontext);
+	if (code)
+	{
+		PyErr_SetObject(KrbException_class, Py_BuildValue("((s:i))",
+						"Cannot initialize Kerberos5 context", code));
+		return NULL;
+	}
+
+    if ((code = krb5_kt_default(kcontext, &kt)))
+    {
+		PyErr_SetObject(KrbException_class, Py_BuildValue("((s:i))",
+						"Cannot get default keytab", code));
+		goto end;
+    }
+
+    if ((code = krb5_kt_start_seq_get(kcontext, kt, &cursor)))
+    {
+		PyErr_SetObject(KrbException_class, Py_BuildValue("((s:i))",
+						"Cannot get sequence cursor from keytab", code));
+		goto end;
+    }
+
+    while ((code = krb5_kt_next_entry(kcontext, kt, &entry, &cursor)) == 0)
+    {
+      if ((code = krb5_unparse_name(kcontext, entry.principal, &pname)))
+      {
+		PyErr_SetObject(KrbException_class, Py_BuildValue("((s:i))",
+						"Cannot parse principal name from keytab", code));
+		goto end;
+      }
+
+	  if (strncmp(pname, match, match_len) == 0)
+	  {
+	  	result = malloc(strlen(pname) + 1);
+	  	strcpy(result, pname);
+        krb5_free_unparsed_name(kcontext, pname);
+	  	break;
+	  }
+
+      krb5_free_unparsed_name(kcontext, pname);
+      krb5_free_keytab_entry_contents(kcontext, &entry);
+    }
+
+end:
+	if (cursor)
+		krb5_kt_end_seq_get(kcontext, kt, &cursor);
+	if (kt)
+		krb5_kt_close(kcontext, kt);
+	krb5_free_context(kcontext);
+	
+	return result;
+}
 
 int authenticate_gss_client_init(const char* service, gss_client_state *state)
 {

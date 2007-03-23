@@ -16,7 +16,7 @@
  * DRI: Cyrus Daboo, cdaboo@apple.com
  **/
 
-#include <Python.h>
+#include <Python/Python.h>
 
 #include "kerberosbasic.h"
 #include "kerberosgss.h"
@@ -40,6 +40,27 @@ static PyObject *checkPassword(PyObject *self, PyObject *args)
 	
 	if (result)
 		return Py_INCREF(Py_True), Py_True;
+	else
+		return NULL;
+}
+
+static PyObject *getServerPrincipalDetails(PyObject *self, PyObject *args)
+{
+    const char *service;
+    const char *hostname;
+    char* result;
+	
+    if (!PyArg_ParseTuple(args, "ss", &service, &hostname))
+        return NULL;
+	
+	result = server_principal_details(service, hostname);
+	
+    if (result != NULL)
+    {
+    	PyObject* pyresult = Py_BuildValue("s", result);
+    	free(result);
+    	return pyresult;
+    }
 	else
 		return NULL;
 }
@@ -231,6 +252,8 @@ static PyObject *authGSSServerUserName(PyObject *self, PyObject *args)
 static PyMethodDef KerberosMethods[] = {
     {"checkPassword",  checkPassword, METH_VARARGS,
 		"Check the supplied user/password against Kerberos KDC."},
+    {"getServerPrincipalDetails",  getServerPrincipalDetails, METH_VARARGS,
+		"Return the service principal for a given service and hostname."},
     {"authGSSClientInit",  authGSSClientInit, METH_VARARGS,
 		"Initialize client-side GSSAPI operations."},
     {"authGSSClientClean",  authGSSClientClean, METH_VARARGS,

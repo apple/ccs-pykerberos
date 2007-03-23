@@ -55,6 +55,16 @@ def checkPassword(user, pswd, service, default_realm):
     @return:              True if authentication succeeds, False otherwise.
     """
 
+def getServerPrincipalDetails(service, hostname):
+    """
+    This function returns the service principal for the server given a service type
+    and hostname. Details are looked up via the /etc/keytab file.
+    
+    @param service:       a string containing the Kerberos service type for the server.
+    @param hostname:      a string containing the hostname of the server.
+    @return:              a string containing the service principal.
+    """
+
 """
 GSSAPI Function Result Codes:
     

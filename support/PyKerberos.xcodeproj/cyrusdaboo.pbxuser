@@ -1,0 +1,323 @@
+// !$*UTF8*$!
+{
+	08FB7793FE84155DC02AAC07 /* Project object */ = {
+		activeArchitecture = i386;
+		activeBuildConfigurationName = Debug;
+		activeExecutable = AFDE37EE0BB41DF9008C037E /* PyKerberos */;
+		activeTarget = 8DD76F620486A84900D96B5E /* PyKerberos */;
+		addToTargets = (
+			8DD76F620486A84900D96B5E /* PyKerberos */,
+		);
+		breakpoints = (
+			AF4480A50BB4292300408822 /* kerberosbasic.c:35 */,
+			AF4480C10BB42C1E00408822 /* kerberosbasic.c:92 */,
+			AF4480CD0BB42CFF00408822 /* main.c:18 */,
+			AF4480D80BB42D6100408822 /* kerberosgss.c:253 */,
+		);
+		codeSenseManager = AFDE37F60BB41E00008C037E /* Code sense */;
+		executables = (
+			AFDE37EE0BB41DF9008C037E /* PyKerberos */,
+		);
+		perUserDictionary = {
+			PBXConfiguration.PBXFileTableDataSource3.PBXFileTableDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					813,
+					20,
+					48,
+					43,
+					43,
+					20,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+					PBXFileDataSource_Target_ColumnID,
+				);
+			};
+			PBXPerProjectTemplateStateSaveDate = 196357790;
+			PBXWorkspaceStateSaveDate = 196357790;
+		};
+		perUserProjectItems = {
+			AF4480AD0BB42BFD00408822 = AF4480AD0BB42BFD00408822 /* PBXTextBookmark */;
+			AF4480AF0BB42BFD00408822 = AF4480AF0BB42BFD00408822 /* PBXTextBookmark */;
+			AF4480B00BB42BFD00408822 = AF4480B00BB42BFD00408822 /* PBXTextBookmark */;
+			AF4480CF0BB42D1700408822 = AF4480CF0BB42D1700408822 /* PBXTextBookmark */;
+			AF4480DF0BB42E3C00408822 = AF4480DF0BB42E3C00408822 /* PBXTextBookmark */;
+			AFDE38700BB420B1008C037E = AFDE38700BB420B1008C037E /* PBXTextBookmark */;
+			AFDE38870BB42287008C037E = AFDE38870BB42287008C037E /* PBXTextBookmark */;
+			AFDE388A0BB42287008C037E = AFDE388A0BB42287008C037E /* PBXTextBookmark */;
+			AFDE388E0BB42287008C037E = AFDE388E0BB42287008C037E /* PBXTextBookmark */;
+		};
+		sourceControlManager = AFDE37F50BB41E00008C037E /* Source Control */;
+		userBuildSettings = {
+		};
+	};
+	08FB7796FE84155DC02AAC07 /* main.c */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {984, 322}}";
+			sepNavSelRange = "{420, 0}";
+			sepNavVisRect = "{{0, 0}, {984, 308}}";
+			sepNavWindowFrame = "{{485, -20}, {1395, 1160}}";
+		};
+	};
+	8DD76F620486A84900D96B5E /* PyKerberos */ = {
+		activeExec = 0;
+		executables = (
+			AFDE37EE0BB41DF9008C037E /* PyKerberos */,
+		);
+	};
+	AF4480A50BB4292300408822 /* kerberosbasic.c:35 */ = {
+		isa = PBXFileBreakpoint;
+		actions = (
+		);
+		breakpointStyle = 0;
+		continueAfterActions = 0;
+		countType = 0;
+		delayBeforeContinue = 0;
+		fileReference = AFDE37FA0BB41E1D008C037E /* kerberosbasic.c */;
+		functionName = "authenticate_user_krb5pwd(const char *user, const char *pswd, const char *service, const char *default_realm)";
+		hitCount = 0;
+		ignoreCount = 0;
+		lineNumber = 35;
+		location = kerberosbasic.ob;
+		modificationTime = 196358061.544823;
+		state = 1;
+	};
+	AF4480AD0BB42BFD00408822 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = AFDE37FC0BB41E1D008C037E /* kerberosgss.c */;
+		name = "kerberosgss.c: 47";
+		rLen = 0;
+		rLoc = 1285;
+		rType = 0;
+		vrLen = 930;
+		vrLoc = 867;
+	};
+	AF4480AF0BB42BFD00408822 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 08FB7796FE84155DC02AAC07 /* main.c */;
+		name = "main.c: 4";
+		rLen = 0;
+		rLoc = 45;
+		rType = 0;
+		vrLen = 405;
+		vrLoc = 0;
+	};
+	AF4480B00BB42BFD00408822 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = AFDE37FC0BB41E1D008C037E /* kerberosgss.c */;
+		name = "kerberosgss.c: 47";
+		rLen = 0;
+		rLoc = 1285;
+		rType = 0;
+		vrLen = 930;
+		vrLoc = 867;
+	};
+	AF4480C10BB42C1E00408822 /* kerberosbasic.c:92 */ = {
+		isa = PBXFileBreakpoint;
+		actions = (
+		);
+		breakpointStyle = 0;
+		continueAfterActions = 0;
+		countType = 0;
+		delayBeforeContinue = 0;
+		fileReference = AFDE37FA0BB41E1D008C037E /* kerberosbasic.c */;
+		functionName = "authenticate_user_krb5pwd(const char *user, const char *pswd, const char *service, const char *default_realm)";
+		hitCount = 0;
+		ignoreCount = 0;
+		lineNumber = 92;
+		location = kerberosbasic.ob;
+		modificationTime = 196358061.544839;
+		state = 1;
+	};
+	AF4480CD0BB42CFF00408822 /* main.c:18 */ = {
+		isa = PBXFileBreakpoint;
+		actions = (
+		);
+		breakpointStyle = 0;
+		continueAfterActions = 0;
+		countType = 0;
+		delayBeforeContinue = 0;
+		fileReference = 08FB7796FE84155DC02AAC07 /* main.c */;
+		functionName = "main (int argc, char * const argv[])";
+		hitCount = 1;
+		ignoreCount = 0;
+		lineNumber = 18;
+		location = main.ob;
+		modificationTime = 196358037.390216;
+		state = 1;
+	};
+	AF4480CF0BB42D1700408822 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		comments = "error: syntax error before 'gss_server_state'";
+		fRef = 08FB7796FE84155DC02AAC07 /* main.c */;
+		rLen = 1;
+		rLoc = 17;
+		rType = 1;
+	};
+	AF4480D80BB42D6100408822 /* kerberosgss.c:253 */ = {
+		isa = PBXFileBreakpoint;
+		actions = (
+		);
+		breakpointStyle = 0;
+		continueAfterActions = 0;
+		countType = 0;
+		delayBeforeContinue = 0;
+		fileReference = AFDE37FC0BB41E1D008C037E /* kerberosgss.c */;
+		functionName = "authenticate_gss_server_init(const char* service, gss_server_state *state)";
+		hitCount = 0;
+		ignoreCount = 0;
+		lineNumber = 253;
+		location = kerberosgss.ob;
+		modificationTime = 196358037.343018;
+		state = 1;
+	};
+	AF4480DF0BB42E3C00408822 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 08FB7796FE84155DC02AAC07 /* main.c */;
+		name = "main.c: 18";
+		rLen = 0;
+		rLoc = 511;
+		rType = 0;
+		vrLen = 584;
+		vrLoc = 0;
+	};
+	AFDE37EE0BB41DF9008C037E /* PyKerberos */ = {
+		isa = PBXExecutable;
+		activeArgIndex = 2147483647;
+		activeArgIndices = (
+		);
+		argumentStrings = (
+		);
+		autoAttachOnCrash = 1;
+		breakpointsEnabled = 1;
+		configStateDict = {
+		};
+		customDataFormattersEnabled = 1;
+		debuggerPlugin = GDBDebugging;
+		disassemblyDisplayState = 0;
+		dylibVariantSuffix = "";
+		enableDebugStr = 1;
+		environmentEntries = (
+		);
+		executableSystemSymbolLevel = 0;
+		executableUserSymbolLevel = 0;
+		libgmallocEnabled = 0;
+		name = PyKerberos;
+		savedGlobals = {
+		};
+		sourceDirectories = (
+		);
+		variableFormatDictionary = {
+		};
+	};
+	AFDE37F50BB41E00008C037E /* Source Control */ = {
+		isa = PBXSourceControlManager;
+		fallbackIsa = XCSourceControlManager;
+		isSCMEnabled = 0;
+		scmConfiguration = {
+		};
+	};
+	AFDE37F60BB41E00008C037E /* Code sense */ = {
+		isa = PBXCodeSenseManager;
+		indexTemplatePath = "";
+	};
+	AFDE37F80BB41E1D008C037E /* base64.c */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {991, 1316}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRect = "{{0, 437}, {991, 524}}";
+		};
+	};
+	AFDE37FA0BB41E1D008C037E /* kerberosbasic.c */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {984, 2142}}";
+			sepNavSelRange = "{1171, 0}";
+			sepNavVisRect = "{{0, 325}, {984, 316}}";
+		};
+	};
+	AFDE37FB0BB41E1D008C037E /* kerberosbasic.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1336, 1031}}";
+			sepNavSelRange = "{824, 115}";
+			sepNavVisRect = "{{0, 0}, {1336, 1031}}";
+			sepNavWindowFrame = "{{15, 13}, {1395, 1160}}";
+		};
+	};
+	AFDE37FC0BB41E1D008C037E /* kerberosgss.c */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {984, 4550}}";
+			sepNavSelRange = "{7491, 0}";
+			sepNavVisRect = "{{0, 2485}, {984, 308}}";
+		};
+	};
+	AFDE37FD0BB41E1D008C037E /* kerberosgss.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1336, 1031}}";
+			sepNavSelRange = "{1553, 140}";
+			sepNavVisRect = "{{0, 0}, {1336, 1031}}";
+			sepNavWindowFrame = "{{15, 13}, {1395, 1160}}";
+		};
+	};
+	AFDE383A0BB41FFA008C037E /* kerberos.c */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {932, 2282}}";
+			sepNavSelRange = "{690, 0}";
+			sepNavVisRect = "{{0, 0}, {932, 292}}";
+		};
+	};
+	AFDE38700BB420B1008C037E /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 08FB7796FE84155DC02AAC07 /* main.c */;
+		name = "main.cpp: 9";
+		rLen = 0;
+		rLoc = 155;
+		rType = 0;
+		vrLen = 249;
+		vrLoc = 0;
+	};
+	AFDE38720BB420B1008C037E /* iostream */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = sourcecode.cpp.h;
+		name = iostream;
+		path = "/Developer/SDKs/MacOSX10.5.sdk/usr/include/c++/4.0.0/iostream";
+		sourceTree = "<absolute>";
+	};
+	AFDE38870BB42287008C037E /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = AFDE38720BB420B1008C037E /* iostream */;
+		name = "iostream: 76";
+		rLen = 0;
+		rLoc = 2873;
+		rType = 0;
+		vrLen = 1307;
+		vrLoc = 1651;
+	};
+	AFDE388A0BB42287008C037E /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = AFDE38720BB420B1008C037E /* iostream */;
+		name = "iostream: 76";
+		rLen = 0;
+		rLoc = 2873;
+		rType = 0;
+		vrLen = 1307;
+		vrLoc = 1651;
+	};
+	AFDE388E0BB42287008C037E /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = AFDE37FC0BB41E1D008C037E /* kerberosgss.c */;
+		name = "kerberosgss.c: 47";
+		rLen = 0;
+		rLoc = 1290;
+		rType = 0;
+		vrLen = 1144;
+		vrLoc = 1097;
+	};
+}

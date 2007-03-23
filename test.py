@@ -26,9 +26,9 @@ def main():
     # Extract arguments
     user = ""
     pswd = ""
-    service = "http@caldav.apple.com"
-    host = "localhost"
-    realm ="APPLECONNECT.APPLE.COM"
+    service = "http@CALDAV.CORP.APPLE.COM"
+    host = "caldav.corp.apple.com"
+    realm ="CALDAV.CORP.APPLE.COM"
     port = 8008
     ssl = False
     
@@ -48,6 +48,10 @@ def main():
         elif option == "-r":
             realm = value
     
+    # Get service principal
+    print "\n*** Running Service Principal test"
+    testServicePrincipal("http", "caldav.corp.apple.com");
+
     # Run tests
     if (len(user) != 0) and (len(pswd) != 0):
         print "\n*** Running basic test"
@@ -62,6 +66,14 @@ def main():
     testHTTP(host, port, ssl, service)
 
     print "\n*** Done\n"
+
+def testServicePrincipal(service, hostname):
+    try:
+        result = kerberos.getServerPrincipalDetails(service, hostname)
+    except kerberos.KrbError, e:
+        print "Kerberos service principal for %s/%s failed: %s" % (service, hostname, e[0])
+    else:
+        print "Kerberos service principal for %s/%s succeeded: %s" % (service, hostname, result)
 
 def testCheckpassword(user, pswd, service, realm):
     try:
@@ -80,12 +92,12 @@ def testGSSAPI(service):
         else:
             return "Error"
 
-    rc, vc = kerberos.authGSSClientInit(service);
+    rc, vc = kerberos.authGSSClientInit("http/caldav.corp.apple.com@CALDAV.CORP.APPLE.COM");
     print "Status for authGSSClientInit = %s" % statusText(rc);
     if rc != 1:
         return
     
-    rs, vs = kerberos.authGSSServerInit(service);
+    rs, vs = kerberos.authGSSServerInit("http@CALDAV.CORP.APPLE.COM");
     print "Status for authGSSServerInit = %s" % statusText(rs);
     if rs != 1:
         return
