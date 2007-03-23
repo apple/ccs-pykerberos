@@ -92,12 +92,12 @@ def testGSSAPI(service):
         else:
             return "Error"
 
-    rc, vc = kerberos.authGSSClientInit("http/caldav.corp.apple.com@CALDAV.CORP.APPLE.COM");
+    rc, vc = kerberos.authGSSClientInit(service);
     print "Status for authGSSClientInit = %s" % statusText(rc);
     if rc != 1:
         return
     
-    rs, vs = kerberos.authGSSServerInit("http@CALDAV.CORP.APPLE.COM");
+    rs, vs = kerberos.authGSSServerInit(service);
     print "Status for authGSSServerInit = %s" % statusText(rs);
     if rs != 1:
         return
@@ -142,7 +142,7 @@ def testHTTP(host, port, ssl, service):
         return response
 
     # Initial request without auth header
-    uri = "/"
+    uri = "/principals/"
     response = sendRequest(host, port, ssl, "OPTIONS", uri, {})
     
     if response is None:
