@@ -16,7 +16,7 @@
  * DRI: Cyrus Daboo, cdaboo@apple.com
  **/
 
-#include <Python.h>
+#include <Python/Python.h>
 #include "kerberosbasic.h"
 
 #include <stdio.h>
@@ -118,6 +118,7 @@ end:
 static krb5_error_code verify_krb5_user(krb5_context context, krb5_principal principal, const char *password, krb5_principal server)
 {
 	krb5_creds creds;
+	krb5_get_init_creds_opt gic_options;
 	krb5_error_code ret;
 	char *name = NULL;
 	
@@ -132,7 +133,8 @@ static krb5_error_code verify_krb5_user(krb5_context context, krb5_principal pri
 		free(name);
 	}
 	
-	ret = krb5_get_init_creds_password(context, &creds, principal, (char *)password, NULL, NULL, 0, NULL, NULL);
+	krb5_get_init_creds_opt_init(&gic_options);
+	ret = krb5_get_init_creds_password(context, &creds, principal, (char *)password, NULL, NULL, 0, NULL, &gic_options);
 	if (ret)
 	{
 		set_basicauth_error(context, ret);
