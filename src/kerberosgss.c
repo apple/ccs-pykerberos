@@ -90,6 +90,12 @@ char* server_principal_details(const char* service, const char* hostname)
       krb5_free_keytab_entry_contents(kcontext, &entry);
     }
 
+    if (result == NULL)
+    {
+		PyErr_SetObject(KrbException_class, Py_BuildValue("((s:i))",
+				"Principal not found in keytab", -1));
+    }
+
 end:
 	if (cursor)
 		krb5_kt_end_seq_get(kcontext, kt, &cursor);
