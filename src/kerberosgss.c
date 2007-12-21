@@ -16,7 +16,7 @@
  * DRI: Cyrus Daboo, cdaboo@apple.com
  **/
 
-#include <Python/Python.h>
+#include <Python.h>
 #include "kerberosgss.h"
 
 #include "base64.h"
