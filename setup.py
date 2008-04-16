@@ -33,6 +33,7 @@ setup (
                 "src/kerberos.c",
                 "src/kerberosbasic.c",
                 "src/kerberosgss.c",
+                "src/kerberospw.c",
                 "src/base64.c"
             ],
         ),

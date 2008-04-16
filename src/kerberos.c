@@ -19,10 +19,12 @@
 #include <Python.h>
 
 #include "kerberosbasic.h"
+#include "kerberospw.h"
 #include "kerberosgss.h"
 
 PyObject *KrbException_class;
 PyObject *BasicAuthException_class;
+PyObject *PwdChangeException_class;
 PyObject *GssException_class;
 
 static PyObject *checkPassword(PyObject *self, PyObject *args)
@@ -42,6 +44,23 @@ static PyObject *checkPassword(PyObject *self, PyObject *args)
         return Py_INCREF(Py_True), Py_True;
     else
         return NULL;
+}
+
+static PyObject *changePassword(PyObject *self, PyObject *args)
+{
+    const char *newpswd, *oldpswd;
+    const char *user;
+    int result = 0;
+
+    if (!PyArg_ParseTuple(args, "sss", &user, &oldpswd, &newpswd))
+        return NULL;
+
+    result = change_user_krb5pwd(user, oldpswd, newpswd);
+	
+    if (result)
+	return Py_INCREF(Py_True), Py_True;
+    else
+	return NULL;
 }
 
 static PyObject *getServerPrincipalDetails(PyObject *self, PyObject *args)
@@ -252,6 +271,8 @@ static PyObject *authGSSServerUserName(PyObject *self, PyObject *args)
 static PyMethodDef KerberosMethods[] = {
     {"checkPassword",  checkPassword, METH_VARARGS,
         "Check the supplied user/password against Kerberos KDC."},
+    {"changePassword",  changePassword, METH_VARARGS,
+        "Change the user password."},
     {"getServerPrincipalDetails",  getServerPrincipalDetails, METH_VARARGS,
         "Return the service principal for a given service and hostname."},
     {"authGSSClientInit",  authGSSClientInit, METH_VARARGS,
@@ -296,6 +317,11 @@ PyMODINIT_FUNC initkerberos(void)
         goto error;
     Py_INCREF(BasicAuthException_class);
     PyDict_SetItemString(d, "BasicAuthError", BasicAuthException_class);
+
+    if (!(PwdChangeException_class = PyErr_NewException("kerberos.PwdChangeError", KrbException_class, NULL)))
+        goto error;
+    Py_INCREF(PwdChangeException_class);
+    PyDict_SetItemString(d, "PwdChangeError", PwdChangeException_class);                                                                                                                                               
 
     if (!(GssException_class = PyErr_NewException("kerberos.GSSError", KrbException_class, NULL)))
         goto error;
