@@ -22,25 +22,25 @@
 
 #define krb5_get_err_text(context,code) error_message(code)
 
-#define AUTH_GSS_ERROR		-1
-#define AUTH_GSS_COMPLETE	1
-#define AUTH_GSS_CONTINUE	0
+#define AUTH_GSS_ERROR      -1
+#define AUTH_GSS_COMPLETE    1
+#define AUTH_GSS_CONTINUE    0
 
 typedef struct {
-	gss_ctx_id_t    context;
-	gss_name_t		server_name;
-	char*			username;
-	char*			response;
+    gss_ctx_id_t     context;
+    gss_name_t       server_name;
+    char*            username;
+    char*            response;
 } gss_client_state;
 
 typedef struct {
-	gss_ctx_id_t    context;
-	gss_name_t		server_name;
-	gss_name_t		client_name;
-    gss_cred_id_t	server_creds;
-    gss_cred_id_t	client_creds;
-	char*			username;
-	char*			response;
+    gss_ctx_id_t     context;
+    gss_name_t       server_name;
+    gss_name_t       client_name;
+    gss_cred_id_t    server_creds;
+    gss_cred_id_t    client_creds;
+    char*            username;
+    char*            response;
 } gss_server_state;
 
 char* server_principal_details(const char* service, const char* hostname);
