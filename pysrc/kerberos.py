@@ -38,8 +38,7 @@ def checkPassword(user, pswd, service, default_realm):
     
     NB For this to work properly the Kerberos must be configured properly on this machine.
     That will likely mean ensuring that the edu.mit.Kerberos preference file has the correct
-    realms and KDCs listed. This can be done via the /System/Library/CoreServices/Kerberos.app
-    tool's 'Edit Realms' command.
+    realms and KDCs listed.
     
     @param user:          a string containing the Kerberos user name. A realm may be
         included by appending an '@' followed by the realm string to the actual user id.

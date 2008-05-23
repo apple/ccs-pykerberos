@@ -48,10 +48,10 @@ TESTING
 =======
 
 You must have a valid Kerberos setup on the test machine and you should ensure that you have valid
-Kerberos tickets for any client authentication being done (run /System/Library/CoreServices/Kerberos.app).
+Kerberos tickets for any client authentication being done (run 'klist' on the command line).
 Additionally, for the server: it must have been configured as a valid Kerberos service with the Kerbersos server
 for its realm - this usually requires running kadmin on the server machine to add the principal and generate a keytab
-entry for it.
+entry for it (run 'sudo klist -k' to see the currently available keytab entries).
 
 Make sure that PYTHONPATH includes the appropriate build/lib.xxxx directory.
 Then run test.py with suitable command line arguments:
