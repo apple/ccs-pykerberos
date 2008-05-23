@@ -84,7 +84,7 @@ static PyObject *getServerPrincipalDetails(PyObject *self, PyObject *args)
         return NULL;
 }
 
-static PyObject *authGSSClientInit(PyObject *self, PyObject *args)
+static PyObject* authGSSClientInit(PyObject* self, PyObject* args)
 {
     const char *service;
     gss_client_state *state;
@@ -174,6 +174,48 @@ static PyObject *authGSSClientUserName(PyObject *self, PyObject *args)
         return NULL;
     
     return Py_BuildValue("s", state->username);
+}
+
+static PyObject *authGSSClientUnwrap(PyObject *self, PyObject *args)
+{
+	gss_client_state *state;
+	PyObject *pystate;
+	char *challenge;
+	int result = 0;
+
+	if (!PyArg_ParseTuple(args, "Os", &pystate, &challenge) || !PyCObject_Check(pystate))
+		return NULL;
+
+	state = (gss_client_state *)PyCObject_AsVoidPtr(pystate);
+	if (state == NULL)
+		return NULL;
+
+	result = authenticate_gss_client_unwrap(state, challenge);
+	if (result == AUTH_GSS_ERROR)
+		return NULL;
+
+	return Py_BuildValue("i", result);
+}
+
+static PyObject *authGSSClientWrap(PyObject *self, PyObject *args)
+{
+	gss_client_state *state;
+	PyObject *pystate;
+	char *challenge, *user;
+	int result = 0;
+
+	if (!PyArg_ParseTuple(args, "Oss", &pystate, &challenge, &user) || !PyCObject_Check(pystate))
+		return NULL;
+
+	state = (gss_client_state *)PyCObject_AsVoidPtr(pystate);
+	if (state == NULL)
+		return NULL;
+
+	result = authenticate_gss_client_wrap(state, challenge, user);
+	if (result == AUTH_GSS_ERROR)
+		return NULL;
+
+	return Py_BuildValue("i", result);
 }
 
 static PyObject *authGSSServerInit(PyObject *self, PyObject *args)
@@ -287,6 +329,10 @@ static PyMethodDef KerberosMethods[] = {
      "Get the user name from the last client-side GSSAPI step."},
     {"authGSSServerInit",  authGSSServerInit, METH_VARARGS,
      "Initialize server-side GSSAPI operations."},
+    {"authGSSClientWrap",  authGSSClientWrap, METH_VARARGS,
+     "Do a GSSAPI wrap."},
+    {"authGSSClientUnwrap",  authGSSClientUnwrap, METH_VARARGS,
+     "Do a GSSAPI unwrap."},
     {"authGSSServerClean",  authGSSServerClean, METH_VARARGS,
      "Terminate server-side GSSAPI operations."},
     {"authGSSServerStep",  authGSSServerStep, METH_VARARGS,
@@ -329,7 +375,7 @@ PyMODINIT_FUNC initkerberos(void)
     PyDict_SetItemString(d, "GSSError", GssException_class);
 
     PyDict_SetItemString(d, "AUTH_GSS_COMPLETE", PyInt_FromLong(AUTH_GSS_COMPLETE)); 
- 	PyDict_SetItemString(d, "AUTH_GSS_CONTINUE", PyInt_FromLong(AUTH_GSS_CONTINUE)); 
+    PyDict_SetItemString(d, "AUTH_GSS_CONTINUE", PyInt_FromLong(AUTH_GSS_CONTINUE)); 
 
 error:
     if (PyErr_Occurred())

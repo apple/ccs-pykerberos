@@ -26,6 +26,10 @@
 #define AUTH_GSS_COMPLETE    1
 #define AUTH_GSS_CONTINUE    0
 
+#define GSS_AUTH_P_NONE         1 
+#define GSS_AUTH_P_INTEGRITY    2 
+#define GSS_AUTH_P_PRIVACY      4 
+ 	
 typedef struct {
     gss_ctx_id_t     context;
     gss_name_t       server_name;
@@ -45,10 +49,12 @@ typedef struct {
 
 char* server_principal_details(const char* service, const char* hostname);
 
-int authenticate_gss_client_init(const char* service, gss_client_state *state);
+int authenticate_gss_client_init(const char* service, gss_client_state* state);
 int authenticate_gss_client_clean(gss_client_state *state);
 int authenticate_gss_client_step(gss_client_state *state, const char *challenge);
+int authenticate_gss_client_unwrap(gss_client_state* state, const char* challenge); 
+int authenticate_gss_client_wrap(gss_client_state* state, const char* challenge, const char* user);
 
-int authenticate_gss_server_init(const char* service, gss_server_state *state);
+int authenticate_gss_server_init(const char* service, gss_server_state* state);
 int authenticate_gss_server_clean(gss_server_state *state);
 int authenticate_gss_server_step(gss_server_state *state, const char *challenge);

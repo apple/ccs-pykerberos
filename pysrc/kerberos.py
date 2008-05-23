@@ -139,6 +139,23 @@ def authGSSClientUserName(context):
     @return:          a string containing the user name.
     """
 
+def authGSSClientUnwrap(context, challenge): 
+    """ 
+    Perform the client side GSSAPI unwrap step 
+    
+    @param challenge: a string containing the base64-encoded server data. 
+    @return: a result code (see above) 
+    """ 
+
+def authGSSClientWrap(context, data, user): 
+    """ 
+    Perform the client side GSSAPI wrap step.  
+    
+    @param data:the result of the authGSSClientResponse after the authGSSClientUnwrap 
+    @param user: the user to authorize 
+    @return: a result code (see above) 
+    """ 
+
 def authGSSServerInit(service):
     """
     Initializes a context for GSSAPI server-side authentication with the given service principal.
