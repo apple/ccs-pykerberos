@@ -23,7 +23,7 @@
 
 // base64 tables
 static char basis_64[] =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 static signed char index_64[128] =
 {
     -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1,
@@ -44,25 +44,25 @@ static signed char index_64[128] =
 // (result)			:	new char[] - c-str of result
 char *base64_encode(const unsigned char *value, int vlen)
 {
-    char *result = (char *)malloc((vlen * 4) / 3 + 5);
-    char *out = result;
+	char *result = (char *)malloc((vlen * 4) / 3 + 5);
+	char *out = result;
     while (vlen >= 3)
     {
-        *out++ = basis_64[value[0] >> 2];
-        *out++ = basis_64[((value[0] << 4) & 0x30) | (value[1] >> 4)];
-        *out++ = basis_64[((value[1] << 2) & 0x3C) | (value[2] >> 6)];
-        *out++ = basis_64[value[2] & 0x3F];
-        value += 3;
-        vlen -= 3;
+		*out++ = basis_64[value[0] >> 2];
+		*out++ = basis_64[((value[0] << 4) & 0x30) | (value[1] >> 4)];
+		*out++ = basis_64[((value[1] << 2) & 0x3C) | (value[2] >> 6)];
+		*out++ = basis_64[value[2] & 0x3F];
+		value += 3;
+		vlen -= 3;
     }
     if (vlen > 0)
     {
-        *out++ = basis_64[value[0] >> 2];
-        unsigned char oval = (value[0] << 4) & 0x30;
-        if (vlen > 1) oval |= value[1] >> 4;
-        *out++ = basis_64[oval];
-        *out++ = (vlen < 2) ? '=' : basis_64[(value[1] << 2) & 0x3C];
-        *out++ = '=';
+		*out++ = basis_64[value[0] >> 2];
+		unsigned char oval = (value[0] << 4) & 0x30;
+		if (vlen > 1) oval |= value[1] >> 4;
+		*out++ = basis_64[oval];
+		*out++ = (vlen < 2) ? '=' : basis_64[(value[1] << 2) & 0x3C];
+		*out++ = '=';
     }
     *out = '\0';
 	
@@ -79,44 +79,44 @@ unsigned char *base64_decode(const char *value, int *rlen)
     *rlen = 0;
     int c1, c2, c3, c4;
 	
-    int vlen = strlen(value);
-    unsigned char *result =(unsigned char *)malloc((vlen * 3) / 4 + 1);
-    unsigned char *out = result;
+	int vlen = strlen(value);
+	unsigned char *result =(unsigned char *)malloc((vlen * 3) / 4 + 1);
+	unsigned char *out = result;
 	
-    while (1)
+	while (1)
     {
     	if (value[0]==0)
-            return result;
-        c1 = value[0];
-        if (CHAR64(c1) == -1)
-            goto base64_decode_error;;
-        c2 = value[1];
-        if (CHAR64(c2) == -1)
-            goto base64_decode_error;;
-        c3 = value[2];
-        if ((c3 != '=') && (CHAR64(c3) == -1))
-            goto base64_decode_error;;
-        c4 = value[3];
-        if ((c4 != '=') && (CHAR64(c4) == -1))
-            goto base64_decode_error;;
+    		return result;
+		c1 = value[0];
+		if (CHAR64(c1) == -1)
+			goto base64_decode_error;;
+			c2 = value[1];
+			if (CHAR64(c2) == -1)
+				goto base64_decode_error;;
+				c3 = value[2];
+				if ((c3 != '=') && (CHAR64(c3) == -1))
+					goto base64_decode_error;;
+					c4 = value[3];
+					if ((c4 != '=') && (CHAR64(c4) == -1))
+						goto base64_decode_error;;
 						
-        value += 4;
-        *out++ = (CHAR64(c1) << 2) | (CHAR64(c2) >> 4);
-        *rlen += 1;
-        if (c3 != '=')
-        {
-            *out++ = ((CHAR64(c2) << 4) & 0xf0) | (CHAR64(c3) >> 2);
-            *rlen += 1;
-            if (c4 != '=')
-            {
-                *out++ = ((CHAR64(c3) << 6) & 0xc0) | CHAR64(c4);
-                *rlen += 1;
-            }
-        }
+						value += 4;
+						*out++ = (CHAR64(c1) << 2) | (CHAR64(c2) >> 4);
+						*rlen += 1;
+						if (c3 != '=')
+						{
+							*out++ = ((CHAR64(c2) << 4) & 0xf0) | (CHAR64(c3) >> 2);
+							*rlen += 1;
+							if (c4 != '=')
+							{
+								*out++ = ((CHAR64(c3) << 6) & 0xc0) | CHAR64(c4);
+								*rlen += 1;
+							}
+						}
     }
 	
 base64_decode_error:
-    *result = 0;
-    *rlen = 0;
-    return result;
+	*result = 0;
+	*rlen = 0;
+	return result;
 }
