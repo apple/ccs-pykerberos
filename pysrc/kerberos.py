@@ -87,6 +87,10 @@ GSSAPI Function Result Codes:
 
 """
 
+# Some useful result codes
+AUTH_GSS_CONTINUE=0 
+AUTH_GSS_COMPLETE=1 
+     
 def authGSSClientInit(service):
     """
     Initializes a context for GSSAPI client-side authentication with the given service principal.

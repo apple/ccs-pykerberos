@@ -328,6 +328,9 @@ PyMODINIT_FUNC initkerberos(void)
     Py_INCREF(GssException_class);
     PyDict_SetItemString(d, "GSSError", GssException_class);
 
+    PyDict_SetItemString(d, "AUTH_GSS_COMPLETE", PyInt_FromLong(AUTH_GSS_COMPLETE)); 
+ 	PyDict_SetItemString(d, "AUTH_GSS_CONTINUE", PyInt_FromLong(AUTH_GSS_CONTINUE)); 
+
 error:
     if (PyErr_Occurred())
         PyErr_SetString(PyExc_ImportError, "kerberos: init failed");
