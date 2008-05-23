@@ -44,7 +44,7 @@ int authenticate_user_krb5pwd(const char *user, const char *pswd, const char *se
     if (code)
     {
         PyErr_SetObject(BasicAuthException_class, Py_BuildValue("((s:i))",
-                        "Cannot initialize Kerberos5 context", code));
+                                                                "Cannot initialize Kerberos5 context", code));
         return 0;
     }
     

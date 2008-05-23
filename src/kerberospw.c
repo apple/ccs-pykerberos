@@ -28,15 +28,15 @@ extern PyObject *PwdChangeException_class;
 static void set_pwchange_error(krb5_context context, krb5_error_code code)
 {
     PyErr_SetObject(PwdChangeException_class, Py_BuildValue("(s:i)",
-                    krb5_get_err_text(context, code), code));
+                                                            krb5_get_err_text(context, code), code));
 }
 
 /* Inspired by krb5_verify_user from Heimdal */
 static krb5_error_code verify_krb5_user(krb5_context context,
                                         krb5_principal principal,
                                         const char *password,
-                    const char *service,
-                    krb5_creds* creds)
+                                        const char *service,
+                                        krb5_creds* creds)
 {
     krb5_get_init_creds_opt gic_options;
     krb5_error_code code;
@@ -104,7 +104,7 @@ int change_user_krb5pwd(const char *user, const char* oldpswd, const char *newps
         goto end;
 
     code = krb5_change_password(kcontext, &creds, (char*)newpswd,
-                    &result_code, &result_code_string, &result_string);
+                                &result_code, &result_code_string, &result_string);
     if (code) {
         set_pwchange_error(kcontext, code);
         goto end;
