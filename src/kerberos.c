@@ -201,10 +201,10 @@ static PyObject *authGSSClientWrap(PyObject *self, PyObject *args)
 {
 	gss_client_state *state;
 	PyObject *pystate;
-	char *challenge, *user;
+	char *challenge, *user = NULL;
 	int result = 0;
 
-	if (!PyArg_ParseTuple(args, "Oss", &pystate, &challenge, &user) || !PyCObject_Check(pystate))
+	if (!PyArg_ParseTuple(args, "Os|z", &pystate, &challenge, &user) || !PyCObject_Check(pystate))
 		return NULL;
 
 	state = (gss_client_state *)PyCObject_AsVoidPtr(pystate);

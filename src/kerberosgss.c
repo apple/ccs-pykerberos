@@ -333,27 +333,29 @@ int authenticate_gss_client_wrap(gss_client_state* state, const char* challenge,
 		input_token.length = len;
 	}
 
-	// get bufsize
-	server_conf_flags = ((char*) input_token.value)[0];
-	((char*) input_token.value)[0] = 0;
-	buf_size = ntohl(*((long *) input_token.value));
-	free(input_token.value);
+	if (user) {
+		// get bufsize
+		server_conf_flags = ((char*) input_token.value)[0];
+		((char*) input_token.value)[0] = 0;
+		buf_size = ntohl(*((long *) input_token.value));
+		free(input_token.value);
 #ifdef PRINTFS
-	printf("User: %s, %c%c%c\n", user,
-		server_conf_flags & GSS_AUTH_P_NONE      ? 'N' : '-',
-		server_conf_flags & GSS_AUTH_P_INTEGRITY ? 'I' : '-',
-		server_conf_flags & GSS_AUTH_P_PRIVACY   ? 'P' : '-');
-	printf("Maximum GSS token size is %ld\n", buf_size);
+		printf("User: %s, %c%c%c\n", user,
+			server_conf_flags & GSS_AUTH_P_NONE      ? 'N' : '-',
+			server_conf_flags & GSS_AUTH_P_INTEGRITY ? 'I' : '-',
+			server_conf_flags & GSS_AUTH_P_PRIVACY   ? 'P' : '-');
+		printf("Maximum GSS token size is %ld\n", buf_size);
 #endif
 
-	// agree to terms (hack!)
-	buf_size = htonl(buf_size); // not relevant without integrity/privacy
-	memcpy(buf, &buf_size, 4);
-	buf[0] = GSS_AUTH_P_NONE;
-	// server decides if principal can log in as user
-	strncpy(buf + 4, user, sizeof(buf) - 4);
-	input_token.value = buf;
-	input_token.length = 4 + strlen(user) + 1;
+		// agree to terms (hack!)
+		buf_size = htonl(buf_size); // not relevant without integrity/privacy
+		memcpy(buf, &buf_size, 4);
+		buf[0] = GSS_AUTH_P_NONE;
+		// server decides if principal can log in as user
+		strncpy(buf + 4, user, sizeof(buf) - 4);
+		input_token.value = buf;
+		input_token.length = 4 + strlen(user) + 1;
+	}
 
 	// Do GSSAPI wrap
 	maj_stat = gss_wrap(&min_stat,
