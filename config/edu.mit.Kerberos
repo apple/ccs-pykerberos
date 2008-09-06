@@ -5,7 +5,7 @@
     default_tgs_enctypes = des-cbc-crc
 
 [realms]
-	APPLECONNECT.APPLE.COM = {
+	EXAMPLE.COM = {
 		kdc = kdc.example.com
 	}
 
