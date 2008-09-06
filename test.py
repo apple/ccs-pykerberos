@@ -1,5 +1,5 @@
 ##
-# Copyright (c) 2006-2007 Apple Inc. All rights reserved.
+# Copyright (c) 2006-2008 Apple Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# DRI: Cyrus Daboo, cdaboo@apple.com
 ##
 
 import kerberos
@@ -156,14 +155,16 @@ def testHTTP(host, port, ssl, service):
     hdrs = response.msg.getheaders("www-authenticate")
     if (hdrs is None) or (len(hdrs) == 0):
         print "No www-authenticate header in initial HTTP response."
-    if len(hdrs) != 1:
-        print "Too many www-authenticate headers in initial HTTP response."
-        return
-    hdr = hdrs[0].strip()
-    splits = hdr.split(' ', 1)
-    if (len(splits) != 1) or (splits[0].lower() != "negotiate"):
-        print "Incorrect www-authenticate header in initial HTTP response: %s" % hdr        
-        return
+    for hdr in hdrs:
+        hdr = hdr.strip()
+        splits = hdr.split(' ', 1)
+        if (len(splits) != 1) or (splits[0].lower() != "negotiate"):
+            continue
+        else:
+            break
+    else:
+        print "No www-authenticate header with negotiate in initial HTTP response."
+        return        
 
     try:
         rc, vc = kerberos.authGSSClientInit(service);
@@ -195,15 +196,17 @@ def testHTTP(host, port, ssl, service):
     if (hdrs is None) or (len(hdrs) == 0):
         print "No www-authenticate header in second HTTP response."
         return
-    if len(hdrs) != 1:
-        print "Too many www-authenticate headers in second HTTP response: %d." % (len(hdrs),)
-        return
-    hdr = hdrs[0].strip()
-    splits = hdr.split(' ', 1)
-    if (len(splits) != 2) or (splits[0].lower() != "negotiate"):
-        print "Incorrect www-authenticate header in second HTTP response: %s" % hdr
-        return
-    
+    for hdr in hdrs:
+        hdr = hdr.strip()
+        splits = hdr.split(' ', 1)
+        if (len(splits) != 1) or (splits[0].lower() != "negotiate"):
+            continue
+        else:
+            break
+    else:
+        print "No www-authenticate header with negotiate in second HTTP response."
+        return        
+
     try:
         kerberos.authGSSClientStep(vc, splits[1])
     except kerberos.GSSError, e:
