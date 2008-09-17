@@ -146,7 +146,7 @@ def authGSSClientUnwrap(context, challenge):
     @return: a result code (see above) 
     """ 
 
-def authGSSClientWrap(context, data, user): 
+def authGSSClientWrap(context, data, user=None): 
     """ 
     Perform the client side GSSAPI wrap step.  
     
