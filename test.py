@@ -49,7 +49,8 @@ def main():
     
     # Get service principal
     print "\n*** Running Service Principal test"
-    testServicePrincipal("http", "caldav.corp.apple.com");
+    s, h = service.split("@")
+    testServicePrincipal(s, h);
 
     # Run tests
     if (len(user) != 0) and (len(pswd) != 0):
