@@ -84,6 +84,7 @@ char* server_principal_details(const char* service, const char* hostname)
 	    result = malloc(strlen(pname) + 1);
 	    strcpy(result, pname);
 	    krb5_free_unparsed_name(kcontext, pname);
+	    krb5_free_keytab_entry_contents(kcontext, &entry);
 	    break;
 	}
 
