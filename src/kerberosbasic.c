@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2006-2007 Apple Inc. All rights reserved.
+ * Copyright (c) 2006-2008 Apple Inc. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,8 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- * DRI: Cyrus Daboo, cdaboo@apple.com
  **/
 
 #include <Python.h>
@@ -39,7 +37,7 @@ int authenticate_user_krb5pwd(const char *user, const char *pswd, const char *se
     int             ret = 0;
     char            *name = NULL;
     char            *p = NULL;
-    
+
     code = krb5_init_context(&kcontext);
     if (code)
     {
@@ -47,16 +45,16 @@ int authenticate_user_krb5pwd(const char *user, const char *pswd, const char *se
                                                                 "Cannot initialize Kerberos5 context", code));
         return 0;
     }
-    
+
     ret = krb5_parse_name (kcontext, service, &server);
-    
+
     if (ret)
     {
         set_basicauth_error(kcontext, ret);
         ret = 0;
         goto end;
     }
-    
+
     code = krb5_unparse_name(kcontext, server, &name);
     if (code)
     {
@@ -69,7 +67,7 @@ int authenticate_user_krb5pwd(const char *user, const char *pswd, const char *se
 #endif
     free(name);
     name = NULL;
-    
+
     name = (char *)malloc(256);
     p = strchr(user, '@');
     if (p == NULL)
@@ -80,7 +78,7 @@ int authenticate_user_krb5pwd(const char *user, const char *pswd, const char *se
     {
         snprintf(name, 256, "%s", user);
     }
-        
+
     code = krb5_parse_name(kcontext, name, &client);
     if (code)
     {
@@ -88,9 +86,9 @@ int authenticate_user_krb5pwd(const char *user, const char *pswd, const char *se
         ret = 0;
         goto end;
     }
-        
+
     code = verify_krb5_user(kcontext, client, pswd, server);
-    
+
     if (code)
     {
         ret = 0;
@@ -98,7 +96,7 @@ int authenticate_user_krb5pwd(const char *user, const char *pswd, const char *se
     }
 
     ret = 1;
-    
+
 end:
 #ifdef PRINTFS
     printf("kerb_authenticate_user_krb5pwd ret=%d user=%s authtype=%s\n", ret, user, "Basic");
@@ -110,7 +108,7 @@ end:
     if (server)
         krb5_free_principal(kcontext, server);
     krb5_free_context(kcontext);
-    
+
     return ret;
 }
 
@@ -121,9 +119,9 @@ static krb5_error_code verify_krb5_user(krb5_context context, krb5_principal pri
     krb5_get_init_creds_opt gic_options;
     krb5_error_code ret;
     char *name = NULL;
-    
+
     memset(&creds, 0, sizeof(creds));
-    
+
     ret = krb5_unparse_name(context, principal, &name);
     if (ret == 0)
     {
@@ -132,7 +130,7 @@ static krb5_error_code verify_krb5_user(krb5_context context, krb5_principal pri
 #endif
         free(name);
     }
-    
+
     krb5_get_init_creds_opt_init(&gic_options);
     ret = krb5_get_init_creds_password(context, &creds, principal, (char *)password, NULL, NULL, 0, NULL, &gic_options);
     if (ret)
@@ -140,10 +138,10 @@ static krb5_error_code verify_krb5_user(krb5_context context, krb5_principal pri
         set_basicauth_error(context, ret);
         goto end;
     }
-    
+
 end:
     krb5_free_cred_contents(context, &creds);
-    
+
     return ret;
 }
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2006-2007 Apple Inc. All rights reserved.
+ * Copyright (c) 2006-2008 Apple Inc. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,8 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- * DRI: Cyrus Daboo, cdaboo@apple.com
  **/
 
 #include "base64.h"
@@ -65,7 +63,7 @@ char *base64_encode(const unsigned char *value, int vlen)
         *out++ = '=';
     }
     *out = '\0';
-    
+
     return result;
 }
 
@@ -78,11 +76,11 @@ unsigned char *base64_decode(const char *value, int *rlen)
 {
     *rlen = 0;
     int c1, c2, c3, c4;
-    
+
     int vlen = strlen(value);
     unsigned char *result =(unsigned char *)malloc((vlen * 3) / 4 + 1);
     unsigned char *out = result;
-    
+
     while (1)
     {
         if (value[0]==0)
@@ -99,7 +97,7 @@ unsigned char *base64_decode(const char *value, int *rlen)
         c4 = value[3];
         if ((c4 != '=') && (CHAR64(c4) == -1))
             goto base64_decode_error;;
-                        
+
         value += 4;
         *out++ = (CHAR64(c1) << 2) | (CHAR64(c2) >> 4);
         *rlen += 1;
@@ -114,7 +112,7 @@ unsigned char *base64_decode(const char *value, int *rlen)
             }
         }
     }
-    
+
 base64_decode_error:
     *result = 0;
     *rlen = 0;

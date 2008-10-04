@@ -1,7 +1,7 @@
 =========================================================
 PyKerberos Package
 
-Copyright (c) 2006-2007 Apple Inc. All rights reserved.
+Copyright (c) 2006-2008 Apple Inc. All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ Then run test.py with suitable command line arguments:
     
     -u : user id for basic authenticate
     -p : password for basic authenticate
-    -s : service principal for GSSAPI authentication (defaults to 'caldav@caldav.apple.com')
+    -s : service principal for GSSAPI authentication (defaults to 'http@host.example.com')
 
 ===========
 Python APIs

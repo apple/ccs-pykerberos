@@ -25,9 +25,9 @@ def main():
     # Extract arguments
     user = ""
     pswd = ""
-    service = "http@CALDAV.CORP.APPLE.COM"
-    host = "caldav.corp.apple.com"
-    realm ="CALDAV.CORP.APPLE.COM"
+    service = "http@EXAMPLE.COM"
+    host = "host.example.com"
+    realm ="HOST.EXAMPLE.COM"
     port = 8008
     ssl = False
     
