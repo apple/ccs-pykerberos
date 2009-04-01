@@ -106,7 +106,7 @@ end:
     return result;
 }
 
-int authenticate_gss_client_init(const char* service, gss_client_state* state)
+int authenticate_gss_client_init(const char* service, long int gss_flags, gss_client_state* state)
 {
     OM_uint32 maj_stat;
     OM_uint32 min_stat;
@@ -115,6 +115,7 @@ int authenticate_gss_client_init(const char* service, gss_client_state* state)
 
     state->server_name = GSS_C_NO_NAME;
     state->context = GSS_C_NO_CONTEXT;
+    state->gss_flags = gss_flags;
     state->username = NULL;
     state->response = NULL;
 
@@ -188,7 +189,7 @@ int authenticate_gss_client_step(gss_client_state* state, const char* challenge)
 				    &state->context,
 				    state->server_name,
 				    GSS_C_NO_OID,
-				    GSS_C_MUTUAL_FLAG | GSS_C_SEQUENCE_FLAG,
+				    (OM_uint32)state->gss_flags,
 				    0,
 				    GSS_C_NO_CHANNEL_BINDINGS,
 				    &input_token,

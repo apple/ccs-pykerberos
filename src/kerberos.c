@@ -82,20 +82,22 @@ static PyObject *getServerPrincipalDetails(PyObject *self, PyObject *args)
         return NULL;
 }
 
-static PyObject* authGSSClientInit(PyObject* self, PyObject* args)
+static PyObject* authGSSClientInit(PyObject* self, PyObject* args, PyObject* keywds)
 {
     const char *service;
     gss_client_state *state;
     PyObject *pystate;
+    static char *kwlist[] = {"service", "gssflags", NULL};
+    long int gss_flags = GSS_C_MUTUAL_FLAG | GSS_C_SEQUENCE_FLAG;
     int result = 0;
 
-    if (!PyArg_ParseTuple(args, "s", &service))
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|l", kwlist, &service, &gss_flags))
         return NULL;
 
     state = (gss_client_state *) malloc(sizeof(gss_client_state));
     pystate = PyCObject_FromVoidPtr(state, NULL);
 
-    result = authenticate_gss_client_init(service, state);
+    result = authenticate_gss_client_init(service, gss_flags, state);
     if (result == AUTH_GSS_ERROR)
         return NULL;
 
@@ -365,7 +367,7 @@ static PyMethodDef KerberosMethods[] = {
      "Change the user password."},
     {"getServerPrincipalDetails",  getServerPrincipalDetails, METH_VARARGS,
      "Return the service principal for a given service and hostname."},
-    {"authGSSClientInit",  authGSSClientInit, METH_VARARGS,
+    {"authGSSClientInit",  (PyCFunction)authGSSClientInit, METH_VARARGS | METH_KEYWORDS,
      "Initialize client-side GSSAPI operations."},
     {"authGSSClientClean",  authGSSClientClean, METH_VARARGS,
      "Terminate client-side GSSAPI operations."},
@@ -424,6 +426,16 @@ PyMODINIT_FUNC initkerberos(void)
 
     PyDict_SetItemString(d, "AUTH_GSS_COMPLETE", PyInt_FromLong(AUTH_GSS_COMPLETE));
     PyDict_SetItemString(d, "AUTH_GSS_CONTINUE", PyInt_FromLong(AUTH_GSS_CONTINUE));
+
+    PyDict_SetItemString(d, "GSS_C_DELEG_FLAG", PyInt_FromLong(GSS_C_DELEG_FLAG));
+    PyDict_SetItemString(d, "GSS_C_MUTUAL_FLAG", PyInt_FromLong(GSS_C_MUTUAL_FLAG));
+    PyDict_SetItemString(d, "GSS_C_REPLAY_FLAG", PyInt_FromLong(GSS_C_REPLAY_FLAG));
+    PyDict_SetItemString(d, "GSS_C_SEQUENCE_FLAG", PyInt_FromLong(GSS_C_SEQUENCE_FLAG));
+    PyDict_SetItemString(d, "GSS_C_CONF_FLAG", PyInt_FromLong(GSS_C_CONF_FLAG));
+    PyDict_SetItemString(d, "GSS_C_INTEG_FLAG", PyInt_FromLong(GSS_C_INTEG_FLAG));
+    PyDict_SetItemString(d, "GSS_C_ANON_FLAG", PyInt_FromLong(GSS_C_ANON_FLAG));
+    PyDict_SetItemString(d, "GSS_C_PROT_READY_FLAG", PyInt_FromLong(GSS_C_PROT_READY_FLAG));
+    PyDict_SetItemString(d, "GSS_C_TRANS_FLAG", PyInt_FromLong(GSS_C_TRANS_FLAG));
 
 error:
     if (PyErr_Occurred())
