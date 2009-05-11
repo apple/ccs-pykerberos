@@ -19,6 +19,8 @@ import kerberos
 import getopt
 import sys
 import httplib
+import socket
+import ssl
 
 def main():
     
@@ -29,9 +31,10 @@ def main():
     host = "host.example.com"
     realm ="HOST.EXAMPLE.COM"
     port = 8008
-    ssl = False
+    use_ssl = False
+    allowedActions = ("service", "basic", "gssapi", "server",)
     
-    options, args = getopt.getopt(sys.argv[1:], "u:p:s:h:i:r:")
+    options, args = getopt.getopt(sys.argv[1:], "u:p:s:h:i:r:x")
 
     for option, value in options:
         if option == "-u":
@@ -46,24 +49,39 @@ def main():
             port = value
         elif option == "-r":
             realm = value
+        elif option == "-x":
+            use_ssl = True
+    
+    actions = set()
+    for arg in args:
+        if arg in allowedActions:
+            actions.add(arg)
+        else:
+            print "Action not allowed: %s" % (arg,)
+            sys.exit(1)
     
     # Get service principal
-    print "\n*** Running Service Principal test"
-    s, h = service.split("@")
-    testServicePrincipal(s, h);
+    if "service" in actions:
+        print "\n*** Running Service Principal test"
+        s, h = service.split("@")
+        testServicePrincipal(s, h);
 
-    # Run tests
-    if (len(user) != 0) and (len(pswd) != 0):
-        print "\n*** Running basic test"
-        testCheckpassword(user, pswd, service, realm)
-    else:
-        print "\n*** Skipping basic test: no user or password specified"
+    # GSS Basic test
+    if "basic" in actions:
+        if (len(user) != 0) and (len(pswd) != 0):
+            print "\n*** Running basic test"
+            testCheckpassword(user, pswd, service, realm)
+        else:
+            print "\n*** Skipping basic test: no user or password specified"
 
-    print "\n*** Running GSSAPI test"
-    testGSSAPI(service)
+    # Full GSSAPI test
+    if "gssapi" in actions:
+        print "\n*** Running GSSAPI test"
+        testGSSAPI(service)
 
-    print "\n*** Running HTTP test"
-    testHTTP(host, port, ssl, service)
+    if "server" in actions:
+        print "\n*** Running HTTP test"
+        testHTTP(host, port, use_ssl, service)
 
     print "\n*** Done\n"
 
@@ -126,11 +144,21 @@ def testGSSAPI(service):
     rs = kerberos.authGSSServerClean(vs);
     print "Status for authGSSServerClean = %s" % statusText(rs);
 
-def testHTTP(host, port, ssl, service):
+def testHTTP(host, port, use_ssl, service):
+
+    class HTTPSConnection_SSLv3(httplib.HTTPSConnection):
+        "This class allows communication via SSL."
+
+        def connect(self):
+            "Connect to a host on a given (SSL) port."
+
+            sock = socket.create_connection((self.host, self.port), self.timeout)
+            self.sock = ssl.wrap_socket(sock, self.key_file, self.cert_file, ssl_version=ssl.PROTOCOL_SSLv3)
+
     def sendRequest(host, port, ssl, method, uri, headers):
         response = None
-        if ssl:
-            http = httplib.HTTPSConnection(host, port)
+        if use_ssl:
+            http = HTTPSConnection_SSLv3(host, port)
         else:
             http = httplib.HTTPConnection(host, port)
         try:
@@ -143,14 +171,14 @@ def testHTTP(host, port, ssl, service):
 
     # Initial request without auth header
     uri = "/principals/"
-    response = sendRequest(host, port, ssl, "OPTIONS", uri, {})
+    response = sendRequest(host, port, use_ssl, "OPTIONS", uri, {})
     
     if response is None:
         print "Initial HTTP request to server failed"
         return
     
     if response.status != 401:
-        print "Initial HTTP request did not result in a 404 response"
+        print "Initial HTTP request did not result in a 401 response"
         return
     
     hdrs = response.msg.getheaders("www-authenticate")
@@ -183,7 +211,7 @@ def testHTTP(host, port, ssl, service):
     hdrs["Authorization"] = "negotiate %s" % kerberos.authGSSClientResponse(vc)    
 
     # Second request with auth header
-    response = sendRequest(host, port, ssl, "OPTIONS", uri, hdrs)
+    response = sendRequest(host, port, use_ssl, "OPTIONS", uri, hdrs)
     
     if response is None:
         print "Second HTTP request to server failed"
@@ -200,7 +228,7 @@ def testHTTP(host, port, ssl, service):
     for hdr in hdrs:
         hdr = hdr.strip()
         splits = hdr.split(' ', 1)
-        if (len(splits) != 1) or (splits[0].lower() != "negotiate"):
+        if (len(splits) != 2) or (splits[0].lower() != "negotiate"):
             continue
         else:
             break
