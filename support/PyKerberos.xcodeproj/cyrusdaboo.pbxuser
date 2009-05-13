@@ -1,9 +1,9 @@
 // !$*UTF8*$!
 {
 	08FB7793FE84155DC02AAC07 /* Project object */ = {
-		activeArchitecture = i386;
 		activeBuildConfigurationName = Debug;
 		activeExecutable = AFDE37EE0BB41DF9008C037E /* PyKerberos */;
+		activeSDKPreference = macosx10.6;
 		activeTarget = 8DD76F620486A84900D96B5E /* PyKerberos */;
 		addToTargets = (
 			8DD76F620486A84900D96B5E /* PyKerberos */,
@@ -11,7 +11,7 @@
 		breakpoints = (
 			AF4480A50BB4292300408822 /* kerberosbasic.c:35 */,
 			AF4480C10BB42C1E00408822 /* kerberosbasic.c:92 */,
-			AF4480CD0BB42CFF00408822 /* main.c:18 */,
+			AF4480CD0BB42CFF00408822 /* main.c:23 */,
 			AF4480D80BB42D6100408822 /* kerberosgss.c:253 */,
 		);
 		codeSenseManager = AFDE37F60BB41E00008C037E /* Code sense */;
@@ -24,7 +24,7 @@
 				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
 				PBXFileTableDataSourceColumnWidthsKey = (
 					20,
-					813,
+					1384,
 					20,
 					48,
 					43,
@@ -41,8 +41,8 @@
 					PBXFileDataSource_Target_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 196357790;
-			PBXWorkspaceStateSaveDate = 196357790;
+			PBXPerProjectTemplateStateSaveDate = 263863739;
+			PBXWorkspaceStateSaveDate = 263863739;
 		};
 		perUserProjectItems = {
 			AF4480AD0BB42BFD00408822 = AF4480AD0BB42BFD00408822 /* PBXTextBookmark */;
@@ -50,6 +50,37 @@
 			AF4480B00BB42BFD00408822 = AF4480B00BB42BFD00408822 /* PBXTextBookmark */;
 			AF4480CF0BB42D1700408822 = AF4480CF0BB42D1700408822 /* PBXTextBookmark */;
 			AF4480DF0BB42E3C00408822 = AF4480DF0BB42E3C00408822 /* PBXTextBookmark */;
+			AF88E92D0FBA3EB400C5AA9C /* PBXTextBookmark */ = AF88E92D0FBA3EB400C5AA9C /* PBXTextBookmark */;
+			AF88E92E0FBA3EB400C5AA9C /* PBXTextBookmark */ = AF88E92E0FBA3EB400C5AA9C /* PBXTextBookmark */;
+			AF88E9300FBA3EB400C5AA9C /* PBXTextBookmark */ = AF88E9300FBA3EB400C5AA9C /* PBXTextBookmark */;
+			AF88E9400FBA3FD300C5AA9C /* XCBuildMessageTextBookmark */ = AF88E9400FBA3FD300C5AA9C /* XCBuildMessageTextBookmark */;
+			AF88E9410FBA3FD300C5AA9C /* PBXTextBookmark */ = AF88E9410FBA3FD300C5AA9C /* PBXTextBookmark */;
+			AF88E94C0FBA407500C5AA9C /* PBXTextBookmark */ = AF88E94C0FBA407500C5AA9C /* PBXTextBookmark */;
+			AF88E9560FBA419E00C5AA9C /* PBXTextBookmark */ = AF88E9560FBA419E00C5AA9C /* PBXTextBookmark */;
+			AF88E95C0FBA41D300C5AA9C /* PBXTextBookmark */ = AF88E95C0FBA41D300C5AA9C /* PBXTextBookmark */;
+			AF88E95D0FBA41D300C5AA9C /* PBXTextBookmark */ = AF88E95D0FBA41D300C5AA9C /* PBXTextBookmark */;
+			AF88E95E0FBA41D300C5AA9C /* PBXTextBookmark */ = AF88E95E0FBA41D300C5AA9C /* PBXTextBookmark */;
+			AF88E95F0FBA41D300C5AA9C /* PBXTextBookmark */ = AF88E95F0FBA41D300C5AA9C /* PBXTextBookmark */;
+			AF88E9600FBA41D300C5AA9C /* PBXTextBookmark */ = AF88E9600FBA41D300C5AA9C /* PBXTextBookmark */;
+			AF88E9610FBA41D300C5AA9C /* PBXTextBookmark */ = AF88E9610FBA41D300C5AA9C /* PBXTextBookmark */;
+			AF88E9620FBA41D300C5AA9C /* PBXTextBookmark */ = AF88E9620FBA41D300C5AA9C /* PBXTextBookmark */;
+			AF88E9630FBA41D300C5AA9C /* PBXTextBookmark */ = AF88E9630FBA41D300C5AA9C /* PBXTextBookmark */;
+			AF88E9660FBA435000C5AA9C /* PBXTextBookmark */ = AF88E9660FBA435000C5AA9C /* PBXTextBookmark */;
+			AF88E9670FBA435000C5AA9C /* PBXTextBookmark */ = AF88E9670FBA435000C5AA9C /* PBXTextBookmark */;
+			AF88E9680FBA435000C5AA9C /* PBXTextBookmark */ = AF88E9680FBA435000C5AA9C /* PBXTextBookmark */;
+			AF88E9690FBA435000C5AA9C /* PBXTextBookmark */ = AF88E9690FBA435000C5AA9C /* PBXTextBookmark */;
+			AF88E96A0FBA435000C5AA9C /* PBXTextBookmark */ = AF88E96A0FBA435000C5AA9C /* PBXTextBookmark */;
+			AF88E96B0FBA435000C5AA9C /* PBXTextBookmark */ = AF88E96B0FBA435000C5AA9C /* PBXTextBookmark */;
+			AF88E96C0FBA438E00C5AA9C /* PBXTextBookmark */ = AF88E96C0FBA438E00C5AA9C /* PBXTextBookmark */;
+			AF88E96D0FBA43A100C5AA9C /* PBXTextBookmark */ = AF88E96D0FBA43A100C5AA9C /* PBXTextBookmark */;
+			AF88E96E0FBA43B300C5AA9C /* PBXTextBookmark */ = AF88E96E0FBA43B300C5AA9C /* PBXTextBookmark */;
+			AF88E96F0FBA43D100C5AA9C /* PBXTextBookmark */ = AF88E96F0FBA43D100C5AA9C /* PBXTextBookmark */;
+			AF88E9700FBA441100C5AA9C /* PBXTextBookmark */ = AF88E9700FBA441100C5AA9C /* PBXTextBookmark */;
+			AF88E9710FBA441B00C5AA9C /* PBXTextBookmark */ = AF88E9710FBA441B00C5AA9C /* PBXTextBookmark */;
+			AF88E9720FBA442300C5AA9C /* PBXTextBookmark */ = AF88E9720FBA442300C5AA9C /* PBXTextBookmark */;
+			AF88E9730FBA443200C5AA9C /* PBXTextBookmark */ = AF88E9730FBA443200C5AA9C /* PBXTextBookmark */;
+			AF88E97A0FBA449500C5AA9C /* PBXTextBookmark */ = AF88E97A0FBA449500C5AA9C /* PBXTextBookmark */;
+			AF88E97B0FBA449500C5AA9C /* PBXTextBookmark */ = AF88E97B0FBA449500C5AA9C /* PBXTextBookmark */;
 			AFDE38700BB420B1008C037E = AFDE38700BB420B1008C037E /* PBXTextBookmark */;
 			AFDE38870BB42287008C037E = AFDE38870BB42287008C037E /* PBXTextBookmark */;
 			AFDE388A0BB42287008C037E = AFDE388A0BB42287008C037E /* PBXTextBookmark */;
@@ -61,8 +92,9 @@
 	};
 	08FB7796FE84155DC02AAC07 /* main.c */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {984, 322}}";
-			sepNavSelRange = "{420, 0}";
+			sepNavIntBoundsRect = "{{0, 0}, {1562, 616}}";
+			sepNavSelRange = "{1055, 0}";
+			sepNavVisRange = "{0, 1131}";
 			sepNavVisRect = "{{0, 0}, {984, 308}}";
 			sepNavWindowFrame = "{{485, -20}, {1395, 1160}}";
 		};
@@ -86,8 +118,9 @@
 		hitCount = 0;
 		ignoreCount = 0;
 		lineNumber = 35;
-		location = kerberosbasic.ob;
-		modificationTime = 196358061.544823;
+		location = PyKerberos;
+		modificationTime = 263864776.548559;
+		originalNumberOfMultipleMatches = 1;
 		state = 1;
 	};
 	AF4480AD0BB42BFD00408822 /* PBXTextBookmark */ = {
@@ -95,7 +128,7 @@
 		fRef = AFDE37FC0BB41E1D008C037E /* kerberosgss.c */;
 		name = "kerberosgss.c: 47";
 		rLen = 0;
-		rLoc = 1285;
+		rLoc = 1293;
 		rType = 0;
 		vrLen = 930;
 		vrLoc = 867;
@@ -115,7 +148,7 @@
 		fRef = AFDE37FC0BB41E1D008C037E /* kerberosgss.c */;
 		name = "kerberosgss.c: 47";
 		rLen = 0;
-		rLoc = 1285;
+		rLoc = 1293;
 		rType = 0;
 		vrLen = 930;
 		vrLoc = 867;
@@ -133,11 +166,12 @@
 		hitCount = 0;
 		ignoreCount = 0;
 		lineNumber = 92;
-		location = kerberosbasic.ob;
-		modificationTime = 196358061.544839;
+		location = PyKerberos;
+		modificationTime = 263864776.583793;
+		originalNumberOfMultipleMatches = 1;
 		state = 1;
 	};
-	AF4480CD0BB42CFF00408822 /* main.c:18 */ = {
+	AF4480CD0BB42CFF00408822 /* main.c:23 */ = {
 		isa = PBXFileBreakpoint;
 		actions = (
 		);
@@ -146,12 +180,13 @@
 		countType = 0;
 		delayBeforeContinue = 0;
 		fileReference = 08FB7796FE84155DC02AAC07 /* main.c */;
-		functionName = "main (int argc, char * const argv[])";
+		functionName = "main()";
 		hitCount = 1;
 		ignoreCount = 0;
-		lineNumber = 18;
-		location = main.ob;
-		modificationTime = 196358037.390216;
+		lineNumber = 23;
+		location = PyKerberos;
+		modificationTime = 263864776.766891;
+		originalNumberOfMultipleMatches = 1;
 		state = 1;
 	};
 	AF4480CF0BB42D1700408822 /* PBXTextBookmark */ = {
@@ -175,8 +210,9 @@
 		hitCount = 0;
 		ignoreCount = 0;
 		lineNumber = 253;
-		location = kerberosgss.ob;
-		modificationTime = 196358037.343018;
+		location = PyKerberos;
+		modificationTime = 263864776.633991;
+		originalNumberOfMultipleMatches = 1;
 		state = 1;
 	};
 	AF4480DF0BB42E3C00408822 /* PBXTextBookmark */ = {
@@ -189,9 +225,343 @@
 		vrLen = 584;
 		vrLoc = 0;
 	};
+	AF88E92D0FBA3EB400C5AA9C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = AFDE37FC0BB41E1D008C037E /* kerberosgss.c */;
+		name = "kerberosgss.c: 498";
+		rLen = 0;
+		rLoc = 15211;
+		rType = 0;
+		vrLen = 1613;
+		vrLoc = 12775;
+	};
+	AF88E92E0FBA3EB400C5AA9C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = AF88E92F0FBA3EB400C5AA9C /* gssapi.h */;
+		rLen = 1;
+		rLoc = 203;
+		rType = 1;
+	};
+	AF88E92F0FBA3EB400C5AA9C /* gssapi.h */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = sourcecode.c.h;
+		name = gssapi.h;
+		path = /Developer/SDKs/MacOSX10.5.sdk/usr/include/gssapi/gssapi.h;
+		sourceTree = "<absolute>";
+	};
+	AF88E9300FBA3EB400C5AA9C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = AF88E9310FBA3EB400C5AA9C /* gssapi.h */;
+		name = "gssapi.h: 204";
+		rLen = 48;
+		rLoc = 5223;
+		rType = 0;
+		vrLen = 1593;
+		vrLoc = 4463;
+	};
+	AF88E9310FBA3EB400C5AA9C /* gssapi.h */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = sourcecode.c.h;
+		name = gssapi.h;
+		path = /Developer/SDKs/MacOSX10.5.sdk/usr/include/gssapi/gssapi.h;
+		sourceTree = "<absolute>";
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1651, 10504}}";
+			sepNavSelRange = "{18918, 19}";
+			sepNavVisRange = "{18293, 1476}";
+		};
+	};
+	AF88E9400FBA3FD300C5AA9C /* XCBuildMessageTextBookmark */ = {
+		isa = XCBuildMessageTextBookmark;
+		comments = "Python.h: No such file or directory";
+		fRef = AFDE37FA0BB41E1D008C037E /* kerberosbasic.c */;
+		rLen = 1;
+		rLoc = 16;
+		rType = 1;
+	};
+	AF88E9410FBA3FD300C5AA9C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = AFDE37FA0BB41E1D008C037E /* kerberosbasic.c */;
+		name = "kerberosbasic.c: 17";
+		rLen = 0;
+		rLoc = 627;
+		rType = 0;
+		vrLen = 450;
+		vrLoc = 300;
+	};
+	AF88E94C0FBA407500C5AA9C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = AFDE37FA0BB41E1D008C037E /* kerberosbasic.c */;
+		name = "kerberosbasic.c: 17";
+		rLen = 0;
+		rLoc = 627;
+		rType = 0;
+		vrLen = 1616;
+		vrLoc = 0;
+	};
+	AF88E94E0FBA416E00C5AA9C /* kerberospw.c */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1562, 1781}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 1509}";
+		};
+	};
+	AF88E94F0FBA416E00C5AA9C /* kerberospw.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1562, 616}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 867}";
+		};
+	};
+	AF88E9560FBA419E00C5AA9C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = AFDE37FA0BB41E1D008C037E /* kerberosbasic.c */;
+		name = "kerberosbasic.c: 17";
+		rLen = 0;
+		rLoc = 627;
+		rType = 0;
+		vrLen = 1487;
+		vrLoc = 0;
+	};
+	AF88E95C0FBA41D300C5AA9C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = AFDE37FC0BB41E1D008C037E /* kerberosgss.c */;
+		name = "kerberosgss.c: 496";
+		rLen = 22;
+		rLoc = 15065;
+		rType = 0;
+		vrLen = 1715;
+		vrLoc = 14638;
+	};
+	AF88E95D0FBA41D300C5AA9C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = AF88E9310FBA3EB400C5AA9C /* gssapi.h */;
+		name = "gssapi.h: 585";
+		rLen = 19;
+		rLoc = 18918;
+		rType = 0;
+		vrLen = 1476;
+		vrLoc = 18293;
+	};
+	AF88E95E0FBA41D300C5AA9C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = AFDE383A0BB41FFA008C037E /* kerberos.c */;
+		name = "kerberos.c: 39";
+		rLen = 25;
+		rLoc = 1160;
+		rType = 0;
+		vrLen = 1124;
+		vrLoc = 992;
+	};
+	AF88E95F0FBA41D300C5AA9C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = AFDE37FA0BB41E1D008C037E /* kerberosbasic.c */;
+		name = "kerberosbasic.c: 27";
+		rLen = 63;
+		rLoc = 806;
+		rType = 0;
+		vrLen = 1617;
+		vrLoc = 63;
+	};
+	AF88E9600FBA41D300C5AA9C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = AF88E94F0FBA416E00C5AA9C /* kerberospw.h */;
+		name = "kerberospw.h: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 867;
+		vrLoc = 0;
+	};
+	AF88E9610FBA41D300C5AA9C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = AF88E94E0FBA416E00C5AA9C /* kerberospw.c */;
+		name = "kerberospw.c: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 1509;
+		vrLoc = 0;
+	};
+	AF88E9620FBA41D300C5AA9C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 08FB7796FE84155DC02AAC07 /* main.c */;
+		rLen = 0;
+		rLoc = 22;
+		rType = 1;
+	};
+	AF88E9630FBA41D300C5AA9C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 08FB7796FE84155DC02AAC07 /* main.c */;
+		name = "main.c: 33";
+		rLen = 0;
+		rLoc = 1055;
+		rType = 0;
+		vrLen = 1131;
+		vrLoc = 0;
+	};
+	AF88E9660FBA435000C5AA9C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 08FB7796FE84155DC02AAC07 /* main.c */;
+		name = "main.c: 33";
+		rLen = 0;
+		rLoc = 1055;
+		rType = 0;
+		vrLen = 1131;
+		vrLoc = 0;
+	};
+	AF88E9670FBA435000C5AA9C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = AFDE383A0BB41FFA008C037E /* kerberos.c */;
+		name = "kerberos.c: 415";
+		rLen = 0;
+		rLoc = 11472;
+		rType = 0;
+		vrLen = 1178;
+		vrLoc = 7396;
+	};
+	AF88E9680FBA435000C5AA9C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = AFDE37FB0BB41E1D008C037E /* kerberosbasic.h */;
+		name = "kerberosbasic.h: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 898;
+		vrLoc = 0;
+	};
+	AF88E9690FBA435000C5AA9C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = AFDE37FD0BB41E1D008C037E /* kerberosgss.h */;
+		name = "kerberosgss.h: 46";
+		rLen = 0;
+		rLoc = 1419;
+		rType = 0;
+		vrLen = 1615;
+		vrLoc = 587;
+	};
+	AF88E96A0FBA435000C5AA9C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = AFDE37FC0BB41E1D008C037E /* kerberosgss.c */;
+		name = "kerberosgss.c: 496";
+		rLen = 22;
+		rLoc = 15065;
+		rType = 0;
+		vrLen = 1710;
+		vrLoc = 14638;
+	};
+	AF88E96B0FBA435000C5AA9C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = AFDE37FC0BB41E1D008C037E /* kerberosgss.c */;
+		name = "kerberosgss.c: 539";
+		rLen = 0;
+		rLoc = 17377;
+		rType = 0;
+		vrLen = 1293;
+		vrLoc = 15634;
+	};
+	AF88E96C0FBA438E00C5AA9C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = AFDE37FC0BB41E1D008C037E /* kerberosgss.c */;
+		name = "kerberosgss.c: 543";
+		rLen = 19;
+		rLoc = 16673;
+		rType = 0;
+		vrLen = 1714;
+		vrLoc = 15772;
+	};
+	AF88E96D0FBA43A100C5AA9C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = AFDE37FC0BB41E1D008C037E /* kerberosgss.c */;
+		name = "kerberosgss.c: 543";
+		rLen = 0;
+		rLoc = 16692;
+		rType = 0;
+		vrLen = 1563;
+		vrLoc = 15772;
+	};
+	AF88E96E0FBA43B300C5AA9C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = AFDE37FC0BB41E1D008C037E /* kerberosgss.c */;
+		name = "kerberosgss.c: 543";
+		rLen = 0;
+		rLoc = 16718;
+		rType = 0;
+		vrLen = 1588;
+		vrLoc = 15777;
+	};
+	AF88E96F0FBA43D100C5AA9C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = AFDE37FC0BB41E1D008C037E /* kerberosgss.c */;
+		name = "kerberosgss.c: 543";
+		rLen = 0;
+		rLoc = 16726;
+		rType = 0;
+		vrLen = 1594;
+		vrLoc = 15777;
+	};
+	AF88E9700FBA441100C5AA9C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = AFDE37FC0BB41E1D008C037E /* kerberosgss.c */;
+		name = "kerberosgss.c: 544";
+		rLen = 0;
+		rLoc = 16738;
+		rType = 0;
+		vrLen = 1483;
+		vrLoc = 16048;
+	};
+	AF88E9710FBA441B00C5AA9C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = AFDE37FC0BB41E1D008C037E /* kerberosgss.c */;
+		name = "kerberosgss.c: 544";
+		rLen = 0;
+		rLoc = 16768;
+		rType = 0;
+		vrLen = 1484;
+		vrLoc = 16048;
+	};
+	AF88E9720FBA442300C5AA9C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = AFDE37FC0BB41E1D008C037E /* kerberosgss.c */;
+		name = "kerberosgss.c: 544";
+		rLen = 0;
+		rLoc = 16768;
+		rType = 0;
+		vrLen = 1491;
+		vrLoc = 16048;
+	};
+	AF88E9730FBA443200C5AA9C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = AFDE37FC0BB41E1D008C037E /* kerberosgss.c */;
+		name = "kerberosgss.c: 544";
+		rLen = 0;
+		rLoc = 16768;
+		rType = 0;
+		vrLen = 1503;
+		vrLoc = 16048;
+	};
+	AF88E97A0FBA449500C5AA9C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = AFDE37FC0BB41E1D008C037E /* kerberosgss.c */;
+		name = "kerberosgss.c: 529";
+		rLen = 16;
+		rLoc = 16093;
+		rType = 0;
+		vrLen = 1576;
+		vrLoc = 15766;
+	};
+	AF88E97B0FBA449500C5AA9C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = AFDE37FC0BB41E1D008C037E /* kerberosgss.c */;
+		name = "kerberosgss.c: 551";
+		rLen = 0;
+		rLoc = 16985;
+		rType = 0;
+		vrLen = 1596;
+		vrLoc = 16048;
+	};
 	AFDE37EE0BB41DF9008C037E /* PyKerberos */ = {
 		isa = PBXExecutable;
-		activeArgIndex = 2147483647;
 		activeArgIndices = (
 		);
 		argumentStrings = (
@@ -201,6 +571,9 @@
 		configStateDict = {
 		};
 		customDataFormattersEnabled = 1;
+		dataTipCustomDataFormattersEnabled = 1;
+		dataTipShowTypeColumn = 1;
+		dataTipSortType = 0;
 		debuggerPlugin = GDBDebugging;
 		disassemblyDisplayState = 0;
 		dylibVariantSuffix = "";
@@ -213,6 +586,7 @@
 		name = PyKerberos;
 		savedGlobals = {
 		};
+		showTypeColumn = 0;
 		sourceDirectories = (
 		);
 		variableFormatDictionary = {
@@ -222,7 +596,11 @@
 		isa = PBXSourceControlManager;
 		fallbackIsa = XCSourceControlManager;
 		isSCMEnabled = 0;
+		repositoryNamesForRoots = {
+		};
 		scmConfiguration = {
+			repositoryNamesForRoots = {
+			};
 		};
 	};
 	AFDE37F60BB41E00008C037E /* Code sense */ = {
@@ -238,38 +616,43 @@
 	};
 	AFDE37FA0BB41E1D008C037E /* kerberosbasic.c */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {984, 2142}}";
-			sepNavSelRange = "{1171, 0}";
+			sepNavIntBoundsRect = "{{0, 0}, {1283, 1846}}";
+			sepNavSelRange = "{627, 0}";
+			sepNavVisRange = "{0, 1616}";
 			sepNavVisRect = "{{0, 325}, {984, 316}}";
 		};
 	};
 	AFDE37FB0BB41E1D008C037E /* kerberosbasic.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1336, 1031}}";
-			sepNavSelRange = "{824, 115}";
+			sepNavIntBoundsRect = "{{0, 0}, {1562, 616}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 898}";
 			sepNavVisRect = "{{0, 0}, {1336, 1031}}";
 			sepNavWindowFrame = "{{15, 13}, {1395, 1160}}";
 		};
 	};
 	AFDE37FC0BB41E1D008C037E /* kerberosgss.c */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {984, 4550}}";
-			sepNavSelRange = "{7491, 0}";
+			sepNavIntBoundsRect = "{{0, 0}, {1562, 7969}}";
+			sepNavSelRange = "{16985, 0}";
+			sepNavVisRange = "{16048, 1596}";
 			sepNavVisRect = "{{0, 2485}, {984, 308}}";
 		};
 	};
 	AFDE37FD0BB41E1D008C037E /* kerberosgss.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1336, 1031}}";
-			sepNavSelRange = "{1553, 140}";
+			sepNavIntBoundsRect = "{{0, 0}, {1562, 793}}";
+			sepNavSelRange = "{1419, 0}";
+			sepNavVisRange = "{587, 1615}";
 			sepNavVisRect = "{{0, 0}, {1336, 1031}}";
 			sepNavWindowFrame = "{{15, 13}, {1395, 1160}}";
 		};
 	};
 	AFDE383A0BB41FFA008C037E /* kerberos.c */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {932, 2282}}";
-			sepNavSelRange = "{690, 0}";
+			sepNavIntBoundsRect = "{{0, 0}, {1562, 5733}}";
+			sepNavSelRange = "{11472, 0}";
+			sepNavVisRange = "{7396, 1178}";
 			sepNavVisRect = "{{0, 0}, {932, 292}}";
 		};
 	};
@@ -315,7 +698,7 @@
 		fRef = AFDE37FC0BB41E1D008C037E /* kerberosgss.c */;
 		name = "kerberosgss.c: 47";
 		rLen = 0;
-		rLoc = 1290;
+		rLoc = 1298;
 		rType = 0;
 		vrLen = 1144;
 		vrLoc = 1097;

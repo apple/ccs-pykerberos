@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2006-2008 Apple Inc. All rights reserved.
+ * Copyright (c) 2006-2009 Apple Inc. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,6 +43,7 @@ typedef struct {
     gss_cred_id_t    server_creds;
     gss_cred_id_t    client_creds;
     char*            username;
+    char*            targetname;
     char*            response;
 } gss_server_state;
 

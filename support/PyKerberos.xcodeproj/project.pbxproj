@@ -3,12 +3,13 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 42;
+	objectVersion = 44;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		8DD76F650486A84900D96B5E /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 08FB7796FE84155DC02AAC07 /* main.c */; settings = {ATTRIBUTES = (); }; };
 		8DD76F6A0486A84900D96B5E /* PyKerberos.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = C6859E8B029090EE04C91782 /* PyKerberos.1 */; };
+		AF88E9500FBA416E00C5AA9C /* kerberospw.c in Sources */ = {isa = PBXBuildFile; fileRef = AF88E94E0FBA416E00C5AA9C /* kerberospw.c */; };
 		AFDE37FE0BB41E1D008C037E /* base64.c in Sources */ = {isa = PBXBuildFile; fileRef = AFDE37F80BB41E1D008C037E /* base64.c */; };
 		AFDE37FF0BB41E1D008C037E /* kerberosbasic.c in Sources */ = {isa = PBXBuildFile; fileRef = AFDE37FA0BB41E1D008C037E /* kerberosbasic.c */; };
 		AFDE38000BB41E1D008C037E /* kerberosgss.c in Sources */ = {isa = PBXBuildFile; fileRef = AFDE37FC0BB41E1D008C037E /* kerberosgss.c */; };
@@ -33,6 +34,8 @@
 /* Begin PBXFileReference section */
 		08FB7796FE84155DC02AAC07 /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		8DD76F6C0486A84900D96B5E /* PyKerberos */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = PyKerberos; sourceTree = BUILT_PRODUCTS_DIR; };
+		AF88E94E0FBA416E00C5AA9C /* kerberospw.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = kerberospw.c; path = ../src/kerberospw.c; sourceTree = SOURCE_ROOT; };
+		AF88E94F0FBA416E00C5AA9C /* kerberospw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = kerberospw.h; path = ../src/kerberospw.h; sourceTree = SOURCE_ROOT; };
 		AFDE37F80BB41E1D008C037E /* base64.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = base64.c; path = ../src/base64.c; sourceTree = SOURCE_ROOT; };
 		AFDE37F90BB41E1D008C037E /* base64.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = base64.h; path = ../src/base64.h; sourceTree = SOURCE_ROOT; };
 		AFDE37FA0BB41E1D008C037E /* kerberosbasic.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = kerberosbasic.c; path = ../src/kerberosbasic.c; sourceTree = SOURCE_ROOT; };
@@ -79,6 +82,8 @@
 				AFDE37FB0BB41E1D008C037E /* kerberosbasic.h */,
 				AFDE37FC0BB41E1D008C037E /* kerberosgss.c */,
 				AFDE37FD0BB41E1D008C037E /* kerberosgss.h */,
+				AF88E94E0FBA416E00C5AA9C /* kerberospw.c */,
+				AF88E94F0FBA416E00C5AA9C /* kerberospw.h */,
 				08FB7796FE84155DC02AAC07 /* main.c */,
 			);
 			name = Source;
@@ -141,7 +146,6 @@
 			mainGroup = 08FB7794FE84155DC02AAC07 /* PyKerberos */;
 			projectDirPath = "";
 			projectRoot = "";
-			shouldCheckCompatibility = 1;
 			targets = (
 				8DD76F620486A84900D96B5E /* PyKerberos */,
 			);
@@ -158,6 +162,7 @@
 				AFDE37FF0BB41E1D008C037E /* kerberosbasic.c in Sources */,
 				AFDE38000BB41E1D008C037E /* kerberosgss.c in Sources */,
 				AFDE383B0BB41FFA008C037E /* kerberos.c in Sources */,
+				AF88E9500FBA416E00C5AA9C /* kerberospw.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -176,6 +181,7 @@
 					"_GLIBCXX_DEBUG=1",
 					"_GLIBCXX_DEBUG_PEDANTIC=1",
 				);
+				HEADER_SEARCH_PATHS = "/System/Library/Frameworks/Python.framework/Headers/**";
 				INSTALL_PATH = /usr/local/bin;
 				PRODUCT_NAME = PyKerberos;
 				ZERO_LINK = YES;
@@ -191,6 +197,7 @@
 				);
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
+				HEADER_SEARCH_PATHS = "/System/Library/Frameworks/Python.framework/Headers/**";
 				INSTALL_PATH = /usr/local/bin;
 				PRODUCT_NAME = PyKerberos;
 			};
@@ -202,7 +209,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				PREBINDING = NO;
-				SDKROOT = /Developer/SDKs/MacOSX10.5.sdk;
+				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.5.sdk";
 			};
 			name = Debug;
 		};
@@ -213,7 +220,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "";
 				PREBINDING = NO;
-				SDKROOT = /Developer/SDKs/MacOSX10.5.sdk;
+				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.5.sdk";
 				USER_HEADER_SEARCH_PATHS = ..src;
 			};
 			name = Release;

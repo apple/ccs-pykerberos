@@ -1,5 +1,5 @@
 ##
-# Copyright (c) 2006-2008 Apple Inc. All rights reserved.
+# Copyright (c) 2006-2009 Apple Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -208,9 +208,18 @@ def authGSSServerResponse(context):
 def authGSSServerUserName(context):
     """
     Get the user name of the principal trying to authenticate to the server.
-    This method must only be called after authGSSClientStep returns a complete or continue response code.
+    This method must only be called after authGSSServerStep returns a complete or continue response code.
 
     @param context: the context object returned from authGSSServerInit.
     @return: a string containing the user name.
+    """
+
+def authGSSServerTargetName(context):
+    """
+    Get the target name if the server did not supply its own credentials.
+    This method must only be called after authGSSServerStep returns a complete or continue response code.
+
+    @param context: the context object returned from authGSSServerInit.
+    @return: a string containing the target name.
     """
 

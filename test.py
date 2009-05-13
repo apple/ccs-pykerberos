@@ -1,5 +1,5 @@
 ##
-# Copyright (c) 2006-2008 Apple Inc. All rights reserved.
+# Copyright (c) 2006-2009 Apple Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ def main():
     # Extract arguments
     user = ""
     pswd = ""
-    service = "http@EXAMPLE.COM"
+    service = "HTTP@EXAMPLE.COM"
     host = "host.example.com"
     realm ="HOST.EXAMPLE.COM"
     port = 8008
@@ -115,7 +115,7 @@ def testGSSAPI(service):
     if rc != 1:
         return
     
-    rs, vs = kerberos.authGSSServerInit(service);
+    rs, vs = kerberos.authGSSServerInit("");
     print "Status for authGSSServerInit = %s" % statusText(rs);
     if rs != 1:
         return
@@ -136,6 +136,7 @@ def testGSSAPI(service):
         return
 
     print "Server user name: %s" % kerberos.authGSSServerUserName(vs);
+    print "Server target name: %s" % kerberos.authGSSServerTargetName(vs);
     print "Client user name: %s" % kerberos.authGSSClientUserName(vc);
     
     rc = kerberos.authGSSClientClean(vc);
@@ -204,7 +205,7 @@ def testHTTP(host, port, use_ssl, service):
     try:
         kerberos.authGSSClientStep(vc, "");
     except kerberos.GSSError, e:
-        print "Could not do GSSAPI setp with continue: %s/%s" % (e[0][0], e[1][0])
+        print "Could not do GSSAPI step with continue: %s/%s" % (e[0][0], e[1][0])
         return
 
     hdrs = {}
@@ -248,6 +249,7 @@ def testHTTP(host, port, use_ssl, service):
         print "Could not clean-up GSSAPI: %s/%s" % (e[0][0], e[1][0])
         return
 
+    print "Authenticated successfully"
     return
 
 if __name__=='__main__':

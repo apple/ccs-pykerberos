@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2006-2008 Apple Inc. All rights reserved.
+ * Copyright (c) 2006-2009 Apple Inc. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -344,20 +344,40 @@ static PyObject *authGSSServerUserName(PyObject *self, PyObject *args)
 {
     gss_server_state *state;
     PyObject *pystate;
-
+    
     if (!PyArg_ParseTuple(args, "O", &pystate))
         return NULL;
-
+    
     if (!PyCObject_Check(pystate)) {
         PyErr_SetString(PyExc_TypeError, "Expected a context object");
         return NULL;
     }
-
+    
     state = (gss_server_state *)PyCObject_AsVoidPtr(pystate);
     if (state == NULL)
         return NULL;
-
+    
     return Py_BuildValue("s", state->username);
+}
+
+static PyObject *authGSSServerTargetName(PyObject *self, PyObject *args)
+{
+    gss_server_state *state;
+    PyObject *pystate;
+    
+    if (!PyArg_ParseTuple(args, "O", &pystate))
+        return NULL;
+    
+    if (!PyCObject_Check(pystate)) {
+        PyErr_SetString(PyExc_TypeError, "Expected a context object");
+        return NULL;
+    }
+    
+    state = (gss_server_state *)PyCObject_AsVoidPtr(pystate);
+    if (state == NULL)
+        return NULL;
+    
+    return Py_BuildValue("s", state->targetname);
 }
 
 static PyMethodDef KerberosMethods[] = {
@@ -390,7 +410,9 @@ static PyMethodDef KerberosMethods[] = {
     {"authGSSServerResponse",  authGSSServerResponse, METH_VARARGS,
      "Get the response from the last server-side GSSAPI step."},
     {"authGSSServerUserName",  authGSSServerUserName, METH_VARARGS,
-     "Get the user name from the last server-side GSSAPI step."},
+        "Get the user name from the last server-side GSSAPI step."},
+    {"authGSSServerTargetName",  authGSSServerTargetName, METH_VARARGS,
+        "Get the target name from the last server-side GSSAPI step."},
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 

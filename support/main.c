@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2006-2008 Apple Inc. All rights reserved.
+ * Copyright (c) 2006-2009 Apple Inc. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,13 +24,13 @@ int main (int argc, char * const argv[]) {
 	char* service = 0L;
 	gss_server_state state;
 
-	service = server_principal_details("http", "caldav.corp.apple.com");
+	service = server_principal_details("http", "caldav.local");
 
 	//printf("Got service principal: %s\n", result);
 
 	//code = authenticate_user_krb5pwd("x", "x", "http/caldav.corp.apple.com@CALDAV.CORP.APPLE.COM", "CALDAV.CORP.APPLE.COM");
 
-	code = authenticate_gss_server_init("http@CALDAV.CORP.APPLE.COM", &state);
+	code = authenticate_gss_server_init("", &state);
 	code = authenticate_gss_server_clean(&state);
 
     return 0;
