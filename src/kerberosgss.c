@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2006-2009 Apple Inc. All rights reserved.
+ * Copyright (c) 2006-2010 Apple Inc. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -354,7 +354,7 @@ int authenticate_gss_client_wrap(gss_client_state* state, const char* challenge,
 		// server decides if principal can log in as user
 		strncpy(buf + 4, user, sizeof(buf) - 4);
 		input_token.value = buf;
-		input_token.length = 4 + strlen(user) + 1;
+		input_token.length = 4 + strlen(user);
 	}
     
 	// Do GSSAPI wrap
