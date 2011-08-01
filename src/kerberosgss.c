@@ -106,16 +106,18 @@ end:
     return result;
 }
 
-int authenticate_gss_client_init(const char* service, long int gss_flags, gss_client_state* state)
+int authenticate_gss_client_init(const char* service, const char* principal, long int gss_flags, gss_client_state* state)
 {
     OM_uint32 maj_stat;
     OM_uint32 min_stat;
     gss_buffer_desc name_token = GSS_C_EMPTY_BUFFER;
+    gss_buffer_desc principal_token = GSS_C_EMPTY_BUFFER;
     int ret = AUTH_GSS_COMPLETE;
     
     state->server_name = GSS_C_NO_NAME;
     state->context = GSS_C_NO_CONTEXT;
     state->gss_flags = gss_flags;
+    state->client_creds = GSS_C_NO_CREDENTIAL;
     state->username = NULL;
     state->response = NULL;
     
@@ -132,6 +134,40 @@ int authenticate_gss_client_init(const char* service, long int gss_flags, gss_cl
         goto end;
     }
     
+    // Get credential for principal
+    if (principal && *principal)
+    {
+        gss_name_t name;
+        principal_token.length = strlen(principal);
+        principal_token.value = (char *)principal;
+
+        maj_stat = gss_import_name(&min_stat, &principal_token, GSS_C_NT_USER_NAME, &name);
+        if (GSS_ERROR(maj_stat))
+        {
+            set_gss_error(maj_stat, min_stat);
+            ret = AUTH_GSS_ERROR;
+	    goto end;
+        }
+
+        maj_stat = gss_acquire_cred(&min_stat, name, GSS_C_INDEFINITE, GSS_C_NO_OID_SET, GSS_C_INITIATE, 
+                                    &state->client_creds, NULL, NULL);
+        if (GSS_ERROR(maj_stat))
+        {
+            set_gss_error(maj_stat, min_stat);
+            ret = AUTH_GSS_ERROR;
+	    goto end;
+        }
+
+        maj_stat = gss_release_name(&min_stat, &name);
+        if (GSS_ERROR(maj_stat))
+        {
+	    set_gss_error(maj_stat, min_stat);
+            ret = AUTH_GSS_ERROR;
+            goto end;
+        }
+
+      }
+
 end:
     return ret;
 }
@@ -146,6 +182,8 @@ int authenticate_gss_client_clean(gss_client_state *state)
         maj_stat = gss_delete_sec_context(&min_stat, &state->context, GSS_C_NO_BUFFER);
     if (state->server_name != GSS_C_NO_NAME)
         maj_stat = gss_release_name(&min_stat, &state->server_name);
+    if (state->client_creds != GSS_C_NO_CREDENTIAL)
+        maj_stat = gss_release_cred(&min_stat, &state->client_creds);
     if (state->username != NULL)
     {
         free(state->username);
@@ -185,7 +223,7 @@ int authenticate_gss_client_step(gss_client_state* state, const char* challenge)
     
     // Do GSSAPI step
     maj_stat = gss_init_sec_context(&min_stat,
-                                    GSS_C_NO_CREDENTIAL,
+                                    state->client_creds,
                                     &state->context,
                                     state->server_name,
                                     GSS_C_NO_OID,

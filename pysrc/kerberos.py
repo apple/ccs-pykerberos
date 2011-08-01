@@ -99,7 +99,7 @@ GSS_C_ANON_FLAG       = 64
 GSS_C_PROT_READY_FLAG = 128 
 GSS_C_TRANS_FLAG      = 256 
      
-def authGSSClientInit(service, gssflags=GSS_C_MUTUAL_FLAG|GSS_C_SEQUENCE_FLAG):
+def authGSSClientInit(service, principal=None, gssflags=GSS_C_MUTUAL_FLAG|GSS_C_SEQUENCE_FLAG):
     """
     Initializes a context for GSSAPI client-side authentication with the given service principal.
     authGSSClientClean must be called after this function returns an OK result to dispose of
@@ -107,6 +107,8 @@ def authGSSClientInit(service, gssflags=GSS_C_MUTUAL_FLAG|GSS_C_SEQUENCE_FLAG):
 
     @param service: a string containing the service principal in the form 'type@fqdn'
         (e.g. 'imap@mail.apple.com').
+    @param principal: optional string containing the client principal in the form 'user@realm'
+        (e.g. 'jdoe@example.com').
     @param gssflags: optional integer used to set GSS flags.
         (e.g.  GSS_C_DELEG_FLAG|GSS_C_MUTUAL_FLAG|GSS_C_SEQUENCE_FLAG will allow 
         for forwarding credentials to the remote host)

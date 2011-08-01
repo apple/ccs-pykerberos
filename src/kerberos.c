@@ -85,19 +85,20 @@ static PyObject *getServerPrincipalDetails(PyObject *self, PyObject *args)
 static PyObject* authGSSClientInit(PyObject* self, PyObject* args, PyObject* keywds)
 {
     const char *service;
+    const char *principal;
     gss_client_state *state;
     PyObject *pystate;
-    static char *kwlist[] = {"service", "gssflags", NULL};
+    static char *kwlist[] = {"service", "principal", "gssflags", NULL};
     long int gss_flags = GSS_C_MUTUAL_FLAG | GSS_C_SEQUENCE_FLAG;
     int result = 0;
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|l", kwlist, &service, &gss_flags))
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|sl", kwlist, &service, &principal, &gss_flags))
         return NULL;
 
     state = (gss_client_state *) malloc(sizeof(gss_client_state));
     pystate = PyCObject_FromVoidPtr(state, NULL);
 
-    result = authenticate_gss_client_init(service, gss_flags, state);
+    result = authenticate_gss_client_init(service, principal, gss_flags, state);
     if (result == AUTH_GSS_ERROR)
         return NULL;
 
