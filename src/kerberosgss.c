@@ -32,7 +32,7 @@ extern PyObject *KrbException_class;
 char* server_principal_details(const char* service, const char* hostname)
 {
     char match[1024];
-    int match_len = 0;
+    size_t match_len = 0;
     char* result = NULL;
     
     int code;
@@ -216,7 +216,7 @@ int authenticate_gss_client_step(gss_client_state* state, const char* challenge)
     // If there is a challenge (data from the server) we need to give it to GSS
     if (challenge && *challenge)
     {
-        int len;
+        size_t len;
         input_token.value = base64_decode(challenge, &len);
         input_token.length = len;
     }
@@ -311,7 +311,7 @@ int authenticate_gss_client_unwrap(gss_client_state *state, const char *challeng
 	// If there is a challenge (data from the server) we need to give it to GSS
 	if (challenge && *challenge)
 	{
-		int len;
+		size_t len;
 		input_token.value = base64_decode(challenge, &len);
 		input_token.length = len;
 	}
@@ -366,7 +366,7 @@ int authenticate_gss_client_wrap(gss_client_state* state, const char* challenge,
     
 	if (challenge && *challenge)
 	{
-		int len;
+		size_t len;
 		input_token.value = base64_decode(challenge, &len);
 		input_token.length = len;
 	}
@@ -526,7 +526,7 @@ int authenticate_gss_server_step(gss_server_state *state, const char *challenge)
     // If there is a challenge (data from the server) we need to give it to GSS
     if (challenge && *challenge)
     {
-        int len;
+        size_t len;
         input_token.value = base64_decode(challenge, &len);
         input_token.length = len;
     }

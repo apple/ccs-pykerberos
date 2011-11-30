@@ -40,7 +40,7 @@ static signed char index_64[128] =
 // value            :    data to encode
 // vlen             :    length of data
 // (result)         :    new char[] - c-str of result
-char *base64_encode(const unsigned char *value, int vlen)
+char *base64_encode(const unsigned char *value, size_t vlen)
 {
     char *result = (char *)malloc((vlen * 4) / 3 + 5);
     char *out = result;
@@ -72,12 +72,12 @@ char *base64_encode(const unsigned char *value, int vlen)
 // value            :    c-str to decode
 // rlen             :    length of decoded result
 // (result)         :    new unsigned char[] - decoded result
-unsigned char *base64_decode(const char *value, int *rlen)
+unsigned char *base64_decode(const char *value, size_t *rlen)
 {
     *rlen = 0;
     int c1, c2, c3, c4;
 
-    int vlen = strlen(value);
+    size_t vlen = strlen(value);
     unsigned char *result =(unsigned char *)malloc((vlen * 3) / 4 + 1);
     unsigned char *out = result;
 
