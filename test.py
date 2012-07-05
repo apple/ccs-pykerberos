@@ -197,7 +197,7 @@ def testHTTP(host, port, use_ssl, service):
         return        
 
     try:
-        rc, vc = kerberos.authGSSClientInit(service);
+        rc, vc = kerberos.authGSSClientInit(service=service);
     except kerberos.GSSError, e:
         print "Could not initialize GSSAPI: %s/%s" % (e[0][0], e[1][0])
         return
