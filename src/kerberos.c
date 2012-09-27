@@ -92,7 +92,7 @@ static PyObject* authGSSClientInit(PyObject* self, PyObject* args, PyObject* key
     long int gss_flags = GSS_C_MUTUAL_FLAG | GSS_C_SEQUENCE_FLAG;
     int result = 0;
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|sl", kwlist, &service, &principal, &gss_flags))
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|zl", kwlist, &service, &principal, &gss_flags))
         return NULL;
 
     state = (gss_client_state *) malloc(sizeof(gss_client_state));
