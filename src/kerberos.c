@@ -27,10 +27,10 @@ PyObject *GssException_class;
 
 static PyObject *checkPassword(PyObject *self, PyObject *args)
 {
-    const char *user;
-    const char *pswd;
-    const char *service;
-    const char *default_realm;
+    const char *user = NULL;
+    const char *pswd = NULL;
+    const char *service = NULL;
+    const char *default_realm = NULL;
     int result = 0;
 
     if (!PyArg_ParseTuple(args, "ssss", &user, &pswd, &service, &default_realm))
@@ -46,8 +46,9 @@ static PyObject *checkPassword(PyObject *self, PyObject *args)
 
 static PyObject *changePassword(PyObject *self, PyObject *args)
 {
-    const char *newpswd, *oldpswd;
-    const char *user;
+    const char *newpswd = NULL;
+    const char *oldpswd = NULL;
+    const char *user = NULL;
     int result = 0;
 
     if (!PyArg_ParseTuple(args, "sss", &user, &oldpswd, &newpswd))
@@ -63,8 +64,8 @@ static PyObject *changePassword(PyObject *self, PyObject *args)
 
 static PyObject *getServerPrincipalDetails(PyObject *self, PyObject *args)
 {
-    const char *service;
-    const char *hostname;
+    const char *service = NULL;
+    const char *hostname = NULL;
     char* result;
 
     if (!PyArg_ParseTuple(args, "ss", &service, &hostname))
@@ -84,8 +85,8 @@ static PyObject *getServerPrincipalDetails(PyObject *self, PyObject *args)
 
 static PyObject* authGSSClientInit(PyObject* self, PyObject* args, PyObject* keywds)
 {
-    const char *service;
-    const char *principal;
+    const char *service = NULL;
+    const char *principal = NULL;
     gss_client_state *state;
     PyObject *pystate;
     static char *kwlist[] = {"service", "principal", "gssflags", NULL};
@@ -135,7 +136,7 @@ static PyObject *authGSSClientStep(PyObject *self, PyObject *args)
 {
     gss_client_state *state;
     PyObject *pystate;
-    char *challenge;
+    char *challenge = NULL;
     int result = 0;
 
     if (!PyArg_ParseTuple(args, "Os", &pystate, &challenge))
@@ -201,7 +202,7 @@ static PyObject *authGSSClientUnwrap(PyObject *self, PyObject *args)
 {
 	gss_client_state *state;
 	PyObject *pystate;
-	char *challenge;
+	char *challenge = NULL;
 	int result = 0;
 
 	if (!PyArg_ParseTuple(args, "Os", &pystate, &challenge))
@@ -227,7 +228,8 @@ static PyObject *authGSSClientWrap(PyObject *self, PyObject *args)
 {
 	gss_client_state *state;
 	PyObject *pystate;
-	char *challenge, *user = NULL;
+	char *challenge = NULL;
+	char *user = NULL;
 	int result = 0;
 
 	if (!PyArg_ParseTuple(args, "Os|z", &pystate, &challenge, &user))
@@ -251,7 +253,7 @@ static PyObject *authGSSClientWrap(PyObject *self, PyObject *args)
 
 static PyObject *authGSSServerInit(PyObject *self, PyObject *args)
 {
-    const char *service;
+    const char *service = NULL;
     gss_server_state *state;
     PyObject *pystate;
     int result = 0;
@@ -299,7 +301,7 @@ static PyObject *authGSSServerStep(PyObject *self, PyObject *args)
 {
     gss_server_state *state;
     PyObject *pystate;
-    char *challenge;
+    char *challenge = NULL;
     int result = 0;
 
     if (!PyArg_ParseTuple(args, "Os", &pystate, &challenge))

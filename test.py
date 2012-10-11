@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 ##
 # Copyright (c) 2006-2009 Apple Inc. All rights reserved.
 #
@@ -21,6 +22,21 @@ import sys
 import httplib
 import socket
 import ssl
+
+"""
+Examples:
+
+sudo ./test.py -s HTTP@example.com service
+
+sudo ./test.py -u user01 -p user01 -s HTTP@example.com -r EXAMPLE.COM basic
+
+sudo ./test.py -s HTTP@example.com -r EXAMPLE.COM gssapi
+
+./test.py -s HTTP@example.com -h calendar.example.com -p 8008 server
+
+For the gssapi and server tests you will need to kinit a principal on the server first.
+
+"""
 
 def main():
     
@@ -115,7 +131,7 @@ def testGSSAPI(service):
     if rc != 1:
         return
     
-    rs, vs = kerberos.authGSSServerInit("");
+    rs, vs = kerberos.authGSSServerInit(service);
     print "Status for authGSSServerInit = %s" % statusText(rs);
     if rs != 1:
         return
