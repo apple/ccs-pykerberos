@@ -35,6 +35,7 @@ typedef struct {
     gss_cred_id_t    client_creds;
     char*            username;
     char*            response;
+    int              responseConf;
 } gss_client_state;
 
 typedef struct {
@@ -54,7 +55,7 @@ int authenticate_gss_client_init(const char* service, const char* principal, lon
 int authenticate_gss_client_clean(gss_client_state *state);
 int authenticate_gss_client_step(gss_client_state *state, const char *challenge);
 int authenticate_gss_client_unwrap(gss_client_state* state, const char* challenge);
-int authenticate_gss_client_wrap(gss_client_state* state, const char* challenge, const char* user);
+int authenticate_gss_client_wrap(gss_client_state* state, const char* challenge, const char* user, int protect);
 
 int authenticate_gss_server_init(const char* service, gss_server_state* state);
 int authenticate_gss_server_clean(gss_server_state *state);

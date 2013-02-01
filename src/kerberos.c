@@ -158,6 +158,26 @@ static PyObject *authGSSClientStep(PyObject *self, PyObject *args)
     return Py_BuildValue("i", result);
 }
 
+static PyObject *authGSSClientResponseConf(PyObject *self, PyObject *args)
+{
+    gss_client_state *state;
+    PyObject *pystate;
+
+    if (!PyArg_ParseTuple(args, "O", &pystate))
+        return NULL;
+
+    if (!PyCObject_Check(pystate)) {
+        PyErr_SetString(PyExc_TypeError, "Expected a context object");
+        return NULL;
+    }
+
+    state = (gss_client_state *)PyCObject_AsVoidPtr(pystate);
+    if (state == NULL)
+        return NULL;
+
+    return Py_BuildValue("i", state->responseConf);
+}
+
 static PyObject *authGSSClientResponse(PyObject *self, PyObject *args)
 {
     gss_client_state *state;
@@ -230,9 +250,10 @@ static PyObject *authGSSClientWrap(PyObject *self, PyObject *args)
 	PyObject *pystate;
 	char *challenge = NULL;
 	char *user = NULL;
+	int protect = 0;
 	int result = 0;
 
-	if (!PyArg_ParseTuple(args, "Os|z", &pystate, &challenge, &user))
+	if (!PyArg_ParseTuple(args, "Os|zi", &pystate, &challenge, &user, &protect))
 		return NULL;
 
 	if (!PyCObject_Check(pystate)) {
@@ -244,7 +265,7 @@ static PyObject *authGSSClientWrap(PyObject *self, PyObject *args)
 	if (state == NULL)
 		return NULL;
 
-	result = authenticate_gss_client_wrap(state, challenge, user);
+	result = authenticate_gss_client_wrap(state, challenge, user, protect);
 	if (result == AUTH_GSS_ERROR)
 		return NULL;
 
@@ -398,6 +419,8 @@ static PyMethodDef KerberosMethods[] = {
      "Do a client-side GSSAPI step."},
     {"authGSSClientResponse",  authGSSClientResponse, METH_VARARGS,
      "Get the response from the last client-side GSSAPI step."},
+    {"authGSSClientResponseConf",  authGSSClientResponseConf, METH_VARARGS,
+     "return 1 if confidentiality was set in the last unwrapped buffer, 0 otherwise."},
     {"authGSSClientUserName",  authGSSClientUserName, METH_VARARGS,
      "Get the user name from the last client-side GSSAPI step."},
     {"authGSSServerInit",  authGSSServerInit, METH_VARARGS,
