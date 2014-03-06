@@ -234,3 +234,20 @@ def authGSSServerTargetName(context):
     @return: a string containing the target name.
     """
 
+def authGSSServerStoreDelegate(context):
+    """
+    Save the ticket sent to the server in the file /tmp/krb5_pyserv_XXXXXX
+    his method must only be called after authGSSServerStep returns a complete or continue response code.
+
+    @param context: the context object returned from authGSSServerInit.
+    @return: a result code (see above).
+    """
+
+def authGSSServerCacheName(context):
+    """
+    Get the name of the credential cache created with authGSSServerStoreDelegate.
+    This method must only be called after authGSSServerStoreDelegate.
+
+    @param context: the context object returned from authGSSServerInit.
+    @return: a string containing the cache name.
+    """

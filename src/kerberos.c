@@ -344,6 +344,31 @@ static PyObject *authGSSServerStep(PyObject *self, PyObject *args)
     return Py_BuildValue("i", result);
 }
 
+static PyObject *authGSSServerStoreDelegate(PyObject *self, PyObject *args)
+{
+    gss_server_state *state;
+    PyObject *pystate;
+    int result = 0;
+
+    if (!PyArg_ParseTuple(args, "O", &pystate))
+        return NULL;
+
+    if (!PyCObject_Check(pystate)) {
+        PyErr_SetString(PyExc_TypeError, "Expected a context object");
+        return NULL;
+    }
+
+    state = (gss_server_state *)PyCObject_AsVoidPtr(pystate);
+    if (state == NULL)
+        return NULL;
+
+    result = authenticate_gss_server_store_delegate(state);
+    if (result == AUTH_GSS_ERROR)
+        return NULL;
+    
+    return Py_BuildValue("i", result);
+}
+
 static PyObject *authGSSServerResponse(PyObject *self, PyObject *args)
 {
     gss_server_state *state;
@@ -382,6 +407,26 @@ static PyObject *authGSSServerUserName(PyObject *self, PyObject *args)
         return NULL;
     
     return Py_BuildValue("s", state->username);
+}
+
+static PyObject *authGSSServerCacheName(PyObject *self, PyObject *args)
+{
+    gss_server_state *state;
+    PyObject *pystate;
+    
+    if (!PyArg_ParseTuple(args, "O", &pystate))
+        return NULL;
+    
+    if (!PyCObject_Check(pystate)) {
+        PyErr_SetString(PyExc_TypeError, "Expected a context object");
+        return NULL;
+    }
+    
+    state = (gss_server_state *)PyCObject_AsVoidPtr(pystate);
+    if (state == NULL)
+        return NULL;
+    
+    return Py_BuildValue("s", state->ccname);
 }
 
 static PyObject *authGSSServerTargetName(PyObject *self, PyObject *args)
@@ -433,10 +478,14 @@ static PyMethodDef KerberosMethods[] = {
      "Terminate server-side GSSAPI operations."},
     {"authGSSServerStep",  authGSSServerStep, METH_VARARGS,
      "Do a server-side GSSAPI step."},
+     {"authGSSServerStoreDelegate",  authGSSServerStoreDelegate, METH_VARARGS,
+     "Store the delegated Credentials."},
     {"authGSSServerResponse",  authGSSServerResponse, METH_VARARGS,
      "Get the response from the last server-side GSSAPI step."},
     {"authGSSServerUserName",  authGSSServerUserName, METH_VARARGS,
         "Get the user name from the last server-side GSSAPI step."},
+    {"authGSSServerCacheName",  authGSSServerCacheName, METH_VARARGS,
+        "Get the location of the cache where delegated credentials are stored."},
     {"authGSSServerTargetName",  authGSSServerTargetName, METH_VARARGS,
         "Get the target name from the last server-side GSSAPI step."},
     {NULL, NULL, 0, NULL}        /* Sentinel */
