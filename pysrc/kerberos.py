@@ -103,7 +103,7 @@ GSS_C_ANON_FLAG       = 64
 GSS_C_PROT_READY_FLAG = 128 
 GSS_C_TRANS_FLAG      = 256 
      
-def authGSSClientInit(service, principal=None, gssflags=GSS_C_MUTUAL_FLAG|GSS_C_SEQUENCE_FLAG):
+def authGSSClientInit(service, **kwargs):
     """
     Initializes a context for GSSAPI client-side authentication with the given service principal.
     authGSSClientClean must be called after this function returns an OK result to dispose of
@@ -116,6 +116,7 @@ def authGSSClientInit(service, principal=None, gssflags=GSS_C_MUTUAL_FLAG|GSS_C_
     @param gssflags: optional integer used to set GSS flags.
         (e.g.  GSS_C_DELEG_FLAG|GSS_C_MUTUAL_FLAG|GSS_C_SEQUENCE_FLAG will allow 
         for forwarding credentials to the remote host)
+    @param delegated: optional server context containing delegated credentials
     @return: a tuple of (result, context) where result is the result code (see above) and
         context is an opaque value that will need to be passed to subsequent functions.
     """
@@ -218,6 +219,14 @@ def authGSSServerResponse(context):
 
     @param context: the context object returned from authGSSServerInit.
     @return: a string containing the base64-encoded server data to be sent to the client.
+    """
+
+def authGSSServerHasDelegated(context):
+    """
+    Checks whether a server context has delegated credentials.
+
+    @param context: the context object returned from authGSSServerInit.
+    @return: a bool saying whether delegated credentials are available.
     """
 
 def authGSSServerUserName(context):

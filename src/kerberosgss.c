@@ -108,7 +108,7 @@ end:
     return result;
 }
 
-int authenticate_gss_client_init(const char* service, const char* principal, long int gss_flags, gss_client_state* state)
+int authenticate_gss_client_init(const char* service, const char* principal, long int gss_flags, gss_server_state* delegatestate, gss_client_state* state)
 {
     OM_uint32 maj_stat;
     OM_uint32 min_stat;
@@ -135,9 +135,14 @@ int authenticate_gss_client_init(const char* service, const char* principal, lon
         ret = AUTH_GSS_ERROR;
         goto end;
     }
-    
-    // Get credential for principal
-    if (principal && *principal)
+    // Use the delegate credentials if they exist
+    if (delegatestate && delegatestate->client_creds != GSS_C_NO_CREDENTIAL)
+    {
+        state->client_creds = delegatestate->client_creds;
+    }
+
+    // If available use the principal to extract its associated credentials
+    else if (principal && *principal)
     {
         gss_name_t name;
         principal_token.length = strlen(principal);
@@ -624,6 +629,10 @@ end:
     return ret;
 }
 
+int authenticate_gss_server_has_delegated(gss_server_state *state)
+{
+    return (state->client_creds != GSS_C_NO_CREDENTIAL);
+}
 
 static void set_gss_error(OM_uint32 err_maj, OM_uint32 err_min)
 {
@@ -662,8 +671,7 @@ static void set_gss_error(OM_uint32 err_maj, OM_uint32 err_min)
     PyErr_SetObject(GssException_class, Py_BuildValue("((s:i)(s:i))", buf_maj, err_maj, buf_min, err_min));
 }
 
-int
-authenticate_gss_server_store_delegate(gss_server_state *state)
+int authenticate_gss_server_store_delegate(gss_server_state *state)
 {
    gss_cred_id_t delegated_cred = state->client_creds;
    char *princ_name = state->username;
@@ -714,8 +722,7 @@ end:
    return ret;
 }
 
-int
-create_krb5_ccache(gss_server_state *state,
+int create_krb5_ccache(gss_server_state *state,
            krb5_context kcontext,
            krb5_principal princ,
            krb5_ccache *ccache)

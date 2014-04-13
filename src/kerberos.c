@@ -89,17 +89,22 @@ static PyObject* authGSSClientInit(PyObject* self, PyObject* args, PyObject* key
     const char *principal = NULL;
     gss_client_state *state;
     PyObject *pystate;
-    static char *kwlist[] = {"service", "principal", "gssflags", NULL};
+    gss_server_state *delegatestate = NULL;
+    PyObject *pydelegatestate;
+    static char *kwlist[] = {"service", "principal", "gssflags", "delegated", NULL};
     long int gss_flags = GSS_C_MUTUAL_FLAG | GSS_C_SEQUENCE_FLAG;
     int result = 0;
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|zl", kwlist, &service, &principal, &gss_flags))
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|slO", kwlist, &service, &principal, &gss_flags, &pydelegatestate))
         return NULL;
 
     state = (gss_client_state *) malloc(sizeof(gss_client_state));
     pystate = PyCObject_FromVoidPtr(state, NULL);
 
-    result = authenticate_gss_client_init(service, principal, gss_flags, state);
+    if (PyCObject_Check(pydelegatestate))
+        delegatestate = PyCObject_AsVoidPtr(pydelegatestate);
+
+    result = authenticate_gss_client_init(service, principal, gss_flags, delegatestate, state);
     if (result == AUTH_GSS_ERROR)
         return NULL;
 
@@ -176,6 +181,26 @@ static PyObject *authGSSClientResponseConf(PyObject *self, PyObject *args)
         return NULL;
 
     return Py_BuildValue("i", state->responseConf);
+}
+
+static PyObject *authGSSServerHasDelegated(PyObject *self, PyObject *args)
+{
+    gss_server_state *state;
+    PyObject *pystate;
+
+    if (!PyArg_ParseTuple(args, "O", &pystate))
+        return NULL;
+
+    if (!PyCObject_Check(pystate)) {
+        PyErr_SetString(PyExc_TypeError, "Expected a context object");
+        return NULL;
+    }
+
+    state = (gss_server_state *)PyCObject_AsVoidPtr(pystate);
+    if (state == NULL)
+        return NULL;
+
+    return PyBool_FromLong(authenticate_gss_server_has_delegated(state));
 }
 
 static PyObject *authGSSClientResponse(PyObject *self, PyObject *args)
@@ -478,6 +503,8 @@ static PyMethodDef KerberosMethods[] = {
      "Terminate server-side GSSAPI operations."},
     {"authGSSServerStep",  authGSSServerStep, METH_VARARGS,
      "Do a server-side GSSAPI step."},
+    {"authGSSServerHasDelegated",  authGSSServerHasDelegated, METH_VARARGS,
+     "Check whether the client delegated credentials to us."},
      {"authGSSServerStoreDelegate",  authGSSServerStoreDelegate, METH_VARARGS,
      "Store the delegated Credentials."},
     {"authGSSServerResponse",  authGSSServerResponse, METH_VARARGS,
