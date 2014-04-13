@@ -38,12 +38,16 @@ def checkPassword(user, pswd, service, default_realm):
     That will likely mean ensuring that the edu.mit.Kerberos preference file has the correct
     realms and KDCs listed.
     
+    IMPORTANT This method is vulnerable to KDC spoofing attacks and it should only used
+    for testing. Do not use this in any production system - your security could be
+    compromised if you do.
+     
     @param user:          a string containing the Kerberos user name. A realm may be
         included by appending an '@' followed by the realm string to the actual user id.
         If no realm is supplied, then the realm set in the default_realm argument will
         be used.
     @param pswd:          a string containing the password for the user.
-    @param service:       a string containging the Kerberos service to check access for.
+    @param service:       a string containing the Kerberos service to check access for.
         This will be of the form 'sss/xx.yy.zz', where 'sss' is the service identifier
         (e.g., 'http', 'krbtgt'), and 'xx.yy.zz' is the hostname of the server.
     @param default_realm: a string containing the default realm to use if one is not
@@ -61,7 +65,7 @@ def changePassword(user, oldpswd, newpswd):
         If no realm is supplied, then the realm set in the default_realm argument will
         be used.
     @param oldpswd:       a string containing the old (current) password for the user.
-    @param newpswd:       a string containging the new password for the user.
+    @param newpswd:       a string containing the new password for the user.
     @return:              True if password changing succeeds, False otherwise.
     """
 

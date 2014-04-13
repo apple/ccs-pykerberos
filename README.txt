@@ -44,6 +44,14 @@ directory.  Then run test.py with suitable command line arguments:
     'http@host.example.com')
 
 
+IMPORTANT
+=========
+
+The checkPassword method provided by this library is meant only for testing purposes as it does
+not offer any protection against possible KDC spoofing. That method should not be used in any
+production code.
+
+
 Python APIs
 ===========
 
