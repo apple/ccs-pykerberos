@@ -673,53 +673,58 @@ static void set_gss_error(OM_uint32 err_maj, OM_uint32 err_min)
 
 int authenticate_gss_server_store_delegate(gss_server_state *state)
 {
-   gss_cred_id_t delegated_cred = state->client_creds;
-   char *princ_name = state->username;
-   OM_uint32 maj_stat, min_stat;
-   krb5_principal princ = NULL;
-   krb5_ccache ccache = NULL;
-   krb5_error_code problem;
-   krb5_context context;
-   int ret = 500;
+    gss_cred_id_t delegated_cred = state->client_creds;
+    char *princ_name = state->username;
+    OM_uint32 maj_stat, min_stat;
+    krb5_principal princ = NULL;
+    krb5_ccache ccache = NULL;
+    krb5_error_code problem;
+    krb5_context context;
+    int ret = 500;
 
-   problem = krb5_init_context(&context);
-   if (problem) {
-    PyErr_SetObject(KrbException_class, Py_BuildValue("(s)", "Cannot initialize krb5 context"));
-    return AUTH_GSS_ERROR;
-   }
+    if (delegated_cred == GSS_C_NO_CREDENTIAL){
+        PyErr_SetObject(KrbException_class, Py_BuildValue("(s)", "Ticket is not delegatable"));
+        return AUTH_GSS_ERROR;
+    }
 
-   problem = krb5_parse_name(context, princ_name, &princ);
-   if (problem) {
-    PyErr_SetObject(KrbException_class, Py_BuildValue("(s:s)", "Cannot parse delegated username", krb5_get_err_text(context, problem)));
-    ret = AUTH_GSS_ERROR;
-    goto end;
-   }
+    problem = krb5_init_context(&context);
+    if (problem) {
+        PyErr_SetObject(KrbException_class, Py_BuildValue("(s)", "Cannot initialize krb5 context"));
+        return AUTH_GSS_ERROR;
+    }
 
-   problem = create_krb5_ccache(state, context, princ, &ccache);
-   if (problem) {
-    PyErr_SetObject(KrbException_class, Py_BuildValue("(s:s)", "Error in creating krb5 cache", krb5_get_err_text(context, problem)));
-    ret = AUTH_GSS_ERROR;
-    goto end;
-   }
+    problem = krb5_parse_name(context, princ_name, &princ);
+    if (problem) {
+        PyErr_SetObject(KrbException_class, Py_BuildValue("(s:s)", "Cannot parse delegated username", krb5_get_err_text(context, problem)));
+        ret = AUTH_GSS_ERROR;
+        goto end;
+    }
 
-   maj_stat = gss_krb5_copy_ccache(&min_stat, delegated_cred, ccache);
-   if (GSS_ERROR(maj_stat)) {
-    set_gss_error(maj_stat, min_stat);
-    ret = AUTH_GSS_ERROR;
-    goto end;
-   }
+    problem = create_krb5_ccache(state, context, princ, &ccache);
+    if (problem) {
+        PyErr_SetObject(KrbException_class, Py_BuildValue("(s:s)", "Error in creating krb5 cache", krb5_get_err_text(context, problem)));
+        ret = AUTH_GSS_ERROR;
+        goto end;
+    }
 
-   krb5_cc_close(context, ccache);
-   ccache = NULL;
-   ret = 0;
+    maj_stat = gss_krb5_copy_ccache(&min_stat, delegated_cred, ccache);
+    if (GSS_ERROR(maj_stat)) {
+        set_gss_error(maj_stat, min_stat);
+        ret = AUTH_GSS_ERROR;
+        goto end;
+    }
 
-end:
-   if (princ)
-      krb5_free_principal(context, princ);
-   if (ccache)
-      krb5_cc_destroy(context, ccache);
-   krb5_free_context(context);
-   return ret;
+    krb5_cc_close(context, ccache);
+    ccache = NULL;
+    ret = 0;
+
+    end:
+    if (princ)
+        krb5_free_principal(context, princ);
+    if (ccache)
+        krb5_cc_destroy(context, ccache);
+    krb5_free_context(context);
+    return ret;
 }
 
 int create_krb5_ccache(gss_server_state *state,
@@ -727,47 +732,47 @@ int create_krb5_ccache(gss_server_state *state,
            krb5_principal princ,
            krb5_ccache *ccache)
 {
-   int fd;
-   char ccname[32];
-   krb5_error_code problem;
-   int ret;
-   krb5_ccache tmp_ccache = NULL;
+    int fd;
+    char ccname[32];
+    krb5_error_code problem;
+    int ret;
+    krb5_ccache tmp_ccache = NULL;
 
-   snprintf(ccname, sizeof(ccname), "/tmp/krb5cc_pyserv_XXXXXX");
-   fd = mkstemp(ccname);
-   if (fd < 0) {
-      PyErr_SetObject(KrbException_class, Py_BuildValue("(s:s)", "Error in mkstemp", strerror(errno)));
-      ret = 1;
-      goto end;
-   }
-   close(fd);
+    snprintf(ccname, sizeof(ccname), "/tmp/krb5cc_pyserv_XXXXXX");
+    fd = mkstemp(ccname);
+    if (fd < 0) {
+        PyErr_SetObject(KrbException_class, Py_BuildValue("(s:s)", "Error in mkstemp", strerror(errno)));
+        ret = 1;
+        goto end;
+    }
+    close(fd);
 
-   problem = krb5_cc_resolve(kcontext, ccname, &tmp_ccache);
-   if (problem) {
-      PyErr_SetObject(KrbException_class, Py_BuildValue("(s:s)", "Error resolving the credential cache", krb5_get_err_text(kcontext, problem)));
-      ret = 1;
-      unlink(ccname);
-      goto end;
-   }
+    problem = krb5_cc_resolve(kcontext, ccname, &tmp_ccache);
+    if (problem) {
+        PyErr_SetObject(KrbException_class, Py_BuildValue("(s:s)", "Error resolving the credential cache", krb5_get_err_text(kcontext, problem)));
+        ret = 1;
+        unlink(ccname);
+        goto end;
+    }
 
-   problem = krb5_cc_initialize(kcontext, tmp_ccache, princ);
-   if (problem) {
-    PyErr_SetObject(KrbException_class, Py_BuildValue("(s:s)", "Error initialising the credential cache", krb5_get_err_text(kcontext, problem)));
-      ret = 1;
-      goto end;
-   }
+    problem = krb5_cc_initialize(kcontext, tmp_ccache, princ);
+    if (problem) {
+        PyErr_SetObject(KrbException_class, Py_BuildValue("(s:s)", "Error initialising the credential cache", krb5_get_err_text(kcontext, problem)));
+        ret = 1;
+        goto end;
+    }
 
-   *ccache = tmp_ccache;
-   tmp_ccache = NULL;
+    *ccache = tmp_ccache;
+    tmp_ccache = NULL;
 
-   ret = 0;
+    ret = 0;
 
-end:
-   if (tmp_ccache)
-      krb5_cc_destroy(kcontext, tmp_ccache);
+    end:
+    if (tmp_ccache)
+        krb5_cc_destroy(kcontext, tmp_ccache);
 
-   state->ccname = (char *)malloc(32*sizeof(char));
-   strcpy(state->ccname, ccname);
+    state->ccname = (char *)malloc(32*sizeof(char));
+    strcpy(state->ccname, ccname);
 
-   return ret;
+    return ret;
 }
