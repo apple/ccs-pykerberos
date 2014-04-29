@@ -117,9 +117,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		8DD76F620486A84900D96B5E /* PyKerberos */ = {
+		8DD76F620486A84900D96B5E /* kerberos.so */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 1DEB923108733DC60010E9CD /* Build configuration list for PBXNativeTarget "PyKerberos" */;
+			buildConfigurationList = 1DEB923108733DC60010E9CD /* Build configuration list for PBXNativeTarget "kerberos.so" */;
 			buildPhases = (
 				8DD76F640486A84900D96B5E /* Sources */,
 				8DD76F660486A84900D96B5E /* Frameworks */,
@@ -129,7 +129,7 @@
 			);
 			dependencies = (
 			);
-			name = PyKerberos;
+			name = kerberos.so;
 			productInstallPath = "$(HOME)/bin";
 			productName = PyKerberos;
 			productReference = 8DD76F6C0486A84900D96B5E /* PyKerberos */;
@@ -140,14 +140,20 @@
 /* Begin PBXProject section */
 		08FB7793FE84155DC02AAC07 /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+			};
 			buildConfigurationList = 1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "PyKerberos" */;
 			compatibilityVersion = "Xcode 3.0";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
+			knownRegions = (
+				en,
+			);
 			mainGroup = 08FB7794FE84155DC02AAC07 /* PyKerberos */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				8DD76F620486A84900D96B5E /* PyKerberos */,
+				8DD76F620486A84900D96B5E /* kerberos.so */,
 			);
 		};
 /* End PBXProject section */
@@ -183,7 +189,9 @@
 				);
 				HEADER_SEARCH_PATHS = "/System/Library/Frameworks/Python.framework/Headers/**";
 				INSTALL_PATH = /usr/local/bin;
-				PRODUCT_NAME = PyKerberos;
+				PRODUCT_NAME = kerberos.so;
+				SDKROOT = "";
+				SYMROOT = /Volumes/scalawag/Users/gaya/xbuild;
 				ZERO_LINK = YES;
 			};
 			name = Debug;
@@ -199,7 +207,9 @@
 				GCC_MODEL_TUNING = G5;
 				HEADER_SEARCH_PATHS = "/System/Library/Frameworks/Python.framework/Headers/**";
 				INSTALL_PATH = /usr/local/bin;
-				PRODUCT_NAME = PyKerberos;
+				PRODUCT_NAME = kerberos.so;
+				SDKROOT = "";
+				SYMROOT = /Volumes/scalawag/Users/gaya/xbuild;
 			};
 			name = Release;
 		};
@@ -209,7 +219,8 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				PREBINDING = NO;
-				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.5.sdk";
+				SDKROOT = "";
+				SYMROOT = "";
 			};
 			name = Debug;
 		};
@@ -220,7 +231,8 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "";
 				PREBINDING = NO;
-				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.5.sdk";
+				SDKROOT = "";
+				SYMROOT = "";
 				USER_HEADER_SEARCH_PATHS = ..src;
 			};
 			name = Release;
@@ -228,7 +240,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		1DEB923108733DC60010E9CD /* Build configuration list for PBXNativeTarget "PyKerberos" */ = {
+		1DEB923108733DC60010E9CD /* Build configuration list for PBXNativeTarget "kerberos.so" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1DEB923208733DC60010E9CD /* Debug */,
