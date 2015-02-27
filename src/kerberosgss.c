@@ -189,7 +189,7 @@ int authenticate_gss_client_clean(gss_client_state *state)
         maj_stat = gss_delete_sec_context(&min_stat, &state->context, GSS_C_NO_BUFFER);
     if (state->server_name != GSS_C_NO_NAME)
         maj_stat = gss_release_name(&min_stat, &state->server_name);
-    if (state->client_creds != GSS_C_NO_CREDENTIAL)
+    if (state->client_creds != GSS_C_NO_CREDENTIAL && !(state->gss_flags & GSS_C_DELEG_FLAG))
         maj_stat = gss_release_cred(&min_stat, &state->client_creds);
     if (state->username != NULL)
     {
@@ -471,8 +471,8 @@ int authenticate_gss_server_init(const char *service, gss_server_state *state)
         }
         
         // Get credentials
-        maj_stat = gss_acquire_cred(&min_stat, state->server_name, GSS_C_INDEFINITE,
-                                    GSS_C_NO_OID_SET, GSS_C_ACCEPT, &state->server_creds, NULL, NULL);
+        maj_stat = gss_acquire_cred(&min_stat, GSS_C_NO_NAME, GSS_C_INDEFINITE,
+                                    GSS_C_NO_OID_SET, GSS_C_BOTH, &state->server_creds, NULL, NULL);
         
         if (GSS_ERROR(maj_stat))
         {
