@@ -28,7 +28,7 @@ Kerberos authentication based on <http://www.ietf.org/rfc/rfc4559.txt>.
 
 setup (
     name = "kerberos",
-    version = "1.1.1",
+    version = "1.1.2",
     description = "Kerberos high-level interface",
     long_description=long_description,
     classifiers = [
