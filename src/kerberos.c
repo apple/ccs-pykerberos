@@ -20,6 +20,44 @@
 #include "kerberospw.h"
 #include "kerberosgss.h"
 
+
+/*
+ * Support the Python 3 API while maintaining backward compatibility for the
+ * Python 2 API.
+ * Thanks to Lennart Regebro for http://python3porting.com/cextensions.html
+ */
+// Handle basic API changes
+#if PY_MAJOR_VERSION >= 3
+    // Basic renames (function parameters are the same)
+    // No more int objects
+    #define PyInt_FromLong PyLong_FromLong
+    // CObjects to Capsules
+    #define PyCObject_Check PyCapsule_CheckExact
+    #define PyCObject_SetVoidPtr PyCapsule_SetPointer
+
+    // More complex macros (function parameters are not the same)
+    // Note for PyCObject_FromVoidPtr, destr is now the third parameter
+    #define PyCObject_FromVoidPtr(cobj, destr) PyCapsule_New(cobj, NULL, destr)
+    #define PyCObject_AsVoidPtr(pobj) PyCapsule_GetPointer(pobj, NULL)
+#endif
+// Handle differences in module definition syntax and interface
+#if PY_MAJOR_VERSION >= 3
+  #define MOD_ERROR_VAL NULL
+  #define MOD_SUCCESS_VAL(val) val
+  #define MOD_INIT(name) PyMODINIT_FUNC PyInit_##name(void)
+  #define MOD_DEF(ob, name, doc, methods) \
+          static struct PyModuleDef moduledef = { \
+            PyModuleDef_HEAD_INIT, name, doc, -1, methods, }; \
+          ob = PyModule_Create(&moduledef);
+#else
+  #define MOD_ERROR_VAL
+  #define MOD_SUCCESS_VAL(val)
+  #define MOD_INIT(name) void init##name(void)
+  #define MOD_DEF(ob, name, doc, methods) \
+          ob = Py_InitModule3(name, methods, doc);
+#endif
+
+
 PyObject *KrbException_class;
 PyObject *BasicAuthException_class;
 PyObject *PwdChangeException_class;
@@ -518,11 +556,14 @@ static PyMethodDef KerberosMethods[] = {
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
-PyMODINIT_FUNC initkerberos(void)
+MOD_INIT(kerberos)
 {
     PyObject *m,*d;
 
-    m = Py_InitModule("kerberos", KerberosMethods);
+    MOD_DEF(m, "kerberos", NULL, KerberosMethods);
+
+    if (m == NULL)
+        return MOD_ERROR_VAL;
 
     d = PyModule_GetDict(m);
 
@@ -562,6 +603,9 @@ PyMODINIT_FUNC initkerberos(void)
     PyDict_SetItemString(d, "GSS_C_TRANS_FLAG", PyInt_FromLong(GSS_C_TRANS_FLAG));
 
 error:
-    if (PyErr_Occurred())
-        PyErr_SetString(PyExc_ImportError, "kerberos: init failed");
+    if (PyErr_Occurred()) {
+         PyErr_SetString(PyExc_ImportError, "kerberos: init failed");
+        return MOD_ERROR_VAL;
+    }
+    return MOD_SUCCESS_VAL(m);
 }
