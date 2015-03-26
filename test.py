@@ -39,7 +39,10 @@ import sys
 import socket
 import ssl
 
-from httplib import HTTPSConnection, HTTPConnection
+try:
+    from http.client import HTTPSConnection, HTTPConnection
+except ImportError:
+    from httplib import HTTPSConnection, HTTPConnection
 
 
 
