@@ -81,32 +81,36 @@ unsigned char *base64_decode(const char *value, size_t *rlen)
     unsigned char *result =(unsigned char *)malloc((vlen * 3) / 4 + 1);
     unsigned char *out = result;
 
-    while (1)
-    {
-        if (value[0]==0)
+    while (1) {
+        if (value[0]==0) {
             return result;
+        }
         c1 = value[0];
-        if (CHAR64(c1) == -1)
+        if (CHAR64(c1) == -1) {
             goto base64_decode_error;;
+        }
         c2 = value[1];
-        if (CHAR64(c2) == -1)
+        if (CHAR64(c2) == -1) {
             goto base64_decode_error;;
+        }
         c3 = value[2];
-        if ((c3 != '=') && (CHAR64(c3) == -1))
+        if ((c3 != '=') && (CHAR64(c3) == -1)) {
             goto base64_decode_error;;
+        }
         c4 = value[3];
-        if ((c4 != '=') && (CHAR64(c4) == -1))
+        if ((c4 != '=') && (CHAR64(c4) == -1)) {
             goto base64_decode_error;;
+        }
 
         value += 4;
         *out++ = (CHAR64(c1) << 2) | (CHAR64(c2) >> 4);
         *rlen += 1;
-        if (c3 != '=')
-        {
+
+        if (c3 != '=') {
             *out++ = ((CHAR64(c2) << 4) & 0xf0) | (CHAR64(c3) >> 2);
             *rlen += 1;
-            if (c4 != '=')
-            {
+
+            if (c4 != '=') {
                 *out++ = ((CHAR64(c3) << 6) & 0xc0) | CHAR64(c4);
                 *rlen += 1;
             }
@@ -116,5 +120,6 @@ unsigned char *base64_decode(const char *value, size_t *rlen)
 base64_decode_error:
     *result = 0;
     *rlen = 0;
+
     return result;
 }

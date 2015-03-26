@@ -26,10 +26,15 @@
 extern PyObject *BasicAuthException_class;
 static void set_basicauth_error(krb5_context context, krb5_error_code code);
 
-static krb5_error_code verify_krb5_user(krb5_context context, krb5_principal principal, const char *password, krb5_principal server);
+static krb5_error_code verify_krb5_user(
+    krb5_context context, krb5_principal principal, const char *password,
+    krb5_principal server
+);
 
-int authenticate_user_krb5pwd(const char *user, const char *pswd, const char *service, const char *default_realm)
-{
+int authenticate_user_krb5pwd(
+    const char *user, const char *pswd, const char *service,
+    const char *default_realm
+) {
     krb5_context    kcontext = NULL;
     krb5_error_code code;
     krb5_principal  client = NULL;
@@ -41,23 +46,25 @@ int authenticate_user_krb5pwd(const char *user, const char *pswd, const char *se
     code = krb5_init_context(&kcontext);
     if (code)
     {
-        PyErr_SetObject(BasicAuthException_class, Py_BuildValue("((s:i))",
-                                                                "Cannot initialize Kerberos5 context", code));
+        PyErr_SetObject(
+            BasicAuthException_class,
+            Py_BuildValue(
+                "((s:i))", "Cannot initialize Kerberos5 context", code
+            )
+        );
         return 0;
     }
 
     ret = krb5_parse_name (kcontext, service, &server);
 
-    if (ret)
-    {
+    if (ret) {
         set_basicauth_error(kcontext, ret);
         ret = 0;
         goto end;
     }
 
     code = krb5_unparse_name(kcontext, server, &name);
-    if (code)
-    {
+    if (code) {
         set_basicauth_error(kcontext, code);
         ret = 0;
         goto end;
@@ -70,18 +77,14 @@ int authenticate_user_krb5pwd(const char *user, const char *pswd, const char *se
 
     name = (char *)malloc(256);
     p = strchr(user, '@');
-    if (p == NULL)
-    {
+    if (p == NULL) {
         snprintf(name, 256, "%s@%s", user, default_realm);
-    }
-    else
-    {
+    } else {
         snprintf(name, 256, "%s", user);
     }
 
     code = krb5_parse_name(kcontext, name, &client);
-    if (code)
-    {
+    if (code) {
         set_basicauth_error(kcontext, code);
         ret = 0;
         goto end;
@@ -89,8 +92,7 @@ int authenticate_user_krb5pwd(const char *user, const char *pswd, const char *se
 
     code = verify_krb5_user(kcontext, client, pswd, server);
 
-    if (code)
-    {
+    if (code) {
         ret = 0;
         goto end;
     }
@@ -99,22 +101,30 @@ int authenticate_user_krb5pwd(const char *user, const char *pswd, const char *se
 
 end:
 #ifdef PRINTFS
-    printf("kerb_authenticate_user_krb5pwd ret=%d user=%s authtype=%s\n", ret, user, "Basic");
+    printf(
+        "kerb_authenticate_user_krb5pwd ret=%d user=%s authtype=%s\n",
+        ret, user, "Basic"
+    );
 #endif
-    if (name)
+    if (name) {
         free(name);
-    if (client)
+    }
+    if (client) {
         krb5_free_principal(kcontext, client);
-    if (server)
+    }
+    if (server) {
         krb5_free_principal(kcontext, server);
+    }
     krb5_free_context(kcontext);
 
     return ret;
 }
 
 /* Inspired by krb5_verify_user from Heimdal */
-static krb5_error_code verify_krb5_user(krb5_context context, krb5_principal principal, const char *password, krb5_principal server)
-{
+static krb5_error_code verify_krb5_user(
+    krb5_context context, krb5_principal principal, const char *password,
+    krb5_principal server
+) {
     krb5_creds creds;
     krb5_get_init_creds_opt gic_options;
     krb5_error_code ret;
@@ -123,8 +133,7 @@ static krb5_error_code verify_krb5_user(krb5_context context, krb5_principal pri
     memset(&creds, 0, sizeof(creds));
 
     ret = krb5_unparse_name(context, principal, &name);
-    if (ret == 0)
-    {
+    if (ret == 0) {
 #ifdef PRINTFS
         printf("Trying to get TGT for user %s\n", name);
 #endif
@@ -132,9 +141,11 @@ static krb5_error_code verify_krb5_user(krb5_context context, krb5_principal pri
     }
 
     krb5_get_init_creds_opt_init(&gic_options);
-    ret = krb5_get_init_creds_password(context, &creds, principal, (char *)password, NULL, NULL, 0, NULL, &gic_options);
-    if (ret)
-    {
+    ret = krb5_get_init_creds_password(
+        context, &creds, principal, (char *)password,
+        NULL, NULL, 0, NULL, &gic_options
+    );
+    if (ret) {
         set_basicauth_error(context, ret);
         goto end;
     }
@@ -147,5 +158,8 @@ end:
 
 static void set_basicauth_error(krb5_context context, krb5_error_code code)
 {
-    PyErr_SetObject(BasicAuthException_class, Py_BuildValue("(s:i)", krb5_get_err_text(context, code), code));
+    PyErr_SetObject(
+        BasicAuthException_class,
+        Py_BuildValue("(s:i)", krb5_get_err_text(context, code), code)
+    );
 }
