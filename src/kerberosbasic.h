@@ -20,4 +20,7 @@
 
 #define krb5_get_err_text(context,code) error_message(code)
 
-int authenticate_user_krb5pwd(const char *user, const char *pswd, const char *service, const char *default_realm);
+int authenticate_user_krb5pwd(
+    const char *user, const char *pswd, const char *service,
+    const char *default_realm
+);

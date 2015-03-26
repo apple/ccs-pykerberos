@@ -26,7 +26,10 @@
 
 static void set_gss_error(OM_uint32 err_maj, OM_uint32 err_min);
 
-int create_krb5_ccache(gss_server_state *state, krb5_context kcontext, krb5_principal princ, krb5_ccache *ccache);
+int create_krb5_ccache(
+    gss_server_state *state, krb5_context kcontext, krb5_principal princ,
+    krb5_ccache *ccache
+);
 
 extern PyObject *GssException_class;
 extern PyObject *KrbException_class;
@@ -49,38 +52,46 @@ char* server_principal_details(const char* service, const char* hostname)
     match_len = strlen(match);
     
     code = krb5_init_context(&kcontext);
-    if (code)
-    {
-        PyErr_SetObject(KrbException_class, Py_BuildValue("((s:i))",
-                                                          "Cannot initialize Kerberos5 context", code));
+    if (code) {
+        PyErr_SetObject(
+            KrbException_class,
+            Py_BuildValue(
+                "((s:i))", "Cannot initialize Kerberos5 context", code
+            )
+        );
         return NULL;
     }
     
-    if ((code = krb5_kt_default(kcontext, &kt)))
-    {
-        PyErr_SetObject(KrbException_class, Py_BuildValue("((s:i))",
-                                                          "Cannot get default keytab", code));
+    if ((code = krb5_kt_default(kcontext, &kt))) {
+        PyErr_SetObject(
+            KrbException_class,
+            Py_BuildValue("((s:i))", "Cannot get default keytab", code)
+        );
         goto end;
     }
     
-    if ((code = krb5_kt_start_seq_get(kcontext, kt, &cursor)))
-    {
-        PyErr_SetObject(KrbException_class, Py_BuildValue("((s:i))",
-                                                          "Cannot get sequence cursor from keytab", code));
+    if ((code = krb5_kt_start_seq_get(kcontext, kt, &cursor))) {
+        PyErr_SetObject(
+            KrbException_class,
+            Py_BuildValue(
+                "((s:i))", "Cannot get sequence cursor from keytab", code
+            )
+        );
         goto end;
     }
     
-    while ((code = krb5_kt_next_entry(kcontext, kt, &entry, &cursor)) == 0)
-    {
-        if ((code = krb5_unparse_name(kcontext, entry.principal, &pname)))
-        {
-            PyErr_SetObject(KrbException_class, Py_BuildValue("((s:i))",
-                                                              "Cannot parse principal name from keytab", code));
+    while ((code = krb5_kt_next_entry(kcontext, kt, &entry, &cursor)) == 0) {
+        if ((code = krb5_unparse_name(kcontext, entry.principal, &pname))) {
+            PyErr_SetObject(
+                KrbException_class,
+                Py_BuildValue(
+                    "((s:i))", "Cannot parse principal name from keytab", code
+                )
+            );
             goto end;
         }
         
-        if (strncmp(pname, match, match_len) == 0)
-        {
+        if (strncmp(pname, match, match_len) == 0) {
             result = malloc(strlen(pname) + 1);
             strcpy(result, pname);
             krb5_free_unparsed_name(kcontext, pname);
@@ -92,23 +103,29 @@ char* server_principal_details(const char* service, const char* hostname)
         krb5_free_keytab_entry_contents(kcontext, &entry);
     }
     
-    if (result == NULL)
-    {
-        PyErr_SetObject(KrbException_class, Py_BuildValue("((s:i))",
-                                                          "Principal not found in keytab", -1));
+    if (result == NULL) {
+        PyErr_SetObject(
+            KrbException_class,
+            Py_BuildValue("((s:i))", "Principal not found in keytab", -1)
+        );
     }
     
 end:
-    if (cursor)
+    if (cursor) {
         krb5_kt_end_seq_get(kcontext, kt, &cursor);
-    if (kt)
+    }
+    if (kt) {
         krb5_kt_close(kcontext, kt);
+    }
     krb5_free_context(kcontext);
     
     return result;
 }
 
-int authenticate_gss_client_init(const char* service, const char* principal, long int gss_flags, gss_server_state* delegatestate, gss_client_state* state)
+int authenticate_gss_client_init(
+    const char* service, const char* principal, long int gss_flags,
+    gss_server_state* delegatestate, gss_client_state* state
+)
 {
     OM_uint32 maj_stat;
     OM_uint32 min_stat;
@@ -127,53 +144,51 @@ int authenticate_gss_client_init(const char* service, const char* principal, lon
     name_token.length = strlen(service);
     name_token.value = (char *)service;
     
-    maj_stat = gss_import_name(&min_stat, &name_token, gss_krb5_nt_service_name, &state->server_name);
+    maj_stat = gss_import_name(
+        &min_stat, &name_token, gss_krb5_nt_service_name, &state->server_name
+    );
     
-    if (GSS_ERROR(maj_stat))
-    {
+    if (GSS_ERROR(maj_stat)) {
         set_gss_error(maj_stat, min_stat);
         ret = AUTH_GSS_ERROR;
         goto end;
     }
     // Use the delegate credentials if they exist
-    if (delegatestate && delegatestate->client_creds != GSS_C_NO_CREDENTIAL)
-    {
+    if (delegatestate && delegatestate->client_creds != GSS_C_NO_CREDENTIAL) {
         state->client_creds = delegatestate->client_creds;
     }
-
     // If available use the principal to extract its associated credentials
-    else if (principal && *principal)
-    {
+    else if (principal && *principal) {
         gss_name_t name;
         principal_token.length = strlen(principal);
         principal_token.value = (char *)principal;
 
-        maj_stat = gss_import_name(&min_stat, &principal_token, GSS_C_NT_USER_NAME, &name);
-        if (GSS_ERROR(maj_stat))
-        {
+        maj_stat = gss_import_name(
+            &min_stat, &principal_token, GSS_C_NT_USER_NAME, &name
+        );
+        if (GSS_ERROR(maj_stat)) {
             set_gss_error(maj_stat, min_stat);
             ret = AUTH_GSS_ERROR;
-	    goto end;
+    	    goto end;
         }
 
-        maj_stat = gss_acquire_cred(&min_stat, name, GSS_C_INDEFINITE, GSS_C_NO_OID_SET, GSS_C_INITIATE, 
-                                    &state->client_creds, NULL, NULL);
-        if (GSS_ERROR(maj_stat))
-        {
+        maj_stat = gss_acquire_cred(
+            &min_stat, name, GSS_C_INDEFINITE, GSS_C_NO_OID_SET,
+            GSS_C_INITIATE, &state->client_creds, NULL, NULL
+        );
+        if (GSS_ERROR(maj_stat)) {
             set_gss_error(maj_stat, min_stat);
-            ret = AUTH_GSS_ERROR;
-	    goto end;
-        }
-
-        maj_stat = gss_release_name(&min_stat, &name);
-        if (GSS_ERROR(maj_stat))
-        {
-	    set_gss_error(maj_stat, min_stat);
             ret = AUTH_GSS_ERROR;
             goto end;
         }
 
-      }
+        maj_stat = gss_release_name(&min_stat, &name);
+        if (GSS_ERROR(maj_stat)) {
+            set_gss_error(maj_stat, min_stat);
+            ret = AUTH_GSS_ERROR;
+            goto end;
+        }
+    }
 
 end:
     return ret;
@@ -185,19 +200,25 @@ int authenticate_gss_client_clean(gss_client_state *state)
     OM_uint32 min_stat;
     int ret = AUTH_GSS_COMPLETE;
     
-    if (state->context != GSS_C_NO_CONTEXT)
-        maj_stat = gss_delete_sec_context(&min_stat, &state->context, GSS_C_NO_BUFFER);
-    if (state->server_name != GSS_C_NO_NAME)
+    if (state->context != GSS_C_NO_CONTEXT) {
+        maj_stat = gss_delete_sec_context(
+            &min_stat, &state->context, GSS_C_NO_BUFFER
+        );
+    }
+    if (state->server_name != GSS_C_NO_NAME) {
         maj_stat = gss_release_name(&min_stat, &state->server_name);
-    if (state->client_creds != GSS_C_NO_CREDENTIAL && !(state->gss_flags & GSS_C_DELEG_FLAG))
+    }
+    if (
+        state->client_creds != GSS_C_NO_CREDENTIAL &&
+        ! (state->gss_flags & GSS_C_DELEG_FLAG)
+    ) {
         maj_stat = gss_release_cred(&min_stat, &state->client_creds);
-    if (state->username != NULL)
-    {
+    }
+    if (state->username != NULL) {
         free(state->username);
         state->username = NULL;
     }
-    if (state->response != NULL)
-    {
+    if (state->response != NULL) {
         free(state->response);
         state->response = NULL;
     }
@@ -205,8 +226,9 @@ int authenticate_gss_client_clean(gss_client_state *state)
     return ret;
 }
 
-int authenticate_gss_client_step(gss_client_state* state, const char* challenge)
-{
+int authenticate_gss_client_step(
+    gss_client_state* state, const char* challenge
+) {
     OM_uint32 maj_stat;
     OM_uint32 min_stat;
     gss_buffer_desc input_token = GSS_C_EMPTY_BUFFER;
@@ -214,15 +236,13 @@ int authenticate_gss_client_step(gss_client_state* state, const char* challenge)
     int ret = AUTH_GSS_CONTINUE;
     
     // Always clear out the old response
-    if (state->response != NULL)
-    {
+    if (state->response != NULL) {
         free(state->response);
         state->response = NULL;
     }
     
     // If there is a challenge (data from the server) we need to give it to GSS
-    if (challenge && *challenge)
-    {
+    if (challenge && *challenge) {
         size_t len;
         input_token.value = base64_decode(challenge, &len);
         input_token.length = len;
@@ -230,23 +250,24 @@ int authenticate_gss_client_step(gss_client_state* state, const char* challenge)
     
     // Do GSSAPI step
     Py_BEGIN_ALLOW_THREADS
-    maj_stat = gss_init_sec_context(&min_stat,
-                                    state->client_creds,
-                                    &state->context,
-                                    state->server_name,
-                                    GSS_C_NO_OID,
-                                    (OM_uint32)state->gss_flags,
-                                    0,
-                                    GSS_C_NO_CHANNEL_BINDINGS,
-                                    &input_token,
-                                    NULL,
-                                    &output_token,
-                                    NULL,
-                                    NULL);
+    maj_stat = gss_init_sec_context(
+        &min_stat,
+        state->client_creds,
+        &state->context,
+        state->server_name,
+        GSS_C_NO_OID,
+        (OM_uint32)state->gss_flags,
+        0,
+        GSS_C_NO_CHANNEL_BINDINGS,
+        &input_token,
+        NULL,
+        &output_token,
+        NULL,
+        NULL
+    );
     Py_END_ALLOW_THREADS
     
-    if ((maj_stat != GSS_S_COMPLETE) && (maj_stat != GSS_S_CONTINUE_NEEDED))
-    {
+    if ((maj_stat != GSS_S_COMPLETE) && (maj_stat != GSS_S_CONTINUE_NEEDED)) {
         set_gss_error(maj_stat, min_stat);
         ret = AUTH_GSS_ERROR;
         goto end;
@@ -254,19 +275,16 @@ int authenticate_gss_client_step(gss_client_state* state, const char* challenge)
     
     ret = (maj_stat == GSS_S_COMPLETE) ? AUTH_GSS_COMPLETE : AUTH_GSS_CONTINUE;
     // Grab the client response to send back to the server
-    if (output_token.length)
-    {
+    if (output_token.length) {
         state->response = base64_encode((const unsigned char *)output_token.value, output_token.length);;
         maj_stat = gss_release_buffer(&min_stat, &output_token);
     }
     
     // Try to get the user name if we have completed all GSS operations
-    if (ret == AUTH_GSS_COMPLETE)
-    {
+    if (ret == AUTH_GSS_COMPLETE) {
         gss_name_t gssuser = GSS_C_NO_NAME;
         maj_stat = gss_inquire_context(&min_stat, state->context, &gssuser, NULL, NULL, NULL,  NULL, NULL, NULL);
-        if (GSS_ERROR(maj_stat))
-        {
+        if (GSS_ERROR(maj_stat)) {
             set_gss_error(maj_stat, min_stat);
             ret = AUTH_GSS_ERROR;
             goto end;
@@ -275,8 +293,7 @@ int authenticate_gss_client_step(gss_client_state* state, const char* challenge)
         gss_buffer_desc name_token;
         name_token.length = 0;
         maj_stat = gss_display_name(&min_stat, gssuser, &name_token, NULL);
-        if (GSS_ERROR(maj_stat))
-        {
+        if (GSS_ERROR(maj_stat)) {
             if (name_token.value)
                 gss_release_buffer(&min_stat, &name_token);
             gss_release_name(&min_stat, &gssuser);
@@ -284,9 +301,7 @@ int authenticate_gss_client_step(gss_client_state* state, const char* challenge)
             set_gss_error(maj_stat, min_stat);
             ret = AUTH_GSS_ERROR;
             goto end;
-        }
-        else
-        {
+        } else {
             state->username = (char *)malloc(name_token.length + 1);
             strncpy(state->username, (char*) name_token.value, name_token.length);
             state->username[name_token.length] = 0;
@@ -294,16 +309,20 @@ int authenticate_gss_client_step(gss_client_state* state, const char* challenge)
             gss_release_name(&min_stat, &gssuser);
         }
     }
+
 end:
-    if (output_token.value)
+    if (output_token.value) {
         gss_release_buffer(&min_stat, &output_token);
-    if (input_token.value)
+    }
+    if (input_token.value) {
         free(input_token.value);
+    }
     return ret;
 }
 
-int authenticate_gss_client_unwrap(gss_client_state *state, const char *challenge)
-{
+int authenticate_gss_client_unwrap(
+    gss_client_state *state, const char *challenge
+) {
 	OM_uint32 maj_stat;
 	OM_uint32 min_stat;
 	gss_buffer_desc input_token = GSS_C_EMPTY_BUFFER;
@@ -312,55 +331,60 @@ int authenticate_gss_client_unwrap(gss_client_state *state, const char *challeng
 	int conf = 0;
     
 	// Always clear out the old response
-	if (state->response != NULL)
-	{
+	if (state->response != NULL) {
 		free(state->response);
 		state->response = NULL;
 		state->responseConf = 0;
 	}
     
 	// If there is a challenge (data from the server) we need to give it to GSS
-	if (challenge && *challenge)
-	{
+	if (challenge && *challenge) {
 		size_t len;
 		input_token.value = base64_decode(challenge, &len);
 		input_token.length = len;
 	}
     
 	// Do GSSAPI step
-	maj_stat = gss_unwrap(&min_stat,
-                          state->context,
-                          &input_token,
-                          &output_token,
-                          &conf,
-                          NULL);
+	maj_stat = gss_unwrap(
+        &min_stat,
+        state->context,
+        &input_token,
+        &output_token,
+        &conf,
+        NULL
+    );
     
-	if (maj_stat != GSS_S_COMPLETE)
-	{
+	if (maj_stat != GSS_S_COMPLETE)	{
 		set_gss_error(maj_stat, min_stat);
 		ret = AUTH_GSS_ERROR;
 		goto end;
-	}
-	else
+	} else {
 		ret = AUTH_GSS_COMPLETE;
+    }
     
 	// Grab the client response
-	if (output_token.length)
-	{
-		state->response = base64_encode((const unsigned char *)output_token.value, output_token.length);
+	if (output_token.length) {
+		state->response = base64_encode(
+            (const unsigned char *)output_token.value, output_token.length
+        );
 		state->responseConf = conf;
 		maj_stat = gss_release_buffer(&min_stat, &output_token);
 	}
+
 end:
-	if (output_token.value)
+	if (output_token.value) {
 		gss_release_buffer(&min_stat, &output_token);
-	if (input_token.value)
+    }
+	if (input_token.value) {
 		free(input_token.value);
+    }
 	return ret;
 }
 
-int authenticate_gss_client_wrap(gss_client_state* state, const char* challenge, const char* user, int protect)
-{
+int authenticate_gss_client_wrap(
+    gss_client_state* state, const char* challenge, const char* user,
+    int protect
+) {
 	OM_uint32 maj_stat;
 	OM_uint32 min_stat;
 	gss_buffer_desc input_token = GSS_C_EMPTY_BUFFER;
@@ -370,14 +394,12 @@ int authenticate_gss_client_wrap(gss_client_state* state, const char* challenge,
 	unsigned long buf_size;
     
 	// Always clear out the old response
-	if (state->response != NULL)
-	{
+	if (state->response != NULL) {
 		free(state->response);
 		state->response = NULL;
 	}
     
-	if (challenge && *challenge)
-	{
+	if (challenge && *challenge) {
 		size_t len;
 		input_token.value = base64_decode(challenge, &len);
 		input_token.length = len;
@@ -390,10 +412,12 @@ int authenticate_gss_client_wrap(gss_client_state* state, const char* challenge,
 		buf_size = ntohl(*((long *) input_token.value));
 		free(input_token.value);
 #ifdef PRINTFS
-		printf("User: %s, %c%c%c\n", user,
-               server_conf_flags & GSS_AUTH_P_NONE      ? 'N' : '-',
-               server_conf_flags & GSS_AUTH_P_INTEGRITY ? 'I' : '-',
-               server_conf_flags & GSS_AUTH_P_PRIVACY   ? 'P' : '-');
+		printf(
+            "User: %s, %c%c%c\n", user,
+            server_conf_flags & GSS_AUTH_P_NONE      ? 'N' : '-',
+            server_conf_flags & GSS_AUTH_P_INTEGRITY ? 'I' : '-',
+            server_conf_flags & GSS_AUTH_P_PRIVACY   ? 'P' : '-'
+        );
 		printf("Maximum GSS token size is %ld\n", buf_size);
 #endif
         
@@ -408,31 +432,33 @@ int authenticate_gss_client_wrap(gss_client_state* state, const char* challenge,
 	}
     
 	// Do GSSAPI wrap
-	maj_stat = gss_wrap(&min_stat,
-						state->context,
-						protect,
-						GSS_C_QOP_DEFAULT,
-						&input_token,
-						NULL,
-						&output_token);
+	maj_stat = gss_wrap(
+        &min_stat,
+        state->context,
+        protect,
+        GSS_C_QOP_DEFAULT,
+        &input_token,
+        NULL,
+        &output_token
+    );
     
-	if (maj_stat != GSS_S_COMPLETE)
-	{
+	if (maj_stat != GSS_S_COMPLETE)	{
 		set_gss_error(maj_stat, min_stat);
 		ret = AUTH_GSS_ERROR;
 		goto end;
-	}
-	else
+	} else {
 		ret = AUTH_GSS_COMPLETE;
+    }
 	// Grab the client response to send back to the server
-	if (output_token.length)
-	{
+	if (output_token.length) {
 		state->response = base64_encode((const unsigned char *)output_token.value, output_token.length);;
 		maj_stat = gss_release_buffer(&min_stat, &output_token);
 	}
+
 end:
-	if (output_token.value)
+	if (output_token.value) {
 		gss_release_buffer(&min_stat, &output_token);
+    }
 	return ret;
 }
 
@@ -455,27 +481,29 @@ int authenticate_gss_server_init(const char *service, gss_server_state *state)
     
     // Server name may be empty which means we aren't going to create our own creds
     size_t service_len = strlen(service);
-    if (service_len != 0)
-    {
+    if (service_len != 0) {
         // Import server name first
         name_token.length = strlen(service);
         name_token.value = (char *)service;
         
-        maj_stat = gss_import_name(&min_stat, &name_token, GSS_C_NT_HOSTBASED_SERVICE, &state->server_name);
+        maj_stat = gss_import_name(
+            &min_stat, &name_token, GSS_C_NT_HOSTBASED_SERVICE,
+            &state->server_name
+        );
         
-        if (GSS_ERROR(maj_stat))
-        {
+        if (GSS_ERROR(maj_stat)) {
             set_gss_error(maj_stat, min_stat);
             ret = AUTH_GSS_ERROR;
             goto end;
         }
-        
+
         // Get credentials
-        maj_stat = gss_acquire_cred(&min_stat, GSS_C_NO_NAME, GSS_C_INDEFINITE,
-                                    GSS_C_NO_OID_SET, GSS_C_BOTH, &state->server_creds, NULL, NULL);
-        
-        if (GSS_ERROR(maj_stat))
-        {
+        maj_stat = gss_acquire_cred(
+            &min_stat, GSS_C_NO_NAME, GSS_C_INDEFINITE, GSS_C_NO_OID_SET,
+            GSS_C_BOTH, &state->server_creds, NULL, NULL
+        );
+
+        if (GSS_ERROR(maj_stat)) {
             set_gss_error(maj_stat, min_stat);
             ret = AUTH_GSS_ERROR;
             goto end;
@@ -492,34 +520,36 @@ int authenticate_gss_server_clean(gss_server_state *state)
     OM_uint32 min_stat;
     int ret = AUTH_GSS_COMPLETE;
     
-    if (state->context != GSS_C_NO_CONTEXT)
-        maj_stat = gss_delete_sec_context(&min_stat, &state->context, GSS_C_NO_BUFFER);
-    if (state->server_name != GSS_C_NO_NAME)
+    if (state->context != GSS_C_NO_CONTEXT) {
+        maj_stat = gss_delete_sec_context(
+            &min_stat, &state->context, GSS_C_NO_BUFFER
+        );
+    }
+    if (state->server_name != GSS_C_NO_NAME) {
         maj_stat = gss_release_name(&min_stat, &state->server_name);
-    if (state->client_name != GSS_C_NO_NAME)
+    }
+    if (state->client_name != GSS_C_NO_NAME) {
         maj_stat = gss_release_name(&min_stat, &state->client_name);
-    if (state->server_creds != GSS_C_NO_CREDENTIAL)
+    }
+    if (state->server_creds != GSS_C_NO_CREDENTIAL) {
         maj_stat = gss_release_cred(&min_stat, &state->server_creds);
-    if (state->client_creds != GSS_C_NO_CREDENTIAL)
+    }
+    if (state->client_creds != GSS_C_NO_CREDENTIAL) {
         maj_stat = gss_release_cred(&min_stat, &state->client_creds);
-    if (state->username != NULL)
-    {
+    }
+    if (state->username != NULL) {
         free(state->username);
         state->username = NULL;
     }
-    if (state->targetname != NULL)
-    {
+    if (state->targetname != NULL) {
         free(state->targetname);
         state->targetname = NULL;
     }
-    if (state->response != NULL)
-    {
+    if (state->response != NULL) {
         free(state->response);
         state->response = NULL;
     }
-
-    if (state->ccname != NULL)
-    {
+    if (state->ccname != NULL) {
         free(state->ccname);
         state->ccname = NULL;
     }
@@ -527,8 +557,9 @@ int authenticate_gss_server_clean(gss_server_state *state)
     return ret;
 }
 
-int authenticate_gss_server_step(gss_server_state *state, const char *challenge)
-{
+int authenticate_gss_server_step(
+    gss_server_state *state, const char *challenge
+) {
     OM_uint32 maj_stat;
     OM_uint32 min_stat;
     gss_buffer_desc input_token = GSS_C_EMPTY_BUFFER;
@@ -536,58 +567,59 @@ int authenticate_gss_server_step(gss_server_state *state, const char *challenge)
     int ret = AUTH_GSS_CONTINUE;
     
     // Always clear out the old response
-    if (state->response != NULL)
-    {
+    if (state->response != NULL) {
         free(state->response);
         state->response = NULL;
     }
     
     // If there is a challenge (data from the server) we need to give it to GSS
-    if (challenge && *challenge)
-    {
+    if (challenge && *challenge) {
         size_t len;
         input_token.value = base64_decode(challenge, &len);
         input_token.length = len;
-    }
-    else
-    {
-        PyErr_SetString(KrbException_class, "No challenge parameter in request from client");
+    } else {
+        PyErr_SetString(
+            KrbException_class, "No challenge parameter in request from client"
+        );
         ret = AUTH_GSS_ERROR;
         goto end;
     }
     
     Py_BEGIN_ALLOW_THREADS
-    maj_stat = gss_accept_sec_context(&min_stat,
-                                      &state->context,
-                                      state->server_creds,
-                                      &input_token,
-                                      GSS_C_NO_CHANNEL_BINDINGS,
-                                      &state->client_name,
-                                      NULL,
-                                      &output_token,
-                                      NULL,
-                                      NULL,
-                                      &state->client_creds);
+    maj_stat = gss_accept_sec_context(
+        &min_stat,
+        &state->context,
+        state->server_creds,
+        &input_token,
+        GSS_C_NO_CHANNEL_BINDINGS,
+        &state->client_name,
+        NULL,
+        &output_token,
+        NULL,
+        NULL,
+        &state->client_creds
+    );
     Py_END_ALLOW_THREADS
     
-    if (GSS_ERROR(maj_stat))
-    {
+    if (GSS_ERROR(maj_stat)) {
         set_gss_error(maj_stat, min_stat);
         ret = AUTH_GSS_ERROR;
         goto end;
     }
     
     // Grab the server response to send back to the client
-    if (output_token.length)
-    {
-        state->response = base64_encode((const unsigned char *)output_token.value, output_token.length);;
+    if (output_token.length) {
+        state->response = base64_encode(
+            (const unsigned char *)output_token.value, output_token.length
+        );;
         maj_stat = gss_release_buffer(&min_stat, &output_token);
     }
     
     // Get the user name
-    maj_stat = gss_display_name(&min_stat, state->client_name, &output_token, NULL);
-    if (GSS_ERROR(maj_stat))
-    {
+    maj_stat = gss_display_name(
+        &min_stat, state->client_name, &output_token, NULL
+    );
+    if (GSS_ERROR(maj_stat)) {
         set_gss_error(maj_stat, min_stat);
         ret = AUTH_GSS_ERROR;
         goto end;
@@ -597,35 +629,41 @@ int authenticate_gss_server_step(gss_server_state *state, const char *challenge)
     state->username[output_token.length] = 0;
     
     // Get the target name if no server creds were supplied
-    if (state->server_creds == GSS_C_NO_CREDENTIAL)
-    {
+    if (state->server_creds == GSS_C_NO_CREDENTIAL) {
         gss_name_t target_name = GSS_C_NO_NAME;
-        maj_stat = gss_inquire_context(&min_stat, state->context, NULL, &target_name, NULL, NULL, NULL, NULL, NULL);
-        if (GSS_ERROR(maj_stat))
-        {
+        maj_stat = gss_inquire_context(
+            &min_stat, state->context, NULL, &target_name, NULL, NULL, NULL,
+            NULL, NULL
+        );
+        if (GSS_ERROR(maj_stat)) {
             set_gss_error(maj_stat, min_stat);
             ret = AUTH_GSS_ERROR;
             goto end;
         }
-        maj_stat = gss_display_name(&min_stat, target_name, &output_token, NULL);
-        if (GSS_ERROR(maj_stat))
-        {
+        maj_stat = gss_display_name(
+            &min_stat, target_name, &output_token, NULL
+        );
+        if (GSS_ERROR(maj_stat)) {
             set_gss_error(maj_stat, min_stat);
             ret = AUTH_GSS_ERROR;
             goto end;
         }
         state->targetname = (char *)malloc(output_token.length + 1);
-        strncpy(state->targetname, (char*) output_token.value, output_token.length);
+        strncpy(
+            state->targetname, (char*) output_token.value, output_token.length
+        );
         state->targetname[output_token.length] = 0;
     }
 
     ret = AUTH_GSS_COMPLETE;
     
 end:
-    if (output_token.length)
+    if (output_token.length) {
         gss_release_buffer(&min_stat, &output_token);
-    if (input_token.value)
+    }
+    if (input_token.value) {
         free(input_token.value);
+    }
     return ret;
 }
 
@@ -642,33 +680,39 @@ static void set_gss_error(OM_uint32 err_maj, OM_uint32 err_min)
     char buf_maj[512];
     char buf_min[512];
     
-    do
-    {
-        maj_stat = gss_display_status (&min_stat,
-                                       err_maj,
-                                       GSS_C_GSS_CODE,
-                                       GSS_C_NO_OID,
-                                       &msg_ctx,
-                                       &status_string);
-        if (GSS_ERROR(maj_stat))
+    do {
+        maj_stat = gss_display_status(
+            &min_stat,
+            err_maj,
+            GSS_C_GSS_CODE,
+            GSS_C_NO_OID,
+            &msg_ctx,
+            &status_string
+        );
+        if (GSS_ERROR(maj_stat)) {
             break;
+        }
         strncpy(buf_maj, (char*) status_string.value, sizeof(buf_maj));
         gss_release_buffer(&min_stat, &status_string);
         
-        maj_stat = gss_display_status (&min_stat,
-                                       err_min,
-                                       GSS_C_MECH_CODE,
-                                       GSS_C_NULL_OID,
-                                       &msg_ctx,
-                                       &status_string);
-        if (!GSS_ERROR(maj_stat))
-        {
+        maj_stat = gss_display_status(
+            &min_stat,
+            err_min,
+            GSS_C_MECH_CODE,
+            GSS_C_NULL_OID,
+            &msg_ctx,
+            &status_string
+        );
+        if (! GSS_ERROR(maj_stat)) {
             strncpy(buf_min, (char*) status_string.value, sizeof(buf_min));
             gss_release_buffer(&min_stat, &status_string);
         }
     } while (!GSS_ERROR(maj_stat) && msg_ctx != 0);
     
-    PyErr_SetObject(GssException_class, Py_BuildValue("((s:i)(s:i))", buf_maj, err_maj, buf_min, err_min));
+    PyErr_SetObject(
+        GssException_class,
+        Py_BuildValue("((s:i)(s:i))", buf_maj, err_maj, buf_min, err_min)
+    );
 }
 
 int authenticate_gss_server_store_delegate(gss_server_state *state)
@@ -683,26 +727,44 @@ int authenticate_gss_server_store_delegate(gss_server_state *state)
     int ret = 500;
 
     if (delegated_cred == GSS_C_NO_CREDENTIAL){
-        PyErr_SetObject(KrbException_class, Py_BuildValue("(s)", "Ticket is not delegatable"));
+        PyErr_SetObject(
+            KrbException_class,
+            Py_BuildValue("(s)", "Ticket is not delegatable")
+        );
         return AUTH_GSS_ERROR;
     }
 
     problem = krb5_init_context(&context);
     if (problem) {
-        PyErr_SetObject(KrbException_class, Py_BuildValue("(s)", "Cannot initialize krb5 context"));
+        PyErr_SetObject(
+            KrbException_class,
+            Py_BuildValue("(s)", "Cannot initialize krb5 context")
+        );
         return AUTH_GSS_ERROR;
     }
 
     problem = krb5_parse_name(context, princ_name, &princ);
     if (problem) {
-        PyErr_SetObject(KrbException_class, Py_BuildValue("(s:s)", "Cannot parse delegated username", krb5_get_err_text(context, problem)));
+        PyErr_SetObject(
+            KrbException_class,
+            Py_BuildValue(
+                "(s:s)", "Cannot parse delegated username",
+                krb5_get_err_text(context, problem)
+            )
+        );
         ret = AUTH_GSS_ERROR;
         goto end;
     }
 
     problem = create_krb5_ccache(state, context, princ, &ccache);
     if (problem) {
-        PyErr_SetObject(KrbException_class, Py_BuildValue("(s:s)", "Error in creating krb5 cache", krb5_get_err_text(context, problem)));
+        PyErr_SetObject(
+            KrbException_class,
+            Py_BuildValue(
+                "(s:s)", "Error in creating krb5 cache",
+                krb5_get_err_text(context, problem)
+            )
+        );
         ret = AUTH_GSS_ERROR;
         goto end;
     }
@@ -718,20 +780,22 @@ int authenticate_gss_server_store_delegate(gss_server_state *state)
     ccache = NULL;
     ret = 0;
 
-    end:
-    if (princ)
+end:
+    if (princ) {
         krb5_free_principal(context, princ);
-    if (ccache)
+    }
+    if (ccache) {
         krb5_cc_destroy(context, ccache);
+    }
     krb5_free_context(context);
+
     return ret;
 }
 
-int create_krb5_ccache(gss_server_state *state,
-           krb5_context kcontext,
-           krb5_principal princ,
-           krb5_ccache *ccache)
-{
+int create_krb5_ccache(
+    gss_server_state *state, krb5_context kcontext, krb5_principal princ,
+    krb5_ccache *ccache
+) {
     int fd;
     char ccname[32];
     krb5_error_code problem;
@@ -741,7 +805,10 @@ int create_krb5_ccache(gss_server_state *state,
     snprintf(ccname, sizeof(ccname), "/tmp/krb5cc_pyserv_XXXXXX");
     fd = mkstemp(ccname);
     if (fd < 0) {
-        PyErr_SetObject(KrbException_class, Py_BuildValue("(s:s)", "Error in mkstemp", strerror(errno)));
+        PyErr_SetObject(
+            KrbException_class,
+            Py_BuildValue("(s:s)", "Error in mkstemp", strerror(errno))
+        );
         ret = 1;
         goto end;
     }
@@ -749,7 +816,13 @@ int create_krb5_ccache(gss_server_state *state,
 
     problem = krb5_cc_resolve(kcontext, ccname, &tmp_ccache);
     if (problem) {
-        PyErr_SetObject(KrbException_class, Py_BuildValue("(s:s)", "Error resolving the credential cache", krb5_get_err_text(kcontext, problem)));
+        PyErr_SetObject(
+            KrbException_class,
+            Py_BuildValue(
+                "(s:s)", "Error resolving the credential cache",
+                krb5_get_err_text(kcontext, problem)
+            )
+        );
         ret = 1;
         unlink(ccname);
         goto end;
@@ -757,7 +830,13 @@ int create_krb5_ccache(gss_server_state *state,
 
     problem = krb5_cc_initialize(kcontext, tmp_ccache, princ);
     if (problem) {
-        PyErr_SetObject(KrbException_class, Py_BuildValue("(s:s)", "Error initialising the credential cache", krb5_get_err_text(kcontext, problem)));
+        PyErr_SetObject(
+            KrbException_class,
+            Py_BuildValue(
+                "(s:s)", "Error initialising the credential cache",
+                krb5_get_err_text(kcontext, problem)
+            )
+        );
         ret = 1;
         goto end;
     }
@@ -767,9 +846,10 @@ int create_krb5_ccache(gss_server_state *state,
 
     ret = 0;
 
-    end:
-    if (tmp_ccache)
+end:
+    if (tmp_ccache) {
         krb5_cc_destroy(kcontext, tmp_ccache);
+    }
 
     state->ccname = (char *)malloc(32*sizeof(char));
     strcpy(state->ccname, ccname);
