@@ -36,7 +36,7 @@ extra_compile_args = getoutput("krb5-config --cflags gssapi").split()
 
 setup(
     name="kerberos",
-    version="1.2.0",
+    version="1.2.1",
     description="Kerberos high-level interface",
     long_description=long_description,
     classifiers=[
