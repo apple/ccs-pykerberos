@@ -380,6 +380,33 @@ static PyObject *authGSSClientWrap(PyObject *self, PyObject *args)
 	return Py_BuildValue("i", result);
 }
 
+static PyObject *authGSSClientInquireCred(PyObject *self, PyObject *args)
+{
+    gss_client_state *state;
+    PyObject *pystate;
+    int result = 0;
+    if (!PyArg_ParseTuple(args, "O", &pystate)) {
+        return NULL;
+    }
+
+    if (!PyCObject_Check(pystate)) {
+        PyErr_SetString(PyExc_TypeError, "Expected a context object");
+        return NULL;
+    }
+
+    state = (gss_client_state *)PyCObject_AsVoidPtr(pystate);
+    if (state == NULL) {
+        return NULL;
+    }
+
+    result = authenticate_gss_client_inquire_cred(state);
+    if (result == AUTH_GSS_ERROR) {
+        return NULL;
+    }
+
+    return Py_BuildValue("i", result);
+}
+
 static PyObject *authGSSServerInit(PyObject *self, PyObject *args)
 {
     const char *service = NULL;
@@ -620,6 +647,10 @@ static PyMethodDef KerberosMethods[] = {
         "Get the response from the last client-side GSSAPI step."
     },
     {
+        "authGSSClientInquireCred",  authGSSClientInquireCred, METH_VARARGS,
+        "Get the current user name, if any, without a client-side GSSAPI step"
+    },
+    {
         "authGSSClientResponseConf",
         authGSSClientResponseConf, METH_VARARGS,
         "return 1 if confidentiality was set in the last unwrapped buffer, 0 otherwise."
@@ -643,6 +674,10 @@ static PyMethodDef KerberosMethods[] = {
         "authGSSClientUnwrap",
         authGSSClientUnwrap, METH_VARARGS,
         "Do a GSSAPI unwrap."
+    },
+    {
+        "authGSSClientInquireCred", authGSSClientInquireCred, METH_VARARGS,
+        "Get the current user name, if any."
     },
     {
         "authGSSServerClean",

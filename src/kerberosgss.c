@@ -462,6 +462,62 @@ end:
 	return ret;
 }
 
+int authenticate_gss_client_inquire_cred(gss_client_state* state)
+{
+    OM_uint32 maj_stat;
+    OM_uint32 min_stat;
+    gss_cred_id_t client_creds = GSS_C_NO_CREDENTIAL;
+    gss_buffer_desc name_token = GSS_C_EMPTY_BUFFER;
+    gss_name_t name = GSS_C_NO_NAME;
+    int ret = AUTH_GSS_COMPLETE;
+
+    // Get credentials
+    maj_stat = gss_acquire_cred(
+        &min_stat, GSS_C_NO_NAME, GSS_C_INDEFINITE,
+        GSS_C_NO_OID_SET, GSS_C_INITIATE, &client_creds, NULL, NULL
+    );
+
+    if (GSS_ERROR(maj_stat)) {
+        set_gss_error(maj_stat, min_stat);
+        ret = AUTH_GSS_ERROR;
+        goto end;
+    }
+
+    // Get the name
+    maj_stat = gss_inquire_cred(
+        &min_stat, client_creds, &name, NULL, NULL, NULL);
+    }
+
+    if (GSS_ERROR(maj_stat))
+    {
+        set_gss_error(maj_stat, min_stat);
+        ret = AUTH_GSS_ERROR;
+        goto end;
+    }
+
+    maj_stat = gss_display_name(&min_stat, name, &name_token, NULL);
+
+    if (GSS_ERROR(maj_stat))
+    {
+        set_gss_error(maj_stat, min_stat);
+        ret = AUTH_GSS_ERROR;
+        goto end;
+    }
+
+    state->username = strndup(name_token.value, name_token.length);
+    if (!state->username) {
+        set_gss_error(GSS_S_FAILURE, ENOMEM);
+        ret = AUTH_GSS_ERROR;
+    }
+
+end:
+    (void)gss_release_cred(&min_stat, &client_creds);
+    (void)gss_release_buffer(&min_stat, &name_token);
+    (void)gss_release_name(&min_stat, &name);
+
+    return ret;
+}
+
 int authenticate_gss_server_init(const char *service, gss_server_state *state)
 {
     OM_uint32 maj_stat;

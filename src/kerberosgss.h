@@ -69,6 +69,9 @@ int authenticate_gss_client_wrap(
     gss_client_state* state, const char* challenge, const char* user,
     int protect
 );
+int authenticate_gss_client_inquire_cred(
+    gss_client_state* state
+);
 
 int authenticate_gss_server_init(
     const char* service, gss_server_state* state
