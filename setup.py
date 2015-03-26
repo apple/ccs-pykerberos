@@ -15,43 +15,48 @@
 ##
 
 from distutils.core import setup, Extension
-import sys
-import commands
+from commands import getoutput
+
 
 long_description = """
 This Python package is a high-level wrapper for Kerberos (GSSAPI) operations.
-The goal is to avoid having to build a module that wraps the entire Kerberos.framework,
-and instead offer a limited set of functions that do what is needed for client/server
-Kerberos authentication based on <http://www.ietf.org/rfc/rfc4559.txt>.
-
+The goal is to avoid having to build a module that wraps the entire
+Kerberos.framework, and instead offer a limited set of functions that do what
+is needed for client/server Kerberos authentication based on
+<http://www.ietf.org/rfc/rfc4559.txt>.
 """
 
-setup (
-    name = "kerberos",
-    version = "1.2.0",
-    description = "Kerberos high-level interface",
+extra_link_args = getoutput("krb5-config --libs gssapi").split()
+extra_compile_args = getoutput("krb5-config --cflags gssapi").split()
+
+
+setup(
+    name="kerberos",
+    version="1.2.0",
+    description="Kerberos high-level interface",
     long_description=long_description,
-    classifiers = [
+    classifiers=[
         "License :: OSI Approved :: Apache Software License",
         "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 3",
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: System :: Systems Administration :: Authentication/Directory"
-        ],
-    ext_modules = [
+    ],
+    ext_modules=[
         Extension(
             "kerberos",
-            extra_link_args = commands.getoutput("krb5-config --libs gssapi").split(),
-            extra_compile_args = commands.getoutput("krb5-config --cflags gssapi").split(),
-            sources = [
+            extra_link_args=extra_link_args,
+            extra_compile_args=extra_compile_args,
+            sources=[
                 "src/base64.c"
-                "src/base64.h", 
+                "src/base64.h",
                 "src/kerberos.c",
                 "src/kerberosbasic.c",
-                "src/kerberosbasic.h", 
+                "src/kerberosbasic.h",
                 "src/kerberosgss.c",
-                "src/kerberosgss.h", 
+                "src/kerberosgss.h",
                 "src/kerberospw.c",
-                "src/kerberospw.h", 
+                "src/kerberospw.h",
             ],
         ),
     ],
