@@ -15,7 +15,11 @@
 ##
 
 from distutils.core import setup, Extension
-from commands import getoutput
+
+try:
+    from subprocess import getoutput
+except ImportError:
+    from commands import getoutput
 
 
 long_description = """
