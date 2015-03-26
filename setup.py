@@ -48,15 +48,11 @@ setup(
             extra_link_args=extra_link_args,
             extra_compile_args=extra_compile_args,
             sources=[
-                "src/base64.c"
-                "src/base64.h",
+                "src/base64.c",
                 "src/kerberos.c",
                 "src/kerberosbasic.c",
-                "src/kerberosbasic.h",
                 "src/kerberosgss.c",
-                "src/kerberosgss.h",
                 "src/kerberospw.c",
-                "src/kerberospw.h",
             ],
         ),
     ],
