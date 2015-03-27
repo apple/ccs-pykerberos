@@ -485,11 +485,10 @@ int authenticate_gss_client_inquire_cred(gss_client_state* state)
 
     // Get the name
     maj_stat = gss_inquire_cred(
-        &min_stat, client_creds, &name, NULL, NULL, NULL);
-    }
+        &min_stat, client_creds, &name, NULL, NULL, NULL
+    );
 
-    if (GSS_ERROR(maj_stat))
-    {
+    if (GSS_ERROR(maj_stat)) {
         set_gss_error(maj_stat, min_stat);
         ret = AUTH_GSS_ERROR;
         goto end;
@@ -497,8 +496,7 @@ int authenticate_gss_client_inquire_cred(gss_client_state* state)
 
     maj_stat = gss_display_name(&min_stat, name, &name_token, NULL);
 
-    if (GSS_ERROR(maj_stat))
-    {
+    if (GSS_ERROR(maj_stat)) {
         set_gss_error(maj_stat, min_stat);
         ret = AUTH_GSS_ERROR;
         goto end;
