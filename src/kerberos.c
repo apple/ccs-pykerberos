@@ -129,10 +129,10 @@ static PyObject* authGSSClientInit(PyObject* self, PyObject* args, PyObject* key
 {
     const char *service = NULL;
     const char *principal = NULL;
-    gss_client_state *state;
-    PyObject *pystate;
+    gss_client_state *state = NULL;
+    PyObject *pystate = NULL;
     gss_server_state *delegatestate = NULL;
-    PyObject *pydelegatestate;
+    PyObject *pydelegatestate = NULL;
     static char *kwlist[] = {
         "service", "principal", "gssflags", "delegated", NULL
     };
@@ -149,7 +149,7 @@ static PyObject* authGSSClientInit(PyObject* self, PyObject* args, PyObject* key
     state = (gss_client_state *) malloc(sizeof(gss_client_state));
     pystate = PyCObject_FromVoidPtr(state, NULL);
 
-    if (PyCObject_Check(pydelegatestate)) {
+    if (pydelegatestate != NULL && PyCObject_Check(pydelegatestate)) {
         delegatestate = PyCObject_AsVoidPtr(pydelegatestate);
     }
 
@@ -166,8 +166,8 @@ static PyObject* authGSSClientInit(PyObject* self, PyObject* args, PyObject* key
 
 static PyObject *authGSSClientClean(PyObject *self, PyObject *args)
 {
-    gss_client_state *state;
-    PyObject *pystate;
+    gss_client_state *state = NULL;
+    PyObject *pystate = NULL;
     int result = 0;
 
     if (! PyArg_ParseTuple(args, "O", &pystate)) {
@@ -193,8 +193,8 @@ static PyObject *authGSSClientClean(PyObject *self, PyObject *args)
 
 static PyObject *authGSSClientStep(PyObject *self, PyObject *args)
 {
-    gss_client_state *state;
-    PyObject *pystate;
+    gss_client_state *state = NULL;
+    PyObject *pystate = NULL;
     char *challenge = NULL;
     int result = 0;
 
@@ -224,8 +224,8 @@ static PyObject *authGSSClientStep(PyObject *self, PyObject *args)
 
 static PyObject *authGSSClientResponseConf(PyObject *self, PyObject *args)
 {
-    gss_client_state *state;
-    PyObject *pystate;
+    gss_client_state *state = NULL;
+    PyObject *pystate = NULL;
 
     if (! PyArg_ParseTuple(args, "O", &pystate)) {
         return NULL;
@@ -247,8 +247,8 @@ static PyObject *authGSSClientResponseConf(PyObject *self, PyObject *args)
 
 static PyObject *authGSSServerHasDelegated(PyObject *self, PyObject *args)
 {
-    gss_server_state *state;
-    PyObject *pystate;
+    gss_server_state *state = NULL;
+    PyObject *pystate = NULL;
 
     if (! PyArg_ParseTuple(args, "O", &pystate)) {
         return NULL;
@@ -270,8 +270,8 @@ static PyObject *authGSSServerHasDelegated(PyObject *self, PyObject *args)
 
 static PyObject *authGSSClientResponse(PyObject *self, PyObject *args)
 {
-    gss_client_state *state;
-    PyObject *pystate;
+    gss_client_state *state = NULL;
+    PyObject *pystate = NULL;
 
     if (! PyArg_ParseTuple(args, "O", &pystate)) {
         return NULL;
@@ -293,8 +293,8 @@ static PyObject *authGSSClientResponse(PyObject *self, PyObject *args)
 
 static PyObject *authGSSClientUserName(PyObject *self, PyObject *args)
 {
-    gss_client_state *state;
-    PyObject *pystate;
+    gss_client_state *state = NULL;
+    PyObject *pystate = NULL;
 
     if (! PyArg_ParseTuple(args, "O", &pystate)) {
         return NULL;
@@ -316,8 +316,8 @@ static PyObject *authGSSClientUserName(PyObject *self, PyObject *args)
 
 static PyObject *authGSSClientUnwrap(PyObject *self, PyObject *args)
 {
-	gss_client_state *state;
-	PyObject *pystate;
+	gss_client_state *state = NULL;
+	PyObject *pystate = NULL;
 	char *challenge = NULL;
 	int result = 0;
 
@@ -347,8 +347,8 @@ static PyObject *authGSSClientUnwrap(PyObject *self, PyObject *args)
 
 static PyObject *authGSSClientWrap(PyObject *self, PyObject *args)
 {
-	gss_client_state *state;
-	PyObject *pystate;
+	gss_client_state *state = NULL;
+	PyObject *pystate = NULL;
 	char *challenge = NULL;
 	char *user = NULL;
 	int protect = 0;
@@ -382,8 +382,8 @@ static PyObject *authGSSClientWrap(PyObject *self, PyObject *args)
 
 static PyObject *authGSSClientInquireCred(PyObject *self, PyObject *args)
 {
-    gss_client_state *state;
-    PyObject *pystate;
+    gss_client_state *state = NULL;
+    PyObject *pystate = NULL;
     int result = 0;
     if (!PyArg_ParseTuple(args, "O", &pystate)) {
         return NULL;
@@ -410,8 +410,8 @@ static PyObject *authGSSClientInquireCred(PyObject *self, PyObject *args)
 static PyObject *authGSSServerInit(PyObject *self, PyObject *args)
 {
     const char *service = NULL;
-    gss_server_state *state;
-    PyObject *pystate;
+    gss_server_state *state = NULL;
+    PyObject *pystate = NULL;
     int result = 0;
 
     if (! PyArg_ParseTuple(args, "s", &service)) {
@@ -432,8 +432,8 @@ static PyObject *authGSSServerInit(PyObject *self, PyObject *args)
 
 static PyObject *authGSSServerClean(PyObject *self, PyObject *args)
 {
-    gss_server_state *state;
-    PyObject *pystate;
+    gss_server_state *state = NULL;
+    PyObject *pystate = NULL;
     int result = 0;
 
     if (! PyArg_ParseTuple(args, "O", &pystate)) {
@@ -459,8 +459,8 @@ static PyObject *authGSSServerClean(PyObject *self, PyObject *args)
 
 static PyObject *authGSSServerStep(PyObject *self, PyObject *args)
 {
-    gss_server_state *state;
-    PyObject *pystate;
+    gss_server_state *state = NULL;
+    PyObject *pystate = NULL;
     char *challenge = NULL;
     int result = 0;
 
@@ -490,8 +490,8 @@ static PyObject *authGSSServerStep(PyObject *self, PyObject *args)
 
 static PyObject *authGSSServerStoreDelegate(PyObject *self, PyObject *args)
 {
-    gss_server_state *state;
-    PyObject *pystate;
+    gss_server_state *state = NULL;
+    PyObject *pystate = NULL;
     int result = 0;
 
     if (! PyArg_ParseTuple(args, "O", &pystate)) {
@@ -520,8 +520,8 @@ static PyObject *authGSSServerStoreDelegate(PyObject *self, PyObject *args)
 
 static PyObject *authGSSServerResponse(PyObject *self, PyObject *args)
 {
-    gss_server_state *state;
-    PyObject *pystate;
+    gss_server_state *state = NULL;
+    PyObject *pystate = NULL;
 
     if (! PyArg_ParseTuple(args, "O", &pystate)) {
         return NULL;
@@ -543,8 +543,8 @@ static PyObject *authGSSServerResponse(PyObject *self, PyObject *args)
 
 static PyObject *authGSSServerUserName(PyObject *self, PyObject *args)
 {
-    gss_server_state *state;
-    PyObject *pystate;
+    gss_server_state *state = NULL;
+    PyObject *pystate = NULL;
     
     if (! PyArg_ParseTuple(args, "O", &pystate)) {
         return NULL;
@@ -566,8 +566,8 @@ static PyObject *authGSSServerUserName(PyObject *self, PyObject *args)
 
 static PyObject *authGSSServerCacheName(PyObject *self, PyObject *args)
 {
-    gss_server_state *state;
-    PyObject *pystate;
+    gss_server_state *state = NULL;
+    PyObject *pystate = NULL;
     
     if (! PyArg_ParseTuple(args, "O", &pystate)) {
         return NULL;
@@ -589,8 +589,8 @@ static PyObject *authGSSServerCacheName(PyObject *self, PyObject *args)
 
 static PyObject *authGSSServerTargetName(PyObject *self, PyObject *args)
 {
-    gss_server_state *state;
-    PyObject *pystate;
+    gss_server_state *state = NULL;
+    PyObject *pystate = NULL;
     
     if (! PyArg_ParseTuple(args, "O", &pystate)) {
         return NULL;
