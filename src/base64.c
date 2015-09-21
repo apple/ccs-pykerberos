@@ -43,6 +43,10 @@ static signed char index_64[128] =
 char *base64_encode(const unsigned char *value, size_t vlen)
 {
     char *result = (char *)malloc((vlen * 4) / 3 + 5);
+    if (result == NULL)
+    {
+        return NULL;
+    }
     char *out = result;
     while (vlen >= 3)
     {
@@ -79,6 +83,10 @@ unsigned char *base64_decode(const char *value, size_t *rlen)
 
     size_t vlen = strlen(value);
     unsigned char *result =(unsigned char *)malloc((vlen * 3) / 4 + 1);
+    if (result == NULL)
+    {
+        return NULL;
+    }
     unsigned char *out = result;
 
     while (1) {

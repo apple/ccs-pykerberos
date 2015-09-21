@@ -93,6 +93,11 @@ char* server_principal_details(const char* service, const char* hostname)
         
         if (strncmp(pname, match, match_len) == 0) {
             result = malloc(strlen(pname) + 1);
+            if (result == NULL)
+            {
+                PyErr_NoMemory();
+                goto end;
+            }
             strcpy(result, pname);
             krb5_free_unparsed_name(kcontext, pname);
             krb5_free_keytab_entry_contents(kcontext, &entry);
@@ -245,6 +250,12 @@ int authenticate_gss_client_step(
     if (challenge && *challenge) {
         size_t len;
         input_token.value = base64_decode(challenge, &len);
+        if (input_token.value == NULL)
+        {
+            PyErr_NoMemory();
+            ret = AUTH_GSS_ERROR;
+            goto end;
+        }
         input_token.length = len;
     }
     
@@ -276,7 +287,13 @@ int authenticate_gss_client_step(
     ret = (maj_stat == GSS_S_COMPLETE) ? AUTH_GSS_COMPLETE : AUTH_GSS_CONTINUE;
     // Grab the client response to send back to the server
     if (output_token.length) {
-        state->response = base64_encode((const unsigned char *)output_token.value, output_token.length);;
+        state->response = base64_encode((const unsigned char *)output_token.value, output_token.length);
+        if (state->response == NULL)
+        {
+            PyErr_NoMemory();
+            ret = AUTH_GSS_ERROR;
+            goto end;
+        }
         maj_stat = gss_release_buffer(&min_stat, &output_token);
     }
     
@@ -303,6 +320,12 @@ int authenticate_gss_client_step(
             goto end;
         } else {
             state->username = (char *)malloc(name_token.length + 1);
+            if (state->username == NULL)
+            {
+                PyErr_NoMemory();
+                ret = AUTH_GSS_ERROR;
+                goto end;
+            }
             strncpy(state->username, (char*) name_token.value, name_token.length);
             state->username[name_token.length] = 0;
             gss_release_buffer(&min_stat, &name_token);
@@ -341,6 +364,11 @@ int authenticate_gss_client_unwrap(
 	if (challenge && *challenge) {
 		size_t len;
 		input_token.value = base64_decode(challenge, &len);
+		if (input_token.value == NULL) {
+		    PyErr_NoMemory();
+		    ret = AUTH_GSS_ERROR;
+		    goto end;
+		}
 		input_token.length = len;
 	}
     
@@ -367,6 +395,12 @@ int authenticate_gss_client_unwrap(
 		state->response = base64_encode(
             (const unsigned char *)output_token.value, output_token.length
         );
+		if (state->response == NULL)
+		{
+		    PyErr_NoMemory();
+		    ret = AUTH_GSS_ERROR;
+		    goto end;
+		}
 		state->responseConf = conf;
 		maj_stat = gss_release_buffer(&min_stat, &output_token);
 	}
@@ -402,6 +436,12 @@ int authenticate_gss_client_wrap(
 	if (challenge && *challenge) {
 		size_t len;
 		input_token.value = base64_decode(challenge, &len);
+		if (input_token.value == NULL)
+		{
+		    PyErr_NoMemory();
+		    ret = AUTH_GSS_ERROR;
+		    goto end;
+		}
 		input_token.length = len;
 	}
     
@@ -451,7 +491,12 @@ int authenticate_gss_client_wrap(
     }
 	// Grab the client response to send back to the server
 	if (output_token.length) {
-		state->response = base64_encode((const unsigned char *)output_token.value, output_token.length);;
+		state->response = base64_encode((const unsigned char *)output_token.value, output_token.length);
+		if (state->response == NULL) {
+		    PyErr_NoMemory();
+		    ret = AUTH_GSS_ERROR;
+		    goto end;
+		}
 		maj_stat = gss_release_buffer(&min_stat, &output_token);
 	}
 
@@ -630,6 +675,12 @@ int authenticate_gss_server_step(
     if (challenge && *challenge) {
         size_t len;
         input_token.value = base64_decode(challenge, &len);
+        if (input_token.value == NULL)
+        {
+            PyErr_NoMemory();
+            ret = AUTH_GSS_ERROR;
+            goto end;
+        }
         input_token.length = len;
     } else {
         PyErr_SetString(
@@ -665,7 +716,13 @@ int authenticate_gss_server_step(
     if (output_token.length) {
         state->response = base64_encode(
             (const unsigned char *)output_token.value, output_token.length
-        );;
+        );
+        if (state->response == NULL)
+        {
+            PyErr_NoMemory();
+            ret = AUTH_GSS_ERROR;
+            goto end;
+        }
         maj_stat = gss_release_buffer(&min_stat, &output_token);
     }
     
@@ -679,6 +736,12 @@ int authenticate_gss_server_step(
         goto end;
     }
     state->username = (char *)malloc(output_token.length + 1);
+    if (state->username == NULL)
+    {
+        PyErr_NoMemory();
+        ret = AUTH_GSS_ERROR;
+        goto end;
+    }
     strncpy(state->username, (char*) output_token.value, output_token.length);
     state->username[output_token.length] = 0;
     
@@ -703,6 +766,12 @@ int authenticate_gss_server_step(
             goto end;
         }
         state->targetname = (char *)malloc(output_token.length + 1);
+        if (state->targetname == NULL)
+        {
+            PyErr_NoMemory();
+            ret = AUTH_GSS_ERROR;
+            goto end;
+        }
         strncpy(
             state->targetname, (char*) output_token.value, output_token.length
         );
@@ -906,6 +975,11 @@ end:
     }
 
     state->ccname = (char *)malloc(32*sizeof(char));
+    if (state->ccname == NULL)
+    {
+        PyErr_NoMemory();
+        return 1;
+    }
     strcpy(state->ccname, ccname);
 
     return ret;

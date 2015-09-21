@@ -108,7 +108,7 @@ static PyObject *getServerPrincipalDetails(PyObject *self, PyObject *args)
 {
     const char *service = NULL;
     const char *hostname = NULL;
-    char* result;
+    char* result = NULL;
 
     if (! PyArg_ParseTuple(args, "ss", &service, &hostname)) {
         return NULL;
@@ -147,6 +147,11 @@ static PyObject* authGSSClientInit(PyObject* self, PyObject* args, PyObject* key
     }
 
     state = (gss_client_state *) malloc(sizeof(gss_client_state));
+    if (state == NULL)
+    {
+        PyErr_NoMemory();
+        return NULL;
+    }
     pystate = PyCObject_FromVoidPtr(state, NULL);
 
     if (pydelegatestate != NULL && PyCObject_Check(pydelegatestate)) {
@@ -419,6 +424,11 @@ static PyObject *authGSSServerInit(PyObject *self, PyObject *args)
     }
 
     state = (gss_server_state *) malloc(sizeof(gss_server_state));
+    if (state == NULL)
+    {
+        PyErr_NoMemory();
+        return NULL;
+    }
     pystate = PyCObject_FromVoidPtr(state, NULL);
 
     result = authenticate_gss_server_init(service, state);

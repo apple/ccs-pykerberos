@@ -76,6 +76,12 @@ int authenticate_user_krb5pwd(
     name = NULL;
 
     name = (char *)malloc(256);
+    if (name == NULL)
+    {
+        PyErr_NoMemory();
+        ret = 0;
+        goto end;
+    }
     p = strchr(user, '@');
     if (p == NULL) {
         snprintf(name, 256, "%s@%s", user, default_realm);

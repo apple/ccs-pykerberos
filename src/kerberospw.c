@@ -86,6 +86,7 @@ int change_user_krb5pwd(
     krb5_principal  client = NULL;
     krb5_creds      creds;
     int             ret = 0;
+    int             bytes = 0;
     char            *name = NULL;
 
     const char* service = "kadmin/changepw";
@@ -104,6 +105,11 @@ int change_user_krb5pwd(
     }
 
     name = (char *)malloc(256);
+    if (name == NULL)
+    {
+        PyErr_NoMemory();
+        goto end;
+    }
     snprintf(name, 256, "%s", user);
         
     code = krb5_parse_name(kcontext, name, &client);
@@ -125,18 +131,25 @@ int change_user_krb5pwd(
     }
     if (result_code) {
         char *message = NULL;
-        asprintf(
+        bytes = asprintf(
             &message, "%.*s: %.*s",
             (int) result_code_string.length,
             (char *) result_code_string.data,
             (int) result_string.length,
             (char *) result_string.data
         );
-        PyErr_SetObject(
-            PwdChangeException_class,
-            Py_BuildValue("((s:i))", message, result_code)
-        );
-        free(message);
+        if (bytes == -1)
+        {
+            PyErr_NoMemory();
+        }
+        else
+        {
+            PyErr_SetObject(
+                PwdChangeException_class,
+                Py_BuildValue("((s:i))", message, result_code)
+            );
+            free(message);
+        }
         goto end;
     }
 
