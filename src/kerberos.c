@@ -57,6 +57,11 @@
           ob = Py_InitModule3(name, methods, doc);
 #endif
 
+static char krb5_mech_oid_bytes [] = "\x2a\x86\x48\x86\xf7\x12\x01\x02\x02";
+gss_OID_desc krb5_mech_oid = { 9, &krb5_mech_oid_bytes };
+
+static char spnego_mech_oid_bytes[] = "\x2b\x06\x01\x05\x05\x02";
+gss_OID_desc spnego_mech_oid = { 6, &spnego_mech_oid_bytes };
 
 PyObject *KrbException_class;
 PyObject *BasicAuthException_class;
@@ -133,15 +138,17 @@ static PyObject* authGSSClientInit(PyObject* self, PyObject* args, PyObject* key
     PyObject *pystate = NULL;
     gss_server_state *delegatestate = NULL;
     PyObject *pydelegatestate = NULL;
+    gss_OID mech_oid = GSS_C_NO_OID;
+    PyObject *pymech_oid = NULL;
     static char *kwlist[] = {
-        "service", "principal", "gssflags", "delegated", NULL
+        "service", "principal", "gssflags", "delegated", "mech_oid", NULL
     };
     long int gss_flags = GSS_C_MUTUAL_FLAG | GSS_C_SEQUENCE_FLAG;
     int result = 0;
 
     if (! PyArg_ParseTupleAndKeywords(
-        args, keywds, "s|slO", kwlist,
-        &service, &principal, &gss_flags, &pydelegatestate
+        args, keywds, "s|slOO", kwlist,
+        &service, &principal, &gss_flags, &pydelegatestate, &pymech_oid
     )) {
         return NULL;
     }
@@ -158,8 +165,13 @@ static PyObject* authGSSClientInit(PyObject* self, PyObject* args, PyObject* key
         delegatestate = PyCObject_AsVoidPtr(pydelegatestate);
     }
 
+    if (pymech_oid != NULL && PyCapsule_CheckExact(pymech_oid)) {
+        const char * mech_oid_name = PyCapsule_GetName(pymech_oid);
+        mech_oid = PyCapsule_GetPointer(pymech_oid, mech_oid_name);
+    }
+
     result = authenticate_gss_client_init(
-        service, principal, gss_flags, delegatestate, state
+        service, principal, gss_flags, delegatestate, mech_oid, state
     );
 
     if (result == AUTH_GSS_ERROR) {
@@ -817,6 +829,12 @@ MOD_INIT(kerberos)
     );
     PyDict_SetItemString(
         d, "GSS_C_TRANS_FLAG", PyInt_FromLong(GSS_C_TRANS_FLAG)
+    );
+    PyDict_SetItemString(
+        d, "GSS_MECH_OID_KRB5", PyCapsule_New(&krb5_mech_oid, "kerberos.GSS_MECH_OID_KRB5", NULL)
+    );
+    PyDict_SetItemString(
+        d, "GSS_MECH_OID_SPNEGO", PyCapsule_New(&spnego_mech_oid, "kerberos.GSS_MECH_OID_SPNEGO", NULL)
     );
 
 error:

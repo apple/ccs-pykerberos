@@ -54,10 +54,11 @@ def main():
     host = "host.example.com"
     realm = "HOST.EXAMPLE.COM"
     port = 8008
+    mech = None
     use_ssl = False
     allowedActions = ("service", "basic", "gssapi", "server",)
 
-    options, args = getopt.getopt(sys.argv[1:], "u:p:s:h:i:r:x")
+    options, args = getopt.getopt(sys.argv[1:], "u:p:s:h:i:r:m:x")
 
     for option, value in options:
         if option == "-u":
@@ -72,6 +73,8 @@ def main():
             port = value
         elif option == "-r":
             realm = value
+        elif option == "-m":
+            mech = value
         elif option == "-x":
             use_ssl = True
 
@@ -104,7 +107,7 @@ def main():
 
     if "server" in actions:
         print("\n*** Running HTTP test")
-        testHTTP(host, port, use_ssl, service)
+        testHTTP(host, port, use_ssl, service, mech)
 
     print("\n*** Done\n")
 
@@ -182,7 +185,7 @@ def testGSSAPI(service):
 
 
 
-def testHTTP(host, port, use_ssl, service):
+def testHTTP(host, port, use_ssl, service, mech):
 
     class HTTPSConnectionSSLv3(HTTPSConnection):
         "This class allows communication via SSL."
@@ -243,7 +246,13 @@ def testHTTP(host, port, use_ssl, service):
         return
 
     try:
-        rc, vc = kerberos.authGSSClientInit(service=service)
+        mech_oid = None
+        if mech and mech.lower() == "krb5":
+            mech_oid = kerberos.GSS_MECH_OID_KRB5
+        elif mech and mech.lower() == "spnego":
+            mech_oid = kerberos.GSS_MECH_OID_SPNEGO
+
+        rc, vc = kerberos.authGSSClientInit(service=service, mech_oid=mech_oid)
     except kerberos.GSSError, e:
         print("Could not initialize GSSAPI: %s/%s" % (e[0][0], e[1][0]))
         return

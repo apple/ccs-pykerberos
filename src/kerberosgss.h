@@ -31,6 +31,7 @@
 typedef struct {
     gss_ctx_id_t     context;
     gss_name_t       server_name;
+    gss_OID          mech_oid;
     long int         gss_flags;
     gss_cred_id_t    client_creds;
     char*            username;
@@ -54,7 +55,7 @@ char* server_principal_details(const char* service, const char* hostname);
 
 int authenticate_gss_client_init(
     const char* service, const char* principal, long int gss_flags,
-    gss_server_state* delegatestate, gss_client_state* state
+    gss_server_state* delegatestate, gss_OID mech_oid, gss_client_state* state
 );
 int authenticate_gss_client_clean(
     gss_client_state *state

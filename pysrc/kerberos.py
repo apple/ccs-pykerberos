@@ -158,6 +158,8 @@ def authGSSClientInit(service, **kwargs):
 
     @param delegated: Optional server context containing delegated credentials
 
+    @param mech_oid: Optional GGS mech OID
+
     @return: A tuple of (result, context) where result is the result code (see
         above) and context is an opaque value that will need to be passed to
         subsequent functions.
