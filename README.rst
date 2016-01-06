@@ -61,7 +61,7 @@ See kerberos.py.
 Copyright and License
 =====================
 
-Copyright (c) 2006-2015 Apple Inc.  All rights reserved.
+Copyright (c) 2006-2016 Apple Inc.  All rights reserved.
 
 This software is licensed under the Apache License, Version 2.0.  The
 Apache License is a well-established open source license, enabling
