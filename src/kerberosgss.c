@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2006-2015 Apple Inc. All rights reserved.
+ * Copyright (c) 2006-2016 Apple Inc. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -93,8 +93,7 @@ char* server_principal_details(const char* service, const char* hostname)
         
         if (strncmp(pname, match, match_len) == 0) {
             result = malloc(strlen(pname) + 1);
-            if (result == NULL)
-            {
+            if (result == NULL) {
                 PyErr_NoMemory();
                 goto end;
             }
@@ -288,8 +287,7 @@ int authenticate_gss_client_step(
     // Grab the client response to send back to the server
     if (output_token.length) {
         state->response = base64_encode((const unsigned char *)output_token.value, output_token.length);
-        if (state->response == NULL)
-        {
+        if (state->response == NULL) {
             PyErr_NoMemory();
             ret = AUTH_GSS_ERROR;
             goto end;
@@ -311,8 +309,9 @@ int authenticate_gss_client_step(
         name_token.length = 0;
         maj_stat = gss_display_name(&min_stat, gssuser, &name_token, NULL);
         if (GSS_ERROR(maj_stat)) {
-            if (name_token.value)
+            if (name_token.value) {
                 gss_release_buffer(&min_stat, &name_token);
+            }
             gss_release_name(&min_stat, &gssuser);
             
             set_gss_error(maj_stat, min_stat);
@@ -320,8 +319,7 @@ int authenticate_gss_client_step(
             goto end;
         } else {
             state->username = (char *)malloc(name_token.length + 1);
-            if (state->username == NULL)
-            {
+            if (state->username == NULL) {
                 PyErr_NoMemory();
                 ret = AUTH_GSS_ERROR;
                 goto end;
@@ -577,29 +575,35 @@ int authenticate_gss_server_init(const char *service, gss_server_state *state)
     state->targetname = NULL;
     state->response = NULL;
     state->ccname = NULL;
+    int cred_usage = GSS_C_ACCEPT;
     
     // Server name may be empty which means we aren't going to create our own creds
     size_t service_len = strlen(service);
     if (service_len != 0) {
         // Import server name first
-        name_token.length = strlen(service);
-        name_token.value = (char *)service;
-        
-        maj_stat = gss_import_name(
-            &min_stat, &name_token, GSS_C_NT_HOSTBASED_SERVICE,
-            &state->server_name
-        );
-        
-        if (GSS_ERROR(maj_stat)) {
-            set_gss_error(maj_stat, min_stat);
-            ret = AUTH_GSS_ERROR;
-            goto end;
+        if (strcmp(service, "DELEGATE") == 0) {
+	    cred_usage = GSS_C_BOTH;
         }
+        else {
+            name_token.length = strlen(service);
+            name_token.value = (char *)service;
+        
+            maj_stat = gss_import_name(
+                &min_stat, &name_token, GSS_C_NT_HOSTBASED_SERVICE,
+                &state->server_name
+            );
+        
+            if (GSS_ERROR(maj_stat)) {
+                set_gss_error(maj_stat, min_stat);
+                ret = AUTH_GSS_ERROR;
+                goto end;
+            }
+	}
 
         // Get credentials
         maj_stat = gss_acquire_cred(
-            &min_stat, GSS_C_NO_NAME, GSS_C_INDEFINITE, GSS_C_NO_OID_SET,
-            GSS_C_BOTH, &state->server_creds, NULL, NULL
+            &min_stat, state->server_name, GSS_C_INDEFINITE, GSS_C_NO_OID_SET,
+            cred_usage, &state->server_creds, NULL, NULL
         );
 
         if (GSS_ERROR(maj_stat)) {
@@ -975,8 +979,7 @@ end:
     }
 
     state->ccname = (char *)malloc(32*sizeof(char));
-    if (state->ccname == NULL)
-    {
+    if (state->ccname == NULL) {
         PyErr_NoMemory();
         return 1;
     }

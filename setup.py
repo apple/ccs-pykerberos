@@ -1,5 +1,5 @@
 ##
-# Copyright (c) 2006-2015 Apple Inc. All rights reserved.
+# Copyright (c) 2006-2016 Apple Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ except ImportError:
 
 project_name = "kerberos"
 
-version_string = "1.2.2"
+version_string = "1.2.3"
 
 description = "Kerberos high-level interface"
 

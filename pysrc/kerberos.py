@@ -1,5 +1,5 @@
 ##
-# Copyright (c) 2006-2015 Apple Inc. All rights reserved.
+# Copyright (c) 2006-2016 Apple Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -266,7 +266,8 @@ def authGSSServerInit(service):
     to dispose of the context once all GSSAPI operations are complete.
 
     @param service: A string containing the service principal in the form
-        C{"type@fqdn"}.
+        C{"type@fqdn"}. To initialize the context for the purpose of accepting
+        delegated credentials, pass the literal string C{"DELEGATE"}.
 
     @return: A tuple of (result, context) where result is the result code (see
         above) and context is an opaque value that will need to be passed to
