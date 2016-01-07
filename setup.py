@@ -33,7 +33,7 @@ version_string = "1.2.3"
 
 description = "Kerberos high-level interface"
 
-long_description = file(joinpath(dirname(__file__), "README.rst")).read()
+long_description = open(joinpath(dirname(__file__), "README.rst")).read()
 
 url = "http://www.calendarserver.org/"
 
