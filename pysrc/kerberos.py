@@ -179,6 +179,20 @@ def authGSSClientClean(context):
 
 
 
+def authGSSClientInquireCred(context):
+    """
+    Get the current user name, if any, without a client-side GSSAPI step.
+    If the principal has already been authenticated via completed client-side
+    GSSAPI steps then the user name of the authenticated principal is kept. The
+    user name will be available via authGSSClientUserName.
+
+    @param context: The context object returned from L{authGSSClientInit}.
+
+    @return: A result code (see above).
+    """
+
+
+
 def authGSSClientStep(context, challenge):
     """
     Processes a single GSSAPI client-side step using the supplied server data.
@@ -221,9 +235,10 @@ def authGSSClientResponseConf(context):
 def authGSSClientUserName(context):
     """
     Get the user name of the principal authenticated via the now complete
-    GSSAPI client-side operations.
-    This method must only be called after authGSSClientStep returns a complete
-    response code.
+    GSSAPI client-side operations, or the current user name obtained via
+    authGSSClientInquireCred. This method must only be called after
+    authGSSClientStep or authGSSClientInquireCred return a complete response
+    code.
 
     @param context: The context object returned from L{authGSSClientInit}.
 

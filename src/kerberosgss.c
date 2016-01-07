@@ -319,6 +319,10 @@ int authenticate_gss_client_step(
             ret = AUTH_GSS_ERROR;
             goto end;
         } else {
+            if (state->username != NULL) {                                                                                                    
+                free(state->username);                                                                                                        
+                state->username = NULL;                                                                                                       
+            }                                                                                                                                 
             state->username = (char *)malloc(name_token.length + 1);
             if (state->username == NULL) {
                 PyErr_NoMemory();
@@ -515,6 +519,11 @@ int authenticate_gss_client_inquire_cred(gss_client_state* state)
     gss_name_t name = GSS_C_NO_NAME;
     int ret = AUTH_GSS_COMPLETE;
 
+    // Check whether credentials have already been obtained.
+    if (state->username != NULL) {
+        goto end;
+    }
+
     // Get credentials
     maj_stat = gss_acquire_cred(
         &min_stat, GSS_C_NO_NAME, GSS_C_INDEFINITE,
@@ -546,17 +555,25 @@ int authenticate_gss_client_inquire_cred(gss_client_state* state)
         goto end;
     }
 
-    state->username = strndup(name_token.value, name_token.length);
-    if (!state->username) {
-        set_gss_error(GSS_S_FAILURE, ENOMEM);
+    state->username = (char *)malloc(name_token.length + 1);
+    if (state->username == NULL) {
+        PyErr_NoMemory();
         ret = AUTH_GSS_ERROR;
+        goto end;
     }
+    strncpy(state->username, (char*) name_token.value, name_token.length);
+    state->username[name_token.length] = 0;
 
 end:
-    (void)gss_release_cred(&min_stat, &client_creds);
-    (void)gss_release_buffer(&min_stat, &name_token);
-    (void)gss_release_name(&min_stat, &name);
-
+    if (client_creds != GSS_C_NO_CREDENTIAL) {
+        gss_release_cred(&min_stat, &client_creds);
+    }
+    if (name_token.length) {
+        gss_release_buffer(&min_stat, &name_token);
+    }
+    if (name != GSS_C_NO_NAME) {
+        gss_release_name(&min_stat, &name);
+    }
     return ret;
 }
 
