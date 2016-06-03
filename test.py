@@ -25,7 +25,7 @@ Examples:
 
     sudo ./test.py -s HTTP@example.com -r EXAMPLE.COM gssapi
 
-    ./test.py -s HTTP@example.com -h calendar.example.com -p 8008 server
+    ./test.py -s HTTP@example.com -h calendar.example.com -i 8008 server
 
 For the gssapi and server tests you will need to kinit a principal on the
 server first.
