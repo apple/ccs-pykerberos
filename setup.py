@@ -35,7 +35,7 @@ description = "Kerberos high-level interface"
 
 long_description = open(joinpath(dirname(__file__), "README.rst")).read()
 
-url = "http://www.calendarserver.org/"
+url = "https://github.com/apple/ccs-pykerberos"
 
 classifiers = [
     "Development Status :: 5 - Production/Stable",
