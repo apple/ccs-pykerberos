@@ -1,6 +1,5 @@
-##### To test against a generic web service (and not CalendarServer)
-... adjust test.py as shown below. uri should be something configured for kerberos authentication.
-
+### Generic web service test
+This test is written to test against CalendarServer. To test against a generic web service, adjust test.py as shown below. uri should be something configured for kerberos authentication.
 
 ```
 Index: test.py
@@ -26,7 +25,7 @@ Index: test.py
      if response is None:
 ```
 
-##### Sample Apache config for a kerberized location:
+### Sample Apache config for a kerberized location
 ```
 <Location /test>
          AuthType Kerberos
@@ -38,7 +37,7 @@ Index: test.py
 </Location>
 ```
 
-##### the test.py help text
+### the test.py help text
 ```
 sudo ./test.py -s HTTP@example.com service
 sudo ./test.py -u user01 -p user01 -s HTTP@example.com -r EXAMPLE.COM basic
@@ -47,8 +46,8 @@ sudo ./test.py -s HTTP@example.com -r EXAMPLE.COM gssapi
 For the gssapi and server tests you will need to kinit a principal on the server first.
 ```
 
-
-##### basic test; performs an authentication with specified username / password (requires no credentials cache)
+### basic test
+perform an authentication with specified username / password (requires no credentials cache)
 ```
 userfoo@domain-controller:~/PyKerberos$ python ./test.py -u userfoo -p myBestPassword -s HTTP@server.example.org -r EXAMPLE.ORG basic
 
@@ -58,8 +57,8 @@ Kerberos authentication for userfoo succeeded
 *** Done
 ```
 
-##### service test
-Does what a kerberized service needs to do.
+### service test
+Do what a kerberized service needs to do.
 It wants to read the service keytab from /etc/krb5.keytab.
 The ktutil steps shown here validate that the keytab is legit.
 ```
@@ -82,8 +81,8 @@ Kerberos service principal for HTTP/server.example.org succeeded: HTTP/server.ex
 *** Done
 ```
 
-##### gssapi test
-requires user tgt and service keytab access (hence root), obtains service ticket for specified user / kerberized service
+### gssapi test
+requires user tgt and service keytab access (hence root), obtains service ticket for specified user
 ```
 userfoo@domain-controller:~/PyKerberos$ sudo kinit userfoo
 Password for userfoo@EXAMPLE.ORG: 
@@ -121,8 +120,8 @@ Valid starting     Expires            Service principal
     renew until 06/04/16 05:08:52
 ```
 
-##### server test
-connects to external kerberized service
+### server test
+validate kerberos authentication against an external kerberized service
 ```
 userfoo@domain-controller:~/PyKerberos$ kdestroy
 userfoo@domain-controller:~/PyKerberos$ python ./test.py -s HTTP@server.example.org -h domain-controller -i 80 server
@@ -154,7 +153,7 @@ Authenticated successfully
 *** Done
 ```
 
-##### appendix a: curl cross-check
+### appendix a: curl cross-check
 Use curl to cross-check the kerberized http service
 ```
 userfoo@domain-controller:~/PyKerberos$ kdestroy  
@@ -199,7 +198,7 @@ Valid starting     Expires            Service principal
     renew until 06/04/16 03:12:42
 ```
 
-##### appendix b: calling httplib
+### appendix b: calling httplib
 hold httplib in your hands to help discover that you were passing the wrong cli option to test.py for 'port', causing it to try to connect to 8008, which was refused!
 ```
 >>> import httplib
