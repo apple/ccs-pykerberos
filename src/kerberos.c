@@ -150,7 +150,7 @@ static PyObject* authGSSClientInit(PyObject* self, PyObject* args, PyObject* key
     int result = 0;
 
     if (! PyArg_ParseTupleAndKeywords(
-        args, keywds, "s|slOO", kwlist,
+        args, keywds, "s|zlOO", kwlist,
         &service, &principal, &gss_flags, &pydelegatestate, &pymech_oid
     )) {
         return NULL;
