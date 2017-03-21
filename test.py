@@ -116,7 +116,7 @@ def main():
 def testServicePrincipal(service, hostname):
     try:
         result = kerberos.getServerPrincipalDetails(service, hostname)
-    except kerberos.KrbError, e:
+    except kerberos.KrbError as e:
         print(
             "Kerberos service principal for %s/%s failed: %s"
             % (service, hostname, e[0])
@@ -132,7 +132,7 @@ def testServicePrincipal(service, hostname):
 def testCheckpassword(user, pswd, service, realm):
     try:
         kerberos.checkPassword(user, pswd, service, realm)
-    except kerberos.BasicAuthError, e:
+    except kerberos.BasicAuthError as e:
         print("Kerberos authentication for %s failed: %s" % (user, e[0]))
     else:
         print("Kerberos authentication for %s succeeded" % user)
@@ -253,13 +253,13 @@ def testHTTP(host, port, use_ssl, service, mech):
             mech_oid = kerberos.GSS_MECH_OID_SPNEGO
 
         rc, vc = kerberos.authGSSClientInit(service=service, mech_oid=mech_oid)
-    except kerberos.GSSError, e:
+    except kerberos.GSSError as e:
         print("Could not initialize GSSAPI: %s/%s" % (e[0][0], e[1][0]))
         return
 
     try:
         kerberos.authGSSClientStep(vc, "")
-    except kerberos.GSSError, e:
+    except kerberos.GSSError as e:
         print(
             "Could not do GSSAPI step with continue: %s/%s"
             % (e[0][0], e[1][0])
@@ -303,7 +303,7 @@ def testHTTP(host, port, use_ssl, service, mech):
 
     try:
         kerberos.authGSSClientStep(vc, splits[1])
-    except kerberos.GSSError, e:
+    except kerberos.GSSError as e:
         print(
             "Could not verify server www-authenticate header in second HTTP "
             "response: %s/%s"
@@ -313,7 +313,7 @@ def testHTTP(host, port, use_ssl, service, mech):
 
     try:
         kerberos.authGSSClientClean(vc)
-    except kerberos.GSSError, e:
+    except kerberos.GSSError as e:
         print("Could not clean-up GSSAPI: %s/%s" % (e[0][0], e[1][0]))
         return
 
