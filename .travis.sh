@@ -41,7 +41,7 @@ cat > /etc/krb5.conf << EOL
     default = FILE:/var/log/krb5lib.log
 EOL
 
-echo -e "*/*@${DOMAIN_NAME^^}\t*" > /etc/krb5kdc/kadm5.acl
+echo -e "*/*@${DOMAIN_NAME^^}\t*" > /var/kerberos/kadm5.acl
 
 echo "Installing Kerberos libraries"
 export DEBIAN_FRONTEND=noninteractive
