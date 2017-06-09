@@ -13,5 +13,5 @@ install:
   docker run
   -v `pwd`:/tmp/build
   -w /tmp/build
-  ubuntu:stable
+  ubuntu:latest
   /bin/bash .travis.sh
