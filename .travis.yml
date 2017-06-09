@@ -1,0 +1,15 @@
+sudo: required
+
+python:
+- "2.7"
+
+services:
+- docker
+
+install:
+- >
+  docker run
+  - v `pwd`:/tmp/build
+  -w /tmp/build
+  debian:stable
+  /bin/bash .travis.sh
