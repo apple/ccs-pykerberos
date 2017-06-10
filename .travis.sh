@@ -1,31 +1,29 @@
 #!/bin/bash
 
-IP_ADDRESS=$(hostname -I)
-HOSTNAME=$(cat /etc/hostname)
-DOMAIN_NAME=example.com
-PASSWORD=Password01
+export KERBEROS_HOSTNAME=$(cat /etc/hostname)
 export DEBIAN_FRONTEND=noninteractive
+IP_ADDRESS=$(KERBEROS_HOSTNAME -I)
 
 echo "Configure the hosts file for Kerberos to work in a container"
 cp /etc/hosts ~/hosts.new
-sed -i "/.*$HOSTNAME/c\\$IP_ADDRESS\t$HOSTNAME.$DOMAIN_NAME" ~/hosts.new
+sed -i "/.*$KERBEROS_HOSTNAME/c\\$IP_ADDRESS\t$KERBEROS_HOSTNAME.$KERBEROS_REALM" ~/hosts.new
 cp -f ~/hosts.new /etc/hosts
 
 echo "Setting up Kerberos config file at /etc/krb5.conf"
 cat > /etc/krb5.conf << EOL
 [libdefaults]
-    default_realm = ${DOMAIN_NAME^^}
+    default_realm = ${KERBEROS_REALM^^}
     dns_lookup_realm = false
     dns_lookup_kdc = false
 
 [realms]
-    ${DOMAIN_NAME^^} = {
-        kdc = $HOSTNAME.$DOMAIN_NAME
-        admin_server = $HOSTNAME.$DOMAIN_NAME
+    ${KERBEROS_REALM^^} = {
+        kdc = $KERBEROS_HOSTNAME.$KERBEROS_REALM
+        admin_server = $KERBEROS_HOSTNAME.$KERBEROS_REALM
     }
 
 [domain_realm]
-    .$DOMAIN_NAME = ${DOMAIN_NAME^^}
+    .$KERBEROS_REALM = ${KERBEROS_REALM^^}
 
 [logging]
     kdc = FILE:/var/log/krb5kdc.log
@@ -35,7 +33,7 @@ EOL
 
 echo "Setting up kerberos ACL configuration at /etc/krb5kdc/kadm5.acl"
 mkdir /etc/krb5kdc
-echo -e "*/*@${DOMAIN_NAME^^}\t*" > /etc/krb5kdc/kadm5.acl
+echo -e "*/*@${KERBEROS_REALM^^}\t*" > /etc/krb5kdc/kadm5.acl
 
 echo "Installing all the packages required in this test"
 apt-get update
@@ -55,28 +53,28 @@ apt-get \
     libssl-dev
 
 echo "Creating KDC database"
-printf "$PASSWORD\n$PASSWORD" | krb5_newrealm
+printf "$KERBEROS_PASSWORD\n$KERBEROS_PASSWORD" | krb5_newrealm
 
 echo "Creating principals for tests"
-kadmin.local -q "addprinc -pw $PASSWORD administrator"
+kadmin.local -q "addprinc -pw $KERBEROS_PASSWORD $KERBEROS_USERNAME"
 
 echo "Adding principal for Kerberos auth and creating keytabs"
-kadmin.local -q "addprinc -randkey HTTP/$HOSTNAME.$DOMAIN_NAME"
-kadmin.local -q "addprinc -randkey host/$HOSTNAME.$DOMAIN_NAME@${DOMAIN_NAME^^}"
-kadmin.local -q "addprinc -randkey host/${HOSTNAME^^}@${DOMAIN_NAME^^}"
-kadmin.local -q "addprinc -randkey ${HOSTNAME^^}@${DOMAIN_NAME^^}"
+kadmin.local -q "addprinc -randkey HTTP/$KERBEROS_HOSTNAME.$KERBEROS_REALM"
+kadmin.local -q "addprinc -randkey host/$KERBEROS_HOSTNAME.$KERBEROS_REALM@${KERBEROS_REALM^^}"
+kadmin.local -q "addprinc -randkey host/${KERBEROS_HOSTNAME^^}@${KERBEROS_REALM^^}"
+kadmin.local -q "addprinc -randkey ${KERBEROS_HOSTNAME^^}@${KERBEROS_REALM^^}"
 
-kadmin.local -q "ktadd -k /etc/krb5.keytab host/$HOSTNAME.$DOMAIN_NAME@${DOMAIN_NAME^^}"
-kadmin.local -q "ktadd -k /etc/krb5.keytab host/${HOSTNAME^^}@${DOMAIN_NAME^^}"
-kadmin.local -q "ktadd -k /etc/krb5.keytab ${HOSTNAME^^}@${DOMAIN_NAME^^}"
-kadmin.local -q "ktadd -k /etc/krb5.keytab HTTP/$HOSTNAME.$DOMAIN_NAME"
+kadmin.local -q "ktadd -k /etc/krb5.keytab host/$KERBEROS_HOSTNAME.$KERBEROS_REALM@${KERBEROS_REALM^^}"
+kadmin.local -q "ktadd -k /etc/krb5.keytab host/${KERBEROS_HOSTNAME^^}@${KERBEROS_REALM^^}"
+kadmin.local -q "ktadd -k /etc/krb5.keytab ${KERBEROS_HOSTNAME^^}@${KERBEROS_REALM^^}"
+kadmin.local -q "ktadd -k /etc/krb5.keytab HTTP/$KERBEROS_HOSTNAME.$KERBEROS_REALM"
 chmod 777 /etc/krb5.keytab
 
 echo "Restarting Kerberos KDS service"
 service krb5-kdc restart
 
 echo "Add ServerName to Apache config"
-grep -q -F "ServerName $HOSTNAME.$DOMAIN_NAME" /etc/apache2/apache2.conf || echo "ServerName $HOSTNAME.$DOMAIN_NAME" >> /etc/apache2/apache2.conf
+grep -q -F "ServerName $KERBEROS_HOSTNAME.$KERBEROS_REALM" /etc/apache2/apache2.conf || echo "ServerName $KERBEROS_HOSTNAME.$KERBEROS_REALM" >> /etc/apache2/apache2.conf
 
 echo "Deleting default virtual host file"
 rm /etc/apache2/sites-enabled/000-default.conf
@@ -90,16 +88,16 @@ echo "<html><head><title>Title</title></head><body>body mesage</body></html>" > 
 
 echo "Create virtual host files"
 cat > /etc/apache2/sites-available/example.com.conf << EOL
-<VirtualHost *:80>
-    ServerName $HOSTNAME.$DOMAIN_NAME
-    ServerAlias $HOSTNAME.$DOMAIN_NAME
+<VirtualHost *:$KERBEROS_PORT>
+    ServerName $KERBEROS_HOSTNAME.$KERBEROS_REALM
+    ServerAlias $KERBEROS_HOSTNAME.$KERBEROS_REALM
     DocumentRoot /var/www/example.com/public_html
     ErrorLog ${APACHE_LOG_DIR}/error.log
     CustomLog ${APACHE_LOG_DIR}/access.log combined
     <Directory "/var/www/example.com/public_html">
         AuthType GSSAPI
         AuthName "GSSAPI Single Sign On Login"
-        Require user administrator@${DOMAIN_NAME^^}
+        Require user $KEBEROS_USERNAME@${KERBEROS_REALM^^}
         GssapiCredStore keytab:/etc/krb5.keytab
     </Directory>
 </VirtualHost>
@@ -110,10 +108,10 @@ a2ensite example.com.conf
 service apache2 restart
 
 echo "Getting ticket for Kerberos user"
-echo -n "$PASSWORD" | kinit "administrator@${DOMAIN_NAME^^}"
+echo -n "$KERBEROS_PASSWORD" | kinit "$KERBEROS_USERNAME@${KERBEROS_REALM^^}"
 
 echo "Try out the curl connection"
-CURL_OUTPUT=$(curl --negotiate -u : "http://$HOSTNAME.$DOMAIN_NAME")
+CURL_OUTPUT=$(curl --negotiate -u : "http://$KERBEROS_HOSTNAME.$KERBEROS_REALM")
 
 if [ "$CURL_OUTPUT" != "<html><head><title>Title</title></head><body>body mesage</body></html>" ]; then
     echo -e "ERROR: Did not get success message, cannot continue with actual tests:\nActual Output:\n$CURL_OUTPUT"
@@ -123,7 +121,7 @@ else
 fi
 
 echo "Downloading Python $PYENV"
-wget -q "https://www.python.org/ftp/python/2.7.13/Python-$PYENV.tgz"
+wget -q "https://www.python.org/ftp/python/$PYENV/Python-$PYENV.tgz"
 tar xzf "Python-$PYENV.tgz"
 cd "Python-$PYENV"
 echo "Configuring Python install"
@@ -147,4 +145,4 @@ echo "Pip Version: $(pip --version)"
 echo "Pip packages: $(pip list)"
 
 echo "Running Python tests"
-py.test
+python -m py.test

@@ -19,6 +19,10 @@ script:
   -v $(pwd):/app
   -w /app
   -e PYENV=$PYENV
+  -e KERBEROS_USERNAME=administrator
+  -e KERBEROS_PASSWORD=Password01
+  -e KERBEROS_REALM=example.com
+  -e KERBEROS_PORT=80
   ubuntu:16.04
   /bin/bash .travis.sh
 - echo 'success'
