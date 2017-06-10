@@ -2,7 +2,7 @@
 
 export KERBEROS_HOSTNAME=$(cat /etc/hostname)
 export DEBIAN_FRONTEND=noninteractive
-IP_ADDRESS=$(KERBEROS_HOSTNAME -I)
+IP_ADDRESS=$(hostname -I)
 
 echo "Configure the hosts file for Kerberos to work in a container"
 cp /etc/hosts ~/hosts.new
