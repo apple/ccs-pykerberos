@@ -15,3 +15,6 @@ install:
   -w /app
   ubuntu:16.04
   /bin/bash .travis.sh
+
+script:
+- echo 'success'

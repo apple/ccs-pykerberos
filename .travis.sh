@@ -103,3 +103,7 @@ if [ "$CURL_OUTPUT" != "<html><head><title>Title</title></head><body>body mesage
 else
     echo -e "SUCCESS: Apache site built and set for Kerberos auth\nActual Output:\n$CURL_OUTPUT"
 fi
+
+python --version
+pip install -U pip setuptools
+pip install .
