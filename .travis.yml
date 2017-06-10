@@ -1,20 +1,25 @@
 sudo: required
 
-language: python
-
-python:
-- "2.7"
+language: generic
 
 services:
 - docker
 
-install:
+os: linux
+
+dist: precise
+
+matrix:
+  include:
+  - env: PYENV=2.7.13
+  - env: PYENV=3.6.1
+
+script:
 - >
   docker run
   -v $(pwd):/app
   -w /app
+  -e PYENV=$PYENV
   ubuntu:16.04
   /bin/bash .travis.sh
-
-script:
 - echo 'success'
