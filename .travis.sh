@@ -39,20 +39,7 @@ echo -e "*/*@${DOMAIN_NAME^^}\t*" > /etc/krb5kdc/kadm5.acl
 
 echo "Installing all the packages required in this test"
 apt-get update
-apt-get install \
-    -y \
-    -qq \
-    krb5-{user,kdc,admin-server,multidev} \
-    libkrb5-dev \
-    wget \
-    curl \
-    apache2 \
-    libapache2-mod-auth-gssapi \
-    install \
-    python-dev \
-    libffi-dev \
-    build-essential \
-    libssl-dev
+apt-get install -y -qq krb5-{user,kdc,admin-server,multidev} libkrb5-dev wget curl apache2 libapache2-mod-auth-gssapi install python-dev libffi-dev build-essential libssl-dev
 
 echo "Creating KDC database"
 printf "$PASSWORD\n$PASSWORD" | krb5_newrealm
@@ -135,3 +122,9 @@ echo "Outputting build info before tests"
 echo "Python Version: $(python --version)"
 echo "Pip Version: $(pip --version)"
 echo "Pip packages: $(pip list)"
+
+echo "Running Python tests"
+python test.py -s HTTP@$DOMAIN_NAME service
+python test.py -u administrator -p $PASSWORD -s HTTP@$HOSTNAME.$DOMAIN_NAME -r ${DOMAIN_NAME^^} basic
+python test.py -s HTTP@$HOSTNAME.$DOMAIN_NAME -r ${DOMAIN_NAME^^} gssapi
+python test.py -s HTTP@$HOSTNAME.$DOMAIN_NAME -h $HOSTNAME.$DOMAIN_NAME -i 80 server
