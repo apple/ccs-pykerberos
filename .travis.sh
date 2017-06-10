@@ -105,6 +105,7 @@ else
 fi
 
 echo "Installing Python $PYENV"
+apt-get -y install python-dev libffi-dev build-essential libssl-dev
 wget "https://www.python.org/ftp/python/2.7.13/Python-$PYENV.tgz"
 tar xzf "Python-$PYENV.tgz"
 cd "Python-$PYENV"
