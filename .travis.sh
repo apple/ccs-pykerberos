@@ -50,7 +50,9 @@ apt-get \
     python-dev \
     libffi-dev \
     build-essential \
-    libssl-dev
+    libssl-dev \
+    zlib1g-dev \
+    libbz2-dev
 
 echo "Creating KDC database"
 printf "$KERBEROS_PASSWORD\n$KERBEROS_PASSWORD" | krb5_newrealm

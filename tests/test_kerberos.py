@@ -12,7 +12,7 @@ except ImportError:
 username = os.environ['KERBEROS_USERNAME']
 password = os.environ['KERBEROS_PASSWORD']
 realm = os.environ['KERBEROS_REALM']
-host = os.environ['KERBEROS_HOST']
+host = os.environ['KERBEROS_HOSTNAME']
 port = os.environ['KERBEROS_PORT']
 mech = "krb5"
 
@@ -25,7 +25,7 @@ def test_service_principal():
 
 def test_basic_check_password():
     service = "HTTP/%s" % host_fqdn
-    kerberos.checkPassword(username, password, service, realm)
+    kerberos.checkPassword(username, password, service, realm.upper())
 
 
 def test_gssapi():
