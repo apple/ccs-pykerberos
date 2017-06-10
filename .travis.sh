@@ -39,7 +39,20 @@ echo -e "*/*@${DOMAIN_NAME^^}\t*" > /etc/krb5kdc/kadm5.acl
 
 echo "Installing all the packages required in this test"
 apt-get update
-apt-get install -y -qq krb5-{user,kdc,admin-server,multidev} libkrb5-dev wget curl apache2 libapache2-mod-auth-gssapi install python-dev libffi-dev build-essential libssl-dev
+apt-get \
+    -y \
+    -qq \
+    install \
+    krb5-{user,kdc,admin-server,multidev} \
+    libkrb5-dev \
+    wget \
+    curl \
+    apache2 \
+    libapache2-mod-auth-gssapi \
+    python-dev \
+    libffi-dev \
+    build-essential \
+    libssl-dev
 
 echo "Creating KDC database"
 printf "$PASSWORD\n$PASSWORD" | krb5_newrealm
