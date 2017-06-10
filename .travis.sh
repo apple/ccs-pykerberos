@@ -60,10 +60,17 @@ printf "$PASSWORD\n$PASSWORD" | krb5_newrealm
 echo "Creating principals for tests"
 kadmin.local -q "addprinc -pw $PASSWORD administrator"
 
-echo "Adding principal for Kerberos auth and creating keytab"
+echo "Adding principal for Kerberos auth and creating keytabs"
 kadmin.local -q "addprinc -randkey HTTP/$HOSTNAME.$DOMAIN_NAME"
-kadmin.local -q "ktadd -k /etc/httpd.keytab HTTP/$HOSTNAME.$DOMAIN_NAME"
-chmod 777 /etc/httpd.keytab
+kadmin.local -q "addprinc -randkey host/$HOSTNAME.$DOMAIN_NAME@${DOMAIN_NAME^^}"
+kadmin.local -q "addprinc -randkey host/${HOSTNAME^^}@${DOMAIN_NAME^^}"
+kadmin.local -q "addprinc -randkey ${HOSTNAME^^}@${DOMAIN_NAME^^}"
+
+kadmin.local -q "ktadd -k /etc/krb5.keytab host/$HOSTNAME.$DOMAIN_NAME@${DOMAIN_NAME^^}"
+kadmin.local -q "ktadd -k /etc/krb5.keytab host/${HOSTNAME^^}@${DOMAIN_NAME^^}"
+kadmin.local -q "ktadd -k /etc/krb5.keytab ${HOSTNAME^^}@${DOMAIN_NAME^^}"
+kadmin.local -q "ktadd -k /etc/krb5.keytab HTTP/$HOSTNAME.$DOMAIN_NAME"
+chmod 777 /etc/krb5.keytab
 
 echo "Restarting Kerberos KDS service"
 service krb5-kdc restart
@@ -93,7 +100,7 @@ cat > /etc/apache2/sites-available/example.com.conf << EOL
         AuthType GSSAPI
         AuthName "GSSAPI Single Sign On Login"
         Require user administrator@${DOMAIN_NAME^^}
-        GssapiCredStore keytab:/etc/httpd.keytab  
+        GssapiCredStore keytab:/etc/krb5.keytab
     </Directory>
 </VirtualHost>
 EOL
@@ -115,11 +122,13 @@ else
     echo -e "SUCCESS: Apache site built and set for Kerberos auth\nActual Output:\n$CURL_OUTPUT"
 fi
 
-echo "Installing Python $PYENV"
+echo "Downloading Python $PYENV"
 wget -q "https://www.python.org/ftp/python/2.7.13/Python-$PYENV.tgz"
 tar xzf "Python-$PYENV.tgz"
 cd "Python-$PYENV"
+echo "Configuring Python install"
 ./configure &> /dev/null
+echo "Running make install on Python"
 make install &> /dev/null
 cd ..
 
@@ -130,14 +139,12 @@ python get-pip.py
 echo "Updating pip and installing library"
 pip install -U pip setuptools
 pip install .
+pip install requirements-test.txt
 
 echo "Outputting build info before tests"
-echo "Python Version: $(python --version)"
+echo "Python Version: $(python --version 2>&1)"
 echo "Pip Version: $(pip --version)"
 echo "Pip packages: $(pip list)"
 
 echo "Running Python tests"
-python test.py -s HTTP@$DOMAIN_NAME service
-python test.py -u administrator -p $PASSWORD -s HTTP@$HOSTNAME.$DOMAIN_NAME -r ${DOMAIN_NAME^^} basic
-python test.py -s HTTP@$HOSTNAME.$DOMAIN_NAME -r ${DOMAIN_NAME^^} gssapi
-python test.py -s HTTP@$HOSTNAME.$DOMAIN_NAME -h $HOSTNAME.$DOMAIN_NAME -i 80 server
+py.test
