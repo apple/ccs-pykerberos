@@ -10,7 +10,6 @@ dist: trusty
 
 matrix:
   include:
-  - env: PYENV=2.6.9
   - env: PYENV=2.7.13
   - env: PYENV=3.3.6
   - env: PYENV=3.4.6
@@ -29,4 +28,3 @@ script:
   -e KERBEROS_PORT=80
   ubuntu:16.04
   /bin/bash .travis.sh
-- echo 'success'

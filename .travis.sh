@@ -126,12 +126,16 @@ echo "Downloading Python $PYENV"
 wget -q "https://www.python.org/ftp/python/$PYENV/Python-$PYENV.tgz"
 tar xzf "Python-$PYENV.tgz"
 cd "Python-$PYENV"
+
 echo "Configuring Python install"
 ./configure &> /dev/null
+
 echo "Running make install on Python"
 make install &> /dev/null
 cd ..
 rm -rf "Python-$PYENV"
+
+pip install -U pip setuptools
 
 echo "Installing Pip"
 wget -q https://bootstrap.pypa.io/get-pip.py
