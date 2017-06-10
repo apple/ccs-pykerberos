@@ -1,17 +1,17 @@
 #!/bin/bash
 
-# Work to Kerberos in container
 IP_ADDRESS=$(hostname -I)
 HOSTNAME=$(cat /etc/hostname)
 DOMAIN_NAME=example.com
 PASSWORD=Password01
+export DEBIAN_FRONTEND=noninteractive
 
-echo "Configuring hostname for $HOSTNAME"
+echo "Configure the hosts file for Kerberos to work in a container"
 cp /etc/hosts ~/hosts.new
 sed -i "/.*$HOSTNAME/c\\$IP_ADDRESS\t$HOSTNAME.$DOMAIN_NAME" ~/hosts.new
 cp -f ~/hosts.new /etc/hosts
 
-echo "Setting up Kerberos configuration file at /etc/krb5.conf"
+echo "Setting up Kerberos config file at /etc/krb5.conf"
 cat > /etc/krb5.conf << EOL
 [libdefaults]
     default_realm = ${DOMAIN_NAME^^}
@@ -33,13 +33,26 @@ cat > /etc/krb5.conf << EOL
     default = FILE:/var/log/krb5lib.log
 EOL
 
+echo "Setting up kerberos ACL configuration at /etc/krb5kdc/kadm5.acl"
 mkdir /etc/krb5kdc
 echo -e "*/*@${DOMAIN_NAME^^}\t*" > /etc/krb5kdc/kadm5.acl
 
-echo "Installing Kerberos libraries"
-export DEBIAN_FRONTEND=noninteractive
+echo "Installing all the packages required in this test"
 apt-get update
-apt-get install -y krb5-{user,kdc,admin-server,multidev} libkrb5-dev
+apt-get install \
+    -y \
+    -qq \
+    krb5-{user,kdc,admin-server,multidev} \
+    libkrb5-dev \
+    wget \
+    curl \
+    apache2 \
+    libapache2-mod-auth-gssapi \
+    install \
+    python-dev \
+    libffi-dev \
+    build-essential \
+    libssl-dev
 
 echo "Creating KDC database"
 printf "$PASSWORD\n$PASSWORD" | krb5_newrealm
@@ -54,9 +67,6 @@ chmod 777 /etc/httpd.keytab
 
 echo "Restarting Kerberos KDS service"
 service krb5-kdc restart
-
-echo "Installing Apache and mod-auth-gssapi"
-apt-get install -y wget curl apache2 libapache2-mod-auth-gssapi
 
 echo "Add ServerName to Apache config"
 grep -q -F "ServerName $HOSTNAME.$DOMAIN_NAME" /etc/apache2/apache2.conf || echo "ServerName $HOSTNAME.$DOMAIN_NAME" >> /etc/apache2/apache2.conf
@@ -99,33 +109,29 @@ echo "Try out the curl connection"
 CURL_OUTPUT=$(curl --negotiate -u : "http://$HOSTNAME.$DOMAIN_NAME")
 
 if [ "$CURL_OUTPUT" != "<html><head><title>Title</title></head><body>body mesage</body></html>" ]; then
-    echo -e "ERROR: Did not get success message:\nActual Output:\n$CURL_OUTPUT"
+    echo -e "ERROR: Did not get success message, cannot continue with actual tests:\nActual Output:\n$CURL_OUTPUT"
+    exit 1
 else
     echo -e "SUCCESS: Apache site built and set for Kerberos auth\nActual Output:\n$CURL_OUTPUT"
 fi
 
 echo "Installing Python $PYENV"
-apt-get -y install python-dev libffi-dev build-essential libssl-dev
-wget "https://www.python.org/ftp/python/2.7.13/Python-$PYENV.tgz"
+wget -q "https://www.python.org/ftp/python/2.7.13/Python-$PYENV.tgz"
 tar xzf "Python-$PYENV.tgz"
 cd "Python-$PYENV"
-./configure
-make install
+./configure &> /dev/null
+make install &> /dev/null
 cd ..
 
-python --version
-
 echo "Installing Pip"
-wget https://bootstrap.pypa.io/get-pip.py
+wget -q https://bootstrap.pypa.io/get-pip.py
 python get-pip.py
 
-pip --version
-
-echo "Updating pip and installing requirements"
+echo "Updating pip and installing library"
 pip install -U pip setuptools
-
-pip --version
-pip list
-
 pip install .
-pip list
+
+echo "Outputting build info before tests"
+echo "Python Version: $(python --version)"
+echo "Pip Version: $(pip --version)"
+echo "Pip packages: $(pip list)"
