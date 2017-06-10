@@ -11,7 +11,7 @@ services:
 install:
 - >
   docker run
-  -v `pwd`:/tmp/build
-  -w /tmp/build
-  ubuntu:latest
+  -v $(pwd):/app
+  -w /app
+  ubuntu:16.04
   /bin/bash .travis.sh
