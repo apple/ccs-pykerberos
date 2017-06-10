@@ -129,6 +129,7 @@ echo "Configuring Python install"
 echo "Running make install on Python"
 make install &> /dev/null
 cd ..
+rm -rf "Python-$PYENV"
 
 echo "Installing Pip"
 wget -q https://bootstrap.pypa.io/get-pip.py
@@ -137,7 +138,7 @@ python get-pip.py
 echo "Updating pip and installing library"
 pip install -U pip setuptools
 pip install .
-pip install requirements-test.txt
+pip install -r requirements-test.txt
 
 echo "Outputting build info before tests"
 echo "Python Version: $(python --version 2>&1)"
