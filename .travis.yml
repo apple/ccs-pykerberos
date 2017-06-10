@@ -6,8 +6,7 @@ services:
 - docker
 
 os: linux
-
-dist: precise
+dist: trusty
 
 matrix:
   include:

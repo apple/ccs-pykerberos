@@ -56,7 +56,7 @@ echo "Restarting Kerberos KDS service"
 service krb5-kdc restart
 
 echo "Installing Apache and mod-auth-gssapi"
-apt-get install -y curl apache2 libapache2-mod-auth-gssapi
+apt-get install -y wget curl apache2 libapache2-mod-auth-gssapi
 
 echo "Add ServerName to Apache config"
 grep -q -F "ServerName $HOSTNAME.$DOMAIN_NAME" /etc/apache2/apache2.conf || echo "ServerName $HOSTNAME.$DOMAIN_NAME" >> /etc/apache2/apache2.conf
@@ -105,3 +105,26 @@ else
 fi
 
 echo "Installing Python $PYENV"
+wget "https://www.python.org/ftp/python/2.7.13/Python-$PYENV.tgz"
+tar xzf "Python-$PYENV.tgz"
+cd "Python-$PYENV"
+./configure
+make install
+cd ..
+
+python --version
+
+echo "Installing Pip"
+wget https://bootstrap.pypa.io/get-pip.py
+python get-pip.py
+
+pip --version
+
+echo "Updating pip and installing requirements"
+pip install -U pip setuptools
+
+pip --version
+pip list
+
+pip install .
+pip list
