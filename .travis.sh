@@ -97,7 +97,7 @@ cat > /etc/apache2/sites-available/example.com.conf << EOL
     <Directory "/var/www/example.com/public_html">
         AuthType GSSAPI
         AuthName "GSSAPI Single Sign On Login"
-        Require user $KEBEROS_USERNAME@${KERBEROS_REALM^^}
+        Require user $KERBEROS_USERNAME@${KERBEROS_REALM^^}
         GssapiCredStore keytab:/etc/krb5.keytab
     </Directory>
 </VirtualHost>

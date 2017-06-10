@@ -18,6 +18,7 @@ mech = "krb5"
 
 host_fqdn = "%s.%s" % (host, realm.lower())
 
+
 def test_service_principal():
     kerberos.getServerPrincipalDetails("HTTP", host_fqdn)
 
@@ -25,6 +26,7 @@ def test_service_principal():
 def test_basic_check_password():
     service = "HTTP/%s" % host_fqdn
     kerberos.checkPassword(username, password, service, realm)
+
 
 def test_gssapi():
     """
@@ -76,7 +78,6 @@ def test_http_endpoint():
                 sock, self.key_file, self.cert_file,
                 ssl_version=ssl.PROTOCOL_SSLv3
             )
-
 
     def sendRequest(host, port, use_ssl, method, uri, headers):
         response = None
