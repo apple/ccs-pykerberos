@@ -2,6 +2,7 @@
 
 IP_ADDRESS=$(hostname -I)
 HOSTNAME=$(cat /etc/hostname)
+PY_MAJOR=${PYENV:0:1}
 
 export KERBEROS_HOSTNAME=$HOSTNAME.$KERBEROS_REALM
 export DEBIAN_FRONTEND=noninteractive
@@ -137,21 +138,21 @@ make install &> /dev/null
 cd ..
 rm -rf "Python-$PYENV"
 
-pip install -U pip setuptools
-
 echo "Installing Pip"
 wget -q https://bootstrap.pypa.io/get-pip.py
-python get-pip.py
+python$PY_MAJOR get-pip.py
+
+pip$PY_MAJOR install -U pip setuptools
 
 echo "Updating pip and installing library"
-pip install -U pip setuptools
-pip install .
-pip install -r requirements-test.txt
+pip$PY_MAJOR install -U pip setuptools
+pip$PY_MAJOR install .
+pip$PY_MAJOR install -r requirements-test.txt
 
 echo "Outputting build info before tests"
-echo "Python Version: $(python --version 2>&1)"
-echo "Pip Version: $(pip --version)"
-echo "Pip packages: $(pip list)"
+echo "Python Version: $(python$PY_MAJOR --version 2>&1)"
+echo "Pip Version: $(pip$PY_MAJOR --version)"
+echo "Pip packages: $(pip$PY_MAJOR list)"
 
 echo "Running Python tests"
-python -m py.test
+python$PY_MAJOR -m py.test

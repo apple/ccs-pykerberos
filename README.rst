@@ -1,6 +1,9 @@
 PyKerberos Package
 ==================
 
+.. image:: https://travis-ci.org/apple/ccs-pykerberos.svg?branch=master
+    :target: https://travis-ci.org/apple/ccs-pykerberos
+
 This Python package is a high-level wrapper for Kerberos (GSSAPI)
 operations.  The goal is to avoid having to build a module that wraps
 the entire Kerberos.framework, and instead offer a limited set of
@@ -21,7 +24,30 @@ In this directory, run:
 Testing
 =======
 
-You must have a valid Kerberos setup on the test machine and you
+To run the tests in the tests folder, you must have a valid Kerberos setup on
+the test machine. You can use the script .travis.sh as quick and easy way to
+setup a Kerberos KDC and Apache web endpoint that can be used for the tests.
+Otherwise you can also run the following to run a self contained Docker
+container
+
+.. code-block: bash
+
+  docker run \
+  -v $(pwd):/app \
+  -w /app \
+  -e PYENV=2.7.13 \
+  -e KERBEROS_USERNAME=administrator \
+  -e KERBEROS_PASSWORD=Password01 \
+  -e KERBEROS_REALM=example.com \
+  -e KERBEROS_PORT=80 \
+  ubuntu:16.04 \
+  /bin/bash .travis.sh
+
+The docker command needs to be run in the same directory as this library and
+you can test it with different Python versions by changing the value of the
+PYENV environment value set in the command.
+
+Please have a look at testing_notes.md for more information.You must have a valid Kerberos setup on the test machine and you
 should ensure that you have valid Kerberos tickets for any client
 authentication being done (run 'klist' on the command line).
 Additionally, for the server: it must have been configured as a valid
@@ -34,7 +60,7 @@ Make sure that PYTHONPATH includes the appropriate build/lib.xxxx
 directory.  Then run test.py with suitable command line arguments:
 
   python test.py -u userid -p password -s service
-    
+
   -u
     user id for basic authenticate
   -p

@@ -2,11 +2,11 @@ import kerberos
 import os
 import requests
 
-username = os.environ['KERBEROS_USERNAME']
-password = os.environ['KERBEROS_PASSWORD']
-realm = os.environ['KERBEROS_REALM']
-hostname = os.environ['KERBEROS_HOSTNAME']
-port = os.environ['KERBEROS_PORT']
+username = os.environ.get('KERBEROS_USERNAME', 'administrator')
+password = os.environ.get('KERBEROS_PASSWORD', 'Password01')
+realm = os.environ.get('KERBEROS_REALM', 'example.com')
+hostname = os.environ.get('KERBEROS_HOSTNAME', 'hostname.example.com')
+port = os.environ.get('KERBEROS_PORT', '80')
 
 
 def test_service_principal():

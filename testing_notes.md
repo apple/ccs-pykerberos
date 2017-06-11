@@ -1,91 +1,137 @@
-### Generic web service test
-This test is written to test against CalendarServer. To test against a generic web service, adjust test.py as shown below. uri should be something configured for kerberos authentication.
+# Setting up a Test Environment
+
+While you can just use the automated travis-ci build to test out your changes
+it is also nice to be able to run the tests locally before pushing them.
+Unfortunately due to the nature of Kerberos it can be hard to have an
+environment on hand to test this out. Please note that any scripts or commands
+run are not indicative of a properly secured and hardened Kerberos environment
+and should not be used to set up a real Kerberos environment used in a non
+testing context.
+
+The script .travis.sh is the script used in the automated travis-ci build and
+can be run locally. You can take parts of this script to install a Kerberos
+KDC and Apache site secured with Kerberos and run the tests using py.test.
+Otherwise you can run the tests on a host already connected to your own domain
+and modify the values in `tests/test_kerberos.py` which is valid for your
+environment. See an explanation for each option below;
 
 ```
-Index: test.py
-===================================================================
---- test.py (revision 15646)
-+++ test.py (working copy)
-@@ -209,6 +209,7 @@
-         else:
-             http = HTTPConnection(host, port)
-         try:
-+            print("requesting: method: {}, uri: {}, body: '', headers: {}".format(method, uri, headers))
-             http.request(method, uri, "", headers)
-             response = http.getresponse()
-         finally:
-@@ -217,7 +218,7 @@
-         return response
- 
-     # Initial request without auth header
--    uri = "/principals/"
-+    uri = "http://server.example.org/test"
-     response = sendRequest(host, port, use_ssl, "OPTIONS", uri, {})
- 
-     if response is None:
+# The username without the realm to validate
+username = os.environ.get('KERBEROS_USERNAME', 'administrator')
+
+# The password for the username
+password = os.environ.get('KERBEROS_PASSWORD', 'Password01')
+
+# The realm/domain of your environment in lowercase
+realm = os.environ.get('KERBEROS_REALM', 'example.com')
+
+# The FQDN of the host
+hostname = os.environ.get('KERBEROS_HOSTNAME', 'hostname.example.com')
+
+# The port the Apache site is listening to
+port = os.environ.get('KERBEROS_PORT', '80')
 ```
 
-### Sample Apache config for a kerberized location
-```
-<Location /test>
-         AuthType Kerberos
-         AuthName "Kerberos:)"
-         KrbMethodNegotiate on
-         KrbMethodK5Passwd off
-         Krb5Keytab /etc/apache2/http.keytab
-         Require user userfoo@EXAMPLE.ORG
-</Location>
-```
+## Sample Apache config for a Kerberized site
 
-### the test.py help text
-```
-sudo ./test.py -s HTTP@example.com service
-sudo ./test.py -u user01 -p user01 -s HTTP@example.com -r EXAMPLE.COM basic
-sudo ./test.py -s HTTP@example.com -r EXAMPLE.COM gssapi
-./test.py -s HTTP@example.com -h calendar.example.com -i 8008 server
-For the gssapi and server tests you will need to kinit a principal on the server first.
+You can use the package [mod_auth_gssapi](https://github.com/modauthgssapi/mod_auth_gssapi) to secure your Apache site with
+Kerberos authentication. For you to do this you can install the package by
+running;
+
+```bash
+# for Debian/Ubuntu:
+sudo apt-get install libapache2-mod-auth-gssapi
+
+# for RHEL/CentOS:
+sudo yum install mod_auth_gssapi
 ```
 
-### basic test
-perform an authentication with specified username / password (requires no credentials cache)
+In your site configuration an example setup of the config would
+look something like this
+
 ```
-userfoo@domain-controller:~/PyKerberos$ python ./test.py -u userfoo -p myBestPassword -s HTTP@server.example.org -r EXAMPLE.ORG basic
-
-*** Running basic test
-Kerberos authentication for userfoo succeeded
-
-*** Done
-```
-
-### service test
-Do what a kerberized service needs to do.
-It wants to read the service keytab from /etc/krb5.keytab.
-The ktutil steps shown here validate that the keytab is legit.
-```
-userfoo@domain-controller:~/PyKerberos$ sudo ktutil
-ktutil:  rkt /etc/krb5.keytab
-ktutil:  l
-slot KVNO Principal
----- ---- ---------------------------------------------------------------------
-   1    2    HTTP/server.example.org@EXAMPLE.ORG
-   2    2    HTTP/server.example.org@EXAMPLE.ORG
-   3    2    HTTP/server.example.org@EXAMPLE.ORG
-   4    2    HTTP/server.example.org@EXAMPLE.ORG
-ktutil:
-userfoo@domain-controller:~/PyKerberos$ 
-userfoo@domain-controller:~/PyKerberos$ sudo python ./test.py -s HTTP@server.example.org service
-
-*** Running Service Principal test
-Kerberos service principal for HTTP/server.example.org succeeded: HTTP/server.example.org@EXAMPLE.ORG
-
-*** Done
+<VirtualHost *:80>
+    ServerName hostname.example.com
+    ServerAlias hostname.example.com
+    DocumentRoot /var/www/example.com/public_html
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+    <Directory "/var/www/example.com/public_html">
+        AuthType GSSAPI
+        AuthName "GSSAPI Single Sign On Login"
+        Require user username@EXAMPLE.COM
+        GssapiCredStore keytab:/etc/krb5.keytab
+    </Directory>
+</VirtualHost>
 ```
 
-### gssapi test
-requires user tgt and service keytab access (hence root), obtains service ticket for specified user
+Your keytab file needs to have the SPN added for the site, this can be done by
+running on your KDC
+
+```bash
+kadmin.local -q "addprinc -randkey HTTP/hostname.example.com"
+
+kadmin.local -q "ktadd -k /etc/krb5.keytab HTTP/hostname.example.com"
+```
+
+Take note to change the hostname used with the actual hostname of your host.
+
+# Test Cases
+
+There are currently 4 test cases in this library
+
+* basic
+* service
+* gssapi
+* server
+
+## Basic Test
+
+This test performs a basic authentication test with the specified username /
+password. This does not require any credentials to be cached.
+
+## Service Test
+
+Does what a Kerberized service needs to do. It attempts to read the service
+keytab from `/etc/krb5.keytab`. Before running this test you need to ensure
+`/etc/krb5.keytab` contains the keytab `HTTP/hostname.example.com@EXAMPLE.COM`
+where the hostname and realm suite your environment. You can verify this by
+running
+
+```
+[administrator@HOSTNAME ]$ klist -k /etc/krb5.keytab
+Keytab name: FILE:/etc/krb5.keytab
+KVNO Principal
+---- --------------------------------------------------------------------------
+   1 HTTP/hostname.example.com@EXAMPLE.COM
+   2 host/hostname.example.com@EXAMPLE.COM
+   2 host/hostname.example.com@EXAMPLE.COM
+   2 host/hostname.example.com@EXAMPLE.COM
+   2 host/hostname.example.com@EXAMPLE.COM
+   2 host/hostname.example.com@EXAMPLE.COM
+   2 host/HOSTNAME@EXAMPLE.COM
+   2 host/HOSTNAME@EXAMPLE.COM
+   2 host/HOSTNAME@EXAMPLE.COM
+   2 host/HOSTNAME@EXAMPLE.COM
+   2 host/HOSTNAME@EXAMPLE.COM
+   2 HOSTNAME@EXAMPLE.COM
+   2 HOSTNAME@EXAMPLE.COM
+   2 HOSTNAME@EXAMPLE.COM
+   2 HOSTNAME@EXAMPLE.COM
+   2 HOSTNAME@EXAMPLE.COM
+```
+
+Your keytab can contain other entries it just needs to contain the one
+mentioned above.
+
+## GSSAPI Test
+
+Requires user tgt and service keytab access (hence root), this test will
+obtain the service ticker for the specified user
+
 ```
 userfoo@domain-controller:~/PyKerberos$ sudo kinit userfoo
-Password for userfoo@EXAMPLE.ORG: 
+Password for userfoo@EXAMPLE.ORG:
 userfoo@domain-controller:~/PyKerberos$ sudo klist
 Ticket cache: FILE:/tmp/krb5cc_0
 Default principal: userfoo@EXAMPLE.ORG
@@ -93,21 +139,7 @@ Default principal: userfoo@EXAMPLE.ORG
 Valid starting     Expires            Service principal
 06/03/16 05:08:53  06/03/16 15:08:53  krbtgt/EXAMPLE.ORG@EXAMPLE.ORG
     renew until 06/04/16 05:08:52
-userfoo@domain-controller:~/PyKerberos$ sudo python ./test.py -s HTTP@server.example.org -r EXAMPLE.ORG gssapi
-
-*** Running GSSAPI test
-Status for authGSSClientInit = Complete
-Status for authGSSServerInit = Complete
-Status for authGSSClientStep = Continue
-Status for authGSSServerStep = Complete
-Status for authGSSClientStep = Complete
-Server user name: userfoo@EXAMPLE.ORG
-Server target name: None
-Client user name: userfoo@EXAMPLE.ORG
-Status for authGSSClientClean = Complete
-Status for authGSSServerClean = Complete
-
-*** Done
+userfoo@domain-controller:~/PyKerberos$ sudo py.test
 
 userfoo@domain-controller:~/PyKerberos$ sudo klist
 Ticket cache: FILE:/tmp/krb5cc_0
@@ -120,43 +152,19 @@ Valid starting     Expires            Service principal
     renew until 06/04/16 05:08:52
 ```
 
-### server test
-validate kerberos authentication against an external kerberized service
-```
-userfoo@domain-controller:~/PyKerberos$ kdestroy
-userfoo@domain-controller:~/PyKerberos$ python ./test.py -s HTTP@server.example.org -h domain-controller -i 80 server
+## Server Test
 
-*** Running HTTP test
-requesting: method: OPTIONS, uri: http://server.example.org/test, body: '', headers: {}
-Could not do GSSAPI step with continue: Unspecified GSS failure.  Minor code may provide more information/Credentials cache file '/tmp/krb5cc_1001' not found
+This test will validate Kerberos authentication against a HTTP endpoint
+protected by Kerberos authentication. It requires a HTTP website set up and
+running, details on this can be found in the sections above and in the
+`.travis-ci.sh` script.
 
-*** Done
-
-userfoo@domain-controller:~/PyKerberos$ klist
-klist: No credentials cache found (ticket cache FILE:/tmp/krb5cc_1001)
-userfoo@domain-controller:~/PyKerberos$ kinit
-Password for userfoo@EXAMPLE.ORG: 
-userfoo@domain-controller:~/PyKerberos$ klist
-Ticket cache: FILE:/tmp/krb5cc_1001
-Default principal: userfoo@EXAMPLE.ORG
-
-Valid starting     Expires            Service principal
-06/03/16 04:54:28  06/03/16 14:54:28  krbtgt/EXAMPLE.ORG@EXAMPLE.ORG
-    renew until 06/04/16 04:54:27
-userfoo@domain-controller:~/PyKerberos$ python ./test.py -s HTTP@server.example.org -h domain-controller -i 80 server
-
-*** Running HTTP test
-requesting: method: OPTIONS, uri: http://server.example.org/test, body: '', headers: {}
-requesting: method: OPTIONS, uri: http://server.example.org/test, body: '', headers: {'Authorization': 'negotiate YIICbwYJKoZIhvcSAQICAQBuggJeMIICWqADAgEFoQMCAQ6iBwMFACAAAACjggFxYYIBbTCCAWmgAwIBBaEOGwxDTUlTU1lOQy5PUkeiJjAkoAMCAQOhHTAbGwRIVFRQGxNzZXJ2ZXIuY21pc3N5bmMub3Jno4IBKDCCASSgAwIBEqEDAgECooIBFgSCARJCT7c9mK+pKskUYbyUjQx1pGaQmrhbqjKoCgdMLEacnHvEANEH1vEzejiuEGPw/f96kKvMccaijEq8CzMm8nMicb1IJ8xYbZWHCSvIT8ccDRKlA5qf3vcQr002JSroKFuIFwivWGOIefg1cvsdNQ/jJ1Qf2pxLC2nxP6VFZdrtMwHI59rws1dUSNJ402cCjKV4OMLuWIrh0ivg7Lz7F1nCLFncSOYwJnDhoXUVh+paNl8Hc5RAv3LKLTab4dCpS3a1MK6o4LP4AlTne0O3caxInLCoQy3TOCRcIF9Jvug6XCEmbrZEfOfxz7fR/PSDseJOv3epI9hXgYoe0D0BdNRwOTMqhTUW40vnIiipwilPLduspIHPMIHMoAMCARKigcQEgcG5icdMbLukpIHSYDyrt/bVj/qKvfO8y4kQehZZ3CasPFNZwO/KDx1rOTSG7opo5bdhBBZAK4Z1YMIQUDSMHQ01uofBioJMdYGSTAwMCPM+yXYX5weaQd03SsxAUoCtdh9HuV25dbkkUskllqO2vlTiiAx9b/5BwUvKPAT6UXEvvRwXIvs8Aon5w3sYF0lrWGTPrWXvj1YCkddM6TeMb81ybhSmuh3AnUYIlAlJx4kwiY7wBBkVszXZCBfuYznmmLNH'}
-Authenticated successfully
-
-*** Done
-```
+## Appendix
 
 ### appendix a: curl cross-check
 Use curl to cross-check the kerberized http service
 ```
-userfoo@domain-controller:~/PyKerberos$ kdestroy  
+userfoo@domain-controller:~/PyKerberos$ kdestroy
 userfoo@domain-controller:~/PyKerberos$ curl --negotiate -u userfoo server.example.org/test
 Enter host password for user 'userfoo':
 <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
@@ -176,7 +184,7 @@ the credentials required.</p>
 userfoo@domain-controller:~/PyKerberos$ klist
 klist: No credentials cache found (ticket cache FILE:/tmp/krb5cc_1001)
 userfoo@domain-controller:~/PyKerberos$ kinit
-Password for userfoo@EXAMPLE.ORG: 
+Password for userfoo@EXAMPLE.ORG:
 userfoo@domain-controller:~/PyKerberos$ klist
 Ticket cache: FILE:/tmp/krb5cc_1001
 Default principal: userfoo@EXAMPLE.ORG
@@ -205,7 +213,7 @@ hold httplib in your hands to help discover that you were passing the wrong cli 
 >>> http = httplib.HTTPConnection('domain-controller', 80)
 >>> http
 <httplib.HTTPConnection instance at 0x7f9ed9c680e0>
->>> 
+>>>
 >>> http.request("GET", "http://domain-controller", "", {})
 >>> response = http.getresponse()
 >>> response
