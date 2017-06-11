@@ -65,7 +65,7 @@ def test_gssapi():
 
 def test_http_endpoint():
     service = "HTTP@%s" % hostname
-    url = "http://%s:%d/" % (hostname, port)
+    url = "http://%s:%s/" % (hostname, port)
 
     session = requests.Session()
 
