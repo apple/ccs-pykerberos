@@ -47,27 +47,7 @@ The docker command needs to be run in the same directory as this library and
 you can test it with different Python versions by changing the value of the
 PYENV environment value set in the command.
 
-Please have a look at testing_notes.md for more information.You must have a valid Kerberos setup on the test machine and you
-should ensure that you have valid Kerberos tickets for any client
-authentication being done (run 'klist' on the command line).
-Additionally, for the server: it must have been configured as a valid
-Kerberos service with the Kerbersos server for its realm - this
-usually requires running kadmin on the server machine to add the
-principal and generate a keytab entry for it (run 'sudo klist -k' to
-see the currently available keytab entries).
-
-Make sure that PYTHONPATH includes the appropriate build/lib.xxxx
-directory.  Then run test.py with suitable command line arguments:
-
-  python test.py -u userid -p password -s service
-
-  -u
-    user id for basic authenticate
-  -p
-    password for basic authenticate
-  -s
-    service principal for GSSAPI authentication (defaults to
-    'http@host.example.com')
+Please have a look at testing_notes.md for more information.
 
 
 IMPORTANT

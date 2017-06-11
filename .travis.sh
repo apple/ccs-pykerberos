@@ -142,8 +142,6 @@ echo "Installing Pip"
 wget -q https://bootstrap.pypa.io/get-pip.py
 python$PY_MAJOR get-pip.py
 
-pip$PY_MAJOR install -U pip setuptools
-
 echo "Updating pip and installing library"
 pip$PY_MAJOR install -U pip setuptools
 pip$PY_MAJOR install .
@@ -155,4 +153,4 @@ echo "Pip Version: $(pip$PY_MAJOR --version)"
 echo "Pip packages: $(pip$PY_MAJOR list)"
 
 echo "Running Python tests"
-python$PY_MAJOR -m py.test
+python$PY_MAJOR -m pytest
