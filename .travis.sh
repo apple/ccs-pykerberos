@@ -60,7 +60,10 @@ apt-get \
     libbz2-dev
 
 echo "Creating KDC database"
+# krb5_newrealm returns non-0 return code as it is running in a container, ignore it for this command only
+set +e
 printf "$KERBEROS_PASSWORD\n$KERBEROS_PASSWORD" | krb5_newrealm
+set -e
 
 echo "Creating principals for tests"
 kadmin.local -q "addprinc -pw $KERBEROS_PASSWORD $KERBEROS_USERNAME"
