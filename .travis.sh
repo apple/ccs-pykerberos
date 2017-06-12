@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 IP_ADDRESS=$(hostname -I)
 HOSTNAME=$(cat /etc/hostname)
 PY_MAJOR=${PYENV:0:1}
