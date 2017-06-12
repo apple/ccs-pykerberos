@@ -193,7 +193,69 @@ def authGSSClientInquireCred(context):
 
 
 
-def authGSSClientStep(context, challenge):
+"""
+Address Types for Channel Bindings
+https://docs.oracle.com/cd/E19455-01/806-3814/6jcugr7dp/index.html#reference-9
+
+"""
+
+GSS_C_AF_UNSPEC    = 0
+GSS_C_AF_LOCAL     = 1
+GSS_C_AF_INET      = 2
+GSS_C_AF_IMPLINK   = 3
+GSS_C_AF_PUP       = 4
+GSS_C_AF_CHAOS     = 5
+GSS_C_AF_NS        = 6
+GSS_C_AF_NBS       = 7
+GSS_C_AF_ECMA      = 8
+GSS_C_AF_DATAKIT   = 9
+GSS_C_AF_CCITT     = 10
+GSS_C_AF_SNA       = 11
+GSS_C_AF_DECnet    = 12
+GSS_C_AF_DLI       = 13
+GSS_C_AF_LAT       = 14
+GSS_C_AF_HYLINK    = 15
+GSS_C_AF_APPLETALK = 16
+GSS_C_AF_BSC       = 17
+GSS_C_AF_DSS       = 18
+GSS_C_AF_OSI       = 19
+GSS_C_AF_X25       = 21
+GSS_C_AF_NULLADDR  = 255
+
+
+
+def channelBindings(**kwargs):
+    """
+    Builds a gss_channel_bindings_struct which can be used to pass onto
+    L{authGSSClientStep} to bind onto the auth. Details on Channel Bindings
+    can be foud at https://tools.ietf.org/html/rfc5929. More details on the
+    struct can be found at
+    https://docs.oracle.com/cd/E19455-01/806-3814/overview-52/index.html
+
+    @param initiator_addrtype: Optional integer used to set the
+        initiator_addrtype, defaults to GSS_C_AF_UNSPEC if not set
+
+    @param initiator_address: Optional byte string containing the
+        initiator_address
+
+    @param acceptor_addrtype: Optional integer used to set the
+        acceptor_addrtype, defaults to GSS_C_AF_UNSPEC if not set
+
+    @param acceptor_address: Optional byte string containing the
+        acceptor_address
+
+    @param application_data: Optional byte string containing the
+        application_data. An example would be 'tls-server-end-point:{cert-hash}'
+        where {cert-hash} is the hash of the server's certificate
+
+    @return: A tuple of (result, gss_channel_bindings_struct) where result is
+        the result code and gss_channel_bindings_struct is the channel bindings
+        structure that can be passed onto L{authGSSClientStep}
+    """
+
+
+
+def authGSSClientStep(context, challenge, **kwargs):
     """
     Processes a single GSSAPI client-side step using the supplied server data.
 
@@ -201,6 +263,11 @@ def authGSSClientStep(context, challenge):
 
     @param challenge: A string containing the base64-encoded server data (which
         may be empty for the first step).
+
+    @param channel_bindings: Optional channel bindings to bind onto the auth
+        request. This struct can be built using :{channelBindings}
+        and if not specified it will pass along GSS_C_NO_CHANNEL_BINDINGS as
+        a default.
 
     @return: A result code (see above).
     """

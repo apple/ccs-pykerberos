@@ -58,6 +58,59 @@ not offer any protection against possible KDC spoofing. That method should not b
 production code.
 
 
+Channel Bindings
+================
+
+You can use this library to authenticate with Channel Binding support. Channel
+Bindings are tags that identify the particular data channel being used with the
+authentication. You can use Channel bindings to offer more proof of a valid
+identity. Some services like Microsoft's Extended Protection can enforce
+Channel Binding support on authorisation and you can use this library to meet
+those requirements.
+
+More details on Channel Bindings as set through the GSSAPI can be found here
+<https://docs.oracle.com/cd/E19455-01/806-3814/overview-52/index.html>. Using
+TLS as a example this is how you would add Channel Binding support to your
+authentication mechanism. The following code snippet is based on RFC5929
+<https://tools.ietf.org/html/rfc5929> using the 'tls-server-endpoint-point'
+type.
+
+.. code-block:: python
+
+   import hashlib
+
+    def get_channel_bindings_application_data(socket):
+        # This is a highly simplified example, there are other use cases
+        # where you might need to use different hash types or get a socket
+        # object somehow.
+        server_certificate = socket.getpeercert(True)
+        certificate_hash = hashlib.sha256(server_certificate).hexdigest().upper()
+        certificate_digest = base64.b16decode(certificate_hash)
+        application_data = b'tls-server-end-point:%s' % certificate_digest
+
+        return application_data
+
+    def main():
+        # Code to setup a socket with the server
+        # A lot of code to setup the handshake and start the auth process
+        socket = getsocketsomehow()
+
+        # Connect to the host and start the auth process
+
+        # Build the channel bindings object
+        application_data = get_channel_bindings_application_data(socket)
+        channel_bindings = kerberos.channelBindings(application_data=application_data)
+
+        # More work to get responses from the server
+
+        result, context = kerberos.authGSSClientInit(kerb_spn, gssflags=gssflags, principal=principal)
+
+        # Pass through the channel_bindings object as created in the kerberos.channelBindings method
+        result = kerberos.authGSSClientStep(context, neg_resp_value, channel_bindings=channel_bindings)
+
+        # Repeat as necessary
+
+
 Python APIs
 ===========
 

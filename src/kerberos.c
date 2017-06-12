@@ -211,14 +211,84 @@ static PyObject *authGSSClientClean(PyObject *self, PyObject *args)
     return Py_BuildValue("i", result);
 }
 
-static PyObject *authGSSClientStep(PyObject *self, PyObject *args)
+#if PY_MAJOR_VERSION >= 3
+void destruct_channel_bindings(PyObject* o) {
+    struct gss_channel_bindings_struct *channel_bindings = PyCapsule_GetPointer(o, NULL);
+#else
+void destruct_channel_bindings(void* o) {
+    struct gss_channel_bindings_struct *channel_bindings = (struct gss_channel_bindings_struct *)o;
+#endif
+
+    if (channel_bindings != NULL) {
+        if (channel_bindings->initiator_address.value != NULL) {
+            PyMem_Free(channel_bindings->initiator_address.value);
+        }
+
+        if (channel_bindings->acceptor_address.value != NULL) {
+            PyMem_Free(channel_bindings->acceptor_address.value);
+        }
+
+        if (channel_bindings->application_data.value != NULL) {
+            PyMem_Free(channel_bindings->application_data.value);
+        }
+
+        free(channel_bindings);
+    }
+}
+
+static PyObject *channelBindings(PyObject *self, PyObject *args, PyObject* keywds)
+{
+    int initiator_addrtype = GSS_C_AF_UNSPEC;
+    int acceptor_addrtype = GSS_C_AF_UNSPEC;
+
+    const char *encoding = NULL;
+    char *initiator_address = NULL;
+    char *acceptor_address = NULL;
+    char *application_data = NULL;
+    int initiator_length = NULL;
+    int acceptor_length = NULL;
+    int application_length = NULL;
+
+    PyObject *pychan_bindings = NULL;
+    struct gss_channel_bindings_struct *input_chan_bindings;
+    static char *kwlist[] = {"initiator_addrtype", "initiator_address", "acceptor_addrtype",
+        "acceptor_address", "application_data", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|iet#iet#et#", kwlist,
+            &initiator_addrtype, &encoding, &initiator_address, &initiator_length,
+            &acceptor_addrtype, &encoding, &acceptor_address, &acceptor_length,
+            &encoding, &application_data, &application_length)) {
+        return NULL;
+    }
+
+    input_chan_bindings = (struct gss_channel_bindings_struct *) malloc(sizeof(struct gss_channel_bindings_struct));
+    pychan_bindings = PyCObject_FromVoidPtr(input_chan_bindings, &destruct_channel_bindings);
+
+    input_chan_bindings->initiator_addrtype = initiator_addrtype;
+    input_chan_bindings->initiator_address.length = initiator_length;
+    input_chan_bindings->initiator_address.value = initiator_address;
+
+    input_chan_bindings->acceptor_addrtype = acceptor_addrtype;
+    input_chan_bindings->acceptor_address.length = acceptor_length;
+    input_chan_bindings->acceptor_address.value = acceptor_address;
+
+    input_chan_bindings->application_data.length = application_length;
+    input_chan_bindings->application_data.value = application_data;
+
+    return Py_BuildValue("N", pychan_bindings);
+}
+
+static PyObject *authGSSClientStep(PyObject *self, PyObject *args, PyObject* keywds)
 {
     gss_client_state *state = NULL;
     PyObject *pystate = NULL;
     char *challenge = NULL;
+    PyObject *pychan_bindings = NULL;
+    struct gss_channel_bindings_struct *channel_bindings;
+    static char *kwlist[] = {"state", "challenge", "channel_bindings", NULL};
     int result = 0;
 
-    if (! PyArg_ParseTuple(args, "Os", &pystate, &challenge)) {
+    if (! PyArg_ParseTupleAndKeywords(args, keywds, "Os|O", kwlist, &pystate, &challenge, &pychan_bindings)) {
         return NULL;
     }
 
@@ -233,7 +303,17 @@ static PyObject *authGSSClientStep(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    result = authenticate_gss_client_step(state, challenge);
+    if (pychan_bindings == NULL) {
+        channel_bindings = GSS_C_NO_CHANNEL_BINDINGS;
+    } else {
+        if (!PyCObject_Check(pychan_bindings)) {
+            PyErr_SetString(PyExc_TypeError, "Expected a gss_channel_bindings_struct object");
+            return NULL;
+        }
+        channel_bindings = (struct gss_channel_bindings_struct *)PyCObject_AsVoidPtr(pychan_bindings);
+    }
+
+    result = authenticate_gss_client_step(state, challenge, channel_bindings);
 
     if (result == AUTH_GSS_ERROR) {
         return NULL;
@@ -657,13 +737,18 @@ static PyMethodDef KerberosMethods[] = {
         "Initialize client-side GSSAPI operations."
     },
     {
+        "channelBindings",
+        (PyCFunction)channelBindings, METH_VARARGS | METH_KEYWORDS,
+        "Build the Channel Bindings Structure for authGSSClientStep."
+    },
+    {
         "authGSSClientClean",
         authGSSClientClean, METH_VARARGS,
         "Terminate client-side GSSAPI operations."
     },
     {
         "authGSSClientStep",
-        authGSSClientStep, METH_VARARGS,
+        (PyCFunction)authGSSClientStep, METH_VARARGS | METH_KEYWORDS,
         "Do a client-side GSSAPI step."
     },
     {
