@@ -61,7 +61,7 @@ int authenticate_gss_client_clean(
     gss_client_state *state
 );
 int authenticate_gss_client_step(
-    gss_client_state *state, const char *challenge
+    gss_client_state *state, const char *challenge, struct gss_channel_bindings_struct *channel_bindings
 );
 int authenticate_gss_client_unwrap(
     gss_client_state* state, const char* challenge
