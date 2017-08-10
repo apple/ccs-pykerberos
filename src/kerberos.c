@@ -213,7 +213,7 @@ static PyObject *authGSSClientClean(PyObject *self, PyObject *args)
     return Py_BuildValue("i", result);
 }
 
-#if PY_MAJOR_VERSION >= 3
+#if PY_VERSION_HEX >= 0x03020000
 void destruct_channel_bindings(PyObject* o) {
     struct gss_channel_bindings_struct *channel_bindings = PyCapsule_GetPointer(o, NULL);
 #else
