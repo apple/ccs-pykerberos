@@ -31,6 +31,9 @@
     // Basic renames (function parameters are the same)
     // No more int objects
     #define PyInt_FromLong PyLong_FromLong
+#endif
+
+#if PY_VERSION_HEX >= 0x03020000
     // CObjects to Capsules
     #define PyCObject_Check PyCapsule_CheckExact
     #define PyCObject_SetVoidPtr PyCapsule_SetPointer
@@ -165,12 +168,11 @@ static PyObject* authGSSClientInit(PyObject* self, PyObject* args, PyObject* key
     pystate = PyCObject_FromVoidPtr(state, NULL);
 
     if (pydelegatestate != NULL && PyCObject_Check(pydelegatestate)) {
-        delegatestate = PyCObject_AsVoidPtr(pydelegatestate);
+        delegatestate = (gss_server_state*)PyCObject_AsVoidPtr(pydelegatestate);
     }
 
-    if (pymech_oid != NULL && PyCapsule_CheckExact(pymech_oid)) {
-        const char * mech_oid_name = PyCapsule_GetName(pymech_oid);
-        mech_oid = PyCapsule_GetPointer(pymech_oid, mech_oid_name);
+    if (pymech_oid != NULL && PyCObject_Check(pymech_oid)) {
+        mech_oid = (gss_OID)PyCObject_AsVoidPtr(pymech_oid);
     }
 
     result = authenticate_gss_client_init(
@@ -211,7 +213,7 @@ static PyObject *authGSSClientClean(PyObject *self, PyObject *args)
     return Py_BuildValue("i", result);
 }
 
-#if PY_MAJOR_VERSION >= 3
+#if PY_VERSION_HEX >= 0x03020000
 void destruct_channel_bindings(PyObject* o) {
     struct gss_channel_bindings_struct *channel_bindings = PyCapsule_GetPointer(o, NULL);
 #else
@@ -245,9 +247,9 @@ static PyObject *channelBindings(PyObject *self, PyObject *args, PyObject* keywd
     char *initiator_address = NULL;
     char *acceptor_address = NULL;
     char *application_data = NULL;
-    int initiator_length = NULL;
-    int acceptor_length = NULL;
-    int application_length = NULL;
+    int initiator_length = 0;
+    int acceptor_length = 0;
+    int application_length = 0;
 
     PyObject *pychan_bindings = NULL;
     struct gss_channel_bindings_struct *input_chan_bindings;
@@ -919,10 +921,10 @@ MOD_INIT(kerberos)
         d, "GSS_C_TRANS_FLAG", PyInt_FromLong(GSS_C_TRANS_FLAG)
     );
     PyDict_SetItemString(
-        d, "GSS_MECH_OID_KRB5", PyCapsule_New(&krb5_mech_oid, "kerberos.GSS_MECH_OID_KRB5", NULL)
+        d, "GSS_MECH_OID_KRB5", PyCObject_FromVoidPtr(&krb5_mech_oid, NULL)
     );
     PyDict_SetItemString(
-        d, "GSS_MECH_OID_SPNEGO", PyCapsule_New(&spnego_mech_oid, "kerberos.GSS_MECH_OID_SPNEGO", NULL)
+        d, "GSS_MECH_OID_SPNEGO", PyCObject_FromVoidPtr(&spnego_mech_oid, NULL)
     );
 
 error:
