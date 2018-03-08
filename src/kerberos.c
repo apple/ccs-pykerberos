@@ -504,7 +504,7 @@ destroy_gss_server(PyObject *obj) {
     gss_server_state *state = PyCapsule_GetPointer(obj, NULL);
 #else
 destroy_gss_server(void *obj) {
-    gss_server_state *state = (gss_client_state *)obj;
+    gss_server_state *state = (gss_server_state *)obj;
 #endif
     if (state) {
         authenticate_gss_server_clean(state);
