@@ -66,9 +66,6 @@ gss_OID_desc krb5_mech_oid = { 9, &krb5_mech_oid_bytes };
 static char spnego_mech_oid_bytes[] = "\x2b\x06\x01\x05\x05\x02";
 gss_OID_desc spnego_mech_oid = { 6, &spnego_mech_oid_bytes };
 
-char STATE_NULL_C = 'C';
-void* STATE_NULL = &STATE_NULL_C;
-
 PyObject *KrbException_class;
 PyObject *BasicAuthException_class;
 PyObject *PwdChangeException_class;
@@ -136,6 +133,20 @@ static PyObject *getServerPrincipalDetails(PyObject *self, PyObject *args)
     }
 }
 
+static void
+#if PY_VERSION_HEX >= 0x03020000
+destroy_gss_client(PyObject *obj) {
+    gss_client_state *state = PyCapsule_GetPointer(obj, NULL);
+#else
+destroy_gss_client(void *obj) {
+    gss_client_state *state = (gss_client_state *)obj;
+#endif
+    if (state) {
+        authenticate_gss_client_clean(state);
+        free(state);
+    }
+}
+
 static PyObject* authGSSClientInit(PyObject* self, PyObject* args, PyObject* keywds)
 {
     const char *service = NULL;
@@ -165,7 +176,7 @@ static PyObject* authGSSClientInit(PyObject* self, PyObject* args, PyObject* key
         PyErr_NoMemory();
         return NULL;
     }
-    pystate = PyCObject_FromVoidPtr(state, NULL);
+    pystate = PyCObject_FromVoidPtr(state, &destroy_gss_client);
 
     if (pydelegatestate != NULL && PyCObject_Check(pydelegatestate)) {
         delegatestate = (gss_server_state*)PyCObject_AsVoidPtr(pydelegatestate);
@@ -188,29 +199,7 @@ static PyObject* authGSSClientInit(PyObject* self, PyObject* args, PyObject* key
 
 static PyObject *authGSSClientClean(PyObject *self, PyObject *args)
 {
-    gss_client_state *state = NULL;
-    PyObject *pystate = NULL;
-    int result = 0;
-
-    if (! PyArg_ParseTuple(args, "O", &pystate)) {
-        return NULL;
-    }
-
-    if (!PyCObject_Check(pystate)) {
-        PyErr_SetString(PyExc_TypeError, "Expected a context object");
-        return NULL;
-    }
-
-    state = (gss_client_state *)PyCObject_AsVoidPtr(pystate);
-
-    if (state != STATE_NULL) {
-        result = authenticate_gss_client_clean(state);
-
-        free(state);
-        PyCObject_SetVoidPtr(pystate, STATE_NULL);
-    }
-
-    return Py_BuildValue("i", result);
+    return Py_BuildValue("i", AUTH_GSS_COMPLETE);
 }
 
 #if PY_VERSION_HEX >= 0x03020000
@@ -301,7 +290,7 @@ static PyObject *authGSSClientStep(PyObject *self, PyObject *args, PyObject* key
 
     state = (gss_client_state *)PyCObject_AsVoidPtr(pystate);
 
-    if (state == STATE_NULL) {
+    if (state == NULL) {
         return NULL;
     }
 
@@ -340,7 +329,7 @@ static PyObject *authGSSClientResponseConf(PyObject *self, PyObject *args)
 
     state = (gss_client_state *)PyCObject_AsVoidPtr(pystate);
 
-    if (state == STATE_NULL) {
+    if (state == NULL) {
         return NULL;
     }
 
@@ -363,7 +352,7 @@ static PyObject *authGSSServerHasDelegated(PyObject *self, PyObject *args)
 
     state = (gss_server_state *)PyCObject_AsVoidPtr(pystate);
 
-    if (state == STATE_NULL) {
+    if (state == NULL) {
         return NULL;
     }
 
@@ -386,7 +375,7 @@ static PyObject *authGSSClientResponse(PyObject *self, PyObject *args)
 
     state = (gss_client_state *)PyCObject_AsVoidPtr(pystate);
 
-    if (state == STATE_NULL) {
+    if (state == NULL) {
         return NULL;
     }
 
@@ -409,7 +398,7 @@ static PyObject *authGSSClientUserName(PyObject *self, PyObject *args)
 
     state = (gss_client_state *)PyCObject_AsVoidPtr(pystate);
 
-    if (state == STATE_NULL) {
+    if (state == NULL) {
         return NULL;
     }
 
@@ -434,7 +423,7 @@ static PyObject *authGSSClientUnwrap(PyObject *self, PyObject *args)
 
 	state = (gss_client_state *)PyCObject_AsVoidPtr(pystate);
 
-	if (state == STATE_NULL) {
+	if (state == NULL) {
 		return NULL;
     }
 
@@ -469,7 +458,7 @@ static PyObject *authGSSClientWrap(PyObject *self, PyObject *args)
 
 	state = (gss_client_state *)PyCObject_AsVoidPtr(pystate);
 
-	if (state == STATE_NULL) {
+	if (state == NULL) {
 		return NULL;
     }
 
@@ -497,7 +486,7 @@ static PyObject *authGSSClientInquireCred(PyObject *self, PyObject *args)
     }
 
     state = (gss_client_state *)PyCObject_AsVoidPtr(pystate);
-    if (state == STATE_NULL) {
+    if (state == NULL) {
         return NULL;
     }
 
@@ -507,6 +496,20 @@ static PyObject *authGSSClientInquireCred(PyObject *self, PyObject *args)
     }
 
     return Py_BuildValue("i", result);
+}
+
+static void
+#if PY_VERSION_HEX >= 0x03020000
+destroy_gss_server(PyObject *obj) {
+    gss_server_state *state = PyCapsule_GetPointer(obj, NULL);
+#else
+destroy_gss_server(void *obj) {
+    gss_server_state *state = (gss_client_state *)obj;
+#endif
+    if (state) {
+        authenticate_gss_server_clean(state);
+        free(state);
+    }
 }
 
 static PyObject *authGSSServerInit(PyObject *self, PyObject *args)
@@ -526,7 +529,7 @@ static PyObject *authGSSServerInit(PyObject *self, PyObject *args)
         PyErr_NoMemory();
         return NULL;
     }
-    pystate = PyCObject_FromVoidPtr(state, NULL);
+    pystate = PyCObject_FromVoidPtr(state, &destroy_gss_server);
 
     result = authenticate_gss_server_init(service, state);
 
@@ -539,29 +542,7 @@ static PyObject *authGSSServerInit(PyObject *self, PyObject *args)
 
 static PyObject *authGSSServerClean(PyObject *self, PyObject *args)
 {
-    gss_server_state *state = NULL;
-    PyObject *pystate = NULL;
-    int result = 0;
-
-    if (! PyArg_ParseTuple(args, "O", &pystate)) {
-        return NULL;
-    }
-
-    if (! PyCObject_Check(pystate)) {
-        PyErr_SetString(PyExc_TypeError, "Expected a context object");
-        return NULL;
-    }
-
-    state = (gss_server_state *)PyCObject_AsVoidPtr(pystate);
-
-    if (state != STATE_NULL) {
-        result = authenticate_gss_server_clean(state);
-
-        free(state);
-        PyCObject_SetVoidPtr(pystate, STATE_NULL);
-    }
-
-    return Py_BuildValue("i", result);
+    return Py_BuildValue("i", AUTH_GSS_COMPLETE);
 }
 
 static PyObject *authGSSServerStep(PyObject *self, PyObject *args)
@@ -582,7 +563,7 @@ static PyObject *authGSSServerStep(PyObject *self, PyObject *args)
 
     state = (gss_server_state *)PyCObject_AsVoidPtr(pystate);
 
-    if (state == STATE_NULL) {
+    if (state == NULL) {
         return NULL;
     }
 
@@ -612,7 +593,7 @@ static PyObject *authGSSServerStoreDelegate(PyObject *self, PyObject *args)
 
     state = (gss_server_state *)PyCObject_AsVoidPtr(pystate);
 
-    if (state == STATE_NULL) {
+    if (state == NULL) {
         return NULL;
     }
 
@@ -641,7 +622,7 @@ static PyObject *authGSSServerResponse(PyObject *self, PyObject *args)
 
     state = (gss_server_state *)PyCObject_AsVoidPtr(pystate);
 
-    if (state == STATE_NULL) {
+    if (state == NULL) {
         return NULL;
     }
 
@@ -664,7 +645,7 @@ static PyObject *authGSSServerUserName(PyObject *self, PyObject *args)
     
     state = (gss_server_state *)PyCObject_AsVoidPtr(pystate);
 
-    if (state == STATE_NULL) {
+    if (state == NULL) {
         return NULL;
     }
     
@@ -687,7 +668,7 @@ static PyObject *authGSSServerCacheName(PyObject *self, PyObject *args)
     
     state = (gss_server_state *)PyCObject_AsVoidPtr(pystate);
 
-    if (state == STATE_NULL) {
+    if (state == NULL) {
         return NULL;
     }
 
@@ -710,7 +691,7 @@ static PyObject *authGSSServerTargetName(PyObject *self, PyObject *args)
     
     state = (gss_server_state *)PyCObject_AsVoidPtr(pystate);
 
-    if (state == STATE_NULL) {
+    if (state == NULL) {
         return NULL;
     }
     
