@@ -158,4 +158,4 @@ echo "Pip Version: $(pip$PY_MAJOR --version)"
 echo "Pip packages: $(pip$PY_MAJOR list)"
 
 echo "Running Python tests"
-python$PY_MAJOR -m pytest
+python$PY_MAJOR -m pytest -s
