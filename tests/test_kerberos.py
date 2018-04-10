@@ -113,7 +113,7 @@ def test_http_endpoint():
 def test_leaks_server():
     import gc
 
-    SERVICE = kerberos.getServerPrincipalDetails("HTTP", hostname)
+    SERVICE = "HTTP@%s" % hostname
     COUNT = 10
 
     def server_init():
@@ -140,7 +140,7 @@ def test_leaks_client():
     import gc
     import psutil
 
-    SERVICE = kerberos.getServerPrincipalDetails("HTTP", hostname)
+    SERVICE = "HTTP@%s" % hostname
 
     def client_init():
         kerberos.authGSSClientInit(SERVICE)
