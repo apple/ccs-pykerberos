@@ -108,3 +108,58 @@ def test_http_endpoint():
 
     # Cleanup any objects still stored in memory
     kerberos.authGSSClientClean(vc)
+
+
+def test_leaks_server():
+    import gc
+
+    SERVICE = kerberos.getServerPrincipalDetails("HTTP", hostname)
+    COUNT = 10
+
+    def server_init():
+        kerberos.authGSSServerInit(SERVICE)
+
+
+    for _ in range(COUNT):
+        server_init()
+    # Because I'm not entirely certain that python's gc guaranty's timeliness
+    # of destructors, lets kick off a manual gc.
+    gc.collect()
+
+    dirname = os.path.join('/proc/', str(os.getpid()), 'fd')
+    for fname in  os.listdir(dirname):
+        try:
+            target = os.readlink(os.path.join(dirname, fname))
+            print("fd {} => {}".format(fname, target))
+        except EnvironmentError:
+            pass
+    # raw_input("Hit [ENTER] to continue> ")
+
+
+def test_leaks_client():
+    import gc
+    import psutil
+
+    SERVICE = kerberos.getServerPrincipalDetails("HTTP", hostname)
+
+    def client_init():
+        kerberos.authGSSClientInit(SERVICE)
+
+
+    def n_times(count):
+        before = psutil.Process().memory_info().rss
+        for _ in range(count):
+            client_init()
+        # Because I'm not entirely certain that python's gc guaranty's timeliness
+        # of destructors, lets kick off a manual gc.
+        gc.collect()
+        after = psutil.Process().memory_info().rss
+        delta = after - before
+        print("Leaked {} total in {} calls: ~{} bytes per call".format(delta, count, delta / count))
+
+
+    n_times(1000)
+    n_times(10000)
+    n_times(100000)
+    n_times(1000000)
+
