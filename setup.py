@@ -29,7 +29,7 @@ except ImportError:
 
 project_name = "kerberos"
 
-version_string = "1.3.0"
+version_string = "1.3.1.dev0"
 
 description = "Kerberos high-level interface"
 
