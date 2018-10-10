@@ -1,6 +1,7 @@
 import kerberos
 import os
 import requests
+import sys
 
 username = os.environ.get('KERBEROS_USERNAME', 'administrator')
 password = os.environ.get('KERBEROS_PASSWORD', 'Password01')
@@ -119,9 +120,14 @@ def test_leaks_server():
     def server_init():
         kerberos.authGSSServerInit(SERVICE)
 
+    # We're testing for memory leaks, so use xrange instead of range in python2
+    if sys.version_info[0] > 2:
+        for _ in range(COUNT):
+            server_init()
+    else:
+        for _ in xrange(COUNT):
+            server_init()
 
-    for _ in xrange(COUNT):
-        server_init()
     # Because I'm not entirely certain that python's gc guaranty's timeliness
     # of destructors, lets kick off a manual gc.
     gc.collect()
