@@ -154,8 +154,15 @@ def test_leaks_client():
 
     def n_times(count):
         before = psutil.Process().memory_info().rss
-        for _ in xrange(count):
-            client_init()
+        
+        # We're testing for memory leaks, so use xrange instead of range in python2
+        if sys.version_info[0] > 2:
+            for _ in range(COUNT):
+                client_init()
+        else:
+            for _ in xrange(COUNT):
+                client_init()
+        
         # Because I'm not entirely certain that python's gc guaranty's timeliness
         # of destructors, lets kick off a manual gc.
         gc.collect()
