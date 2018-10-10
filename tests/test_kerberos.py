@@ -157,10 +157,10 @@ def test_leaks_client():
         
         # We're testing for memory leaks, so use xrange instead of range in python2
         if sys.version_info[0] > 2:
-            for _ in range(COUNT):
+            for _ in range(count):
                 client_init()
         else:
-            for _ in xrange(COUNT):
+            for _ in xrange(count):
                 client_init()
         
         # Because I'm not entirely certain that python's gc guaranty's timeliness
