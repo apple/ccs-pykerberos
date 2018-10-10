@@ -2,6 +2,7 @@ import kerberos
 import os
 import requests
 import sys
+import pytest
 
 username = os.environ.get('KERBEROS_USERNAME', 'administrator')
 password = os.environ.get('KERBEROS_PASSWORD', 'Password01')
@@ -111,7 +112,11 @@ def test_http_endpoint():
     kerberos.authGSSClientClean(vc)
 
 
-def test_leaks_server():
+def test_leaks_server_linux():
+    # The method used here to check for file descriptor leaks is specific to Linux
+    if "linux" not in sys.platform:
+        pytest.skip("This test requires linux.")
+    
     import gc
 
     SERVICE = "HTTP@%s" % hostname
@@ -120,7 +125,7 @@ def test_leaks_server():
     def server_init():
         kerberos.authGSSServerInit(SERVICE)
 
-    # We're testing for memory leaks, so use xrange instead of range in python2
+    # Use xrange instead of range in python2
     if sys.version_info[0] > 2:
         for _ in range(COUNT):
             server_init()
@@ -128,15 +133,19 @@ def test_leaks_server():
         for _ in xrange(COUNT):
             server_init()
 
-    # Because I'm not entirely certain that python's gc guaranty's timeliness
+    # Because I'm not entirely certain that python's gc guarantees timeliness
     # of destructors, lets kick off a manual gc.
     gc.collect()
 
+    # If we're leaking FDs, we would expect some leftover FDs with targets like:
+    # /var/tmp/HTTP_0
+    # In the clean case, the only FDs still around after a garbage collect are pipes.
     dirname = os.path.join('/proc/', str(os.getpid()), 'fd')
     for fname in  os.listdir(dirname):
         try:
             target = os.readlink(os.path.join(dirname, fname))
             print("fd {} => {}".format(fname, target))
+            assert "HTTP" not in target, "Leaking file descriptors!"
         except EnvironmentError:
             pass
     # raw_input("Hit [ENTER] to continue> ")
@@ -155,7 +164,7 @@ def test_leaks_client():
     def n_times(count):
         before = psutil.Process().memory_info().rss
         
-        # We're testing for memory leaks, so use xrange instead of range in python2
+        # Use xrange instead of range in python2
         if sys.version_info[0] > 2:
             for _ in range(count):
                 client_init()
@@ -163,12 +172,13 @@ def test_leaks_client():
             for _ in xrange(count):
                 client_init()
         
-        # Because I'm not entirely certain that python's gc guaranty's timeliness
+        # Because I'm not entirely certain that python's gc guarantees timeliness
         # of destructors, lets kick off a manual gc.
         gc.collect()
         after = psutil.Process().memory_info().rss
         delta = after - before
         print("Leaked {} total in {} calls: ~{} bytes per call".format(delta, count, delta / count))
+        assert delta == 0, "Leaking!"
 
 
     n_times(1000)
