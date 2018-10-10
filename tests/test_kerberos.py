@@ -120,7 +120,7 @@ def test_leaks_server():
         kerberos.authGSSServerInit(SERVICE)
 
 
-    for _ in range(COUNT):
+    for _ in xrange(COUNT):
         server_init()
     # Because I'm not entirely certain that python's gc guaranty's timeliness
     # of destructors, lets kick off a manual gc.
@@ -148,7 +148,7 @@ def test_leaks_client():
 
     def n_times(count):
         before = psutil.Process().memory_info().rss
-        for _ in range(count):
+        for _ in xrange(count):
             client_init()
         # Because I'm not entirely certain that python's gc guaranty's timeliness
         # of destructors, lets kick off a manual gc.
