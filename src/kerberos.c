@@ -177,6 +177,10 @@ static PyObject* authGSSClientInit(PyObject* self, PyObject* args, PyObject* key
         return NULL;
     }
     pystate = PyCObject_FromVoidPtr(state, &destroy_gss_client);
+    if (pystate == NULL) {
+        free(state);
+        return NULL;
+    }
 
     if (pydelegatestate != NULL && PyCObject_Check(pydelegatestate)) {
         delegatestate = (gss_server_state*)PyCObject_AsVoidPtr(pydelegatestate);
@@ -191,10 +195,11 @@ static PyObject* authGSSClientInit(PyObject* self, PyObject* args, PyObject* key
     );
 
     if (result == AUTH_GSS_ERROR) {
+        Py_DECREF(pystate);
         return NULL;
     }
 
-    return Py_BuildValue("(iO)", result, pystate);
+    return Py_BuildValue("(iN)", result, pystate);
 }
 
 static PyObject *authGSSClientClean(PyObject *self, PyObject *args)
@@ -530,14 +535,19 @@ static PyObject *authGSSServerInit(PyObject *self, PyObject *args)
         return NULL;
     }
     pystate = PyCObject_FromVoidPtr(state, &destroy_gss_server);
+    if (pystate == NULL) {
+        free(state);
+        return NULL;
+    }
 
     result = authenticate_gss_server_init(service, state);
 
     if (result == AUTH_GSS_ERROR) {
+        Py_DECREF(pystate);
         return NULL;
     }
 
-    return Py_BuildValue("(iO)", result, pystate);
+    return Py_BuildValue("(iN)", result, pystate);
 }
 
 static PyObject *authGSSServerClean(PyObject *self, PyObject *args)
