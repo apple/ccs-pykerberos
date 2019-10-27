@@ -160,6 +160,8 @@ def authGSSClientInit(service, **kwargs):
 
     @param mech_oid: Optional GGS mech OID
 
+    @param password: Optional string containing the service principal's password
+
     @return: A tuple of (result, context) where result is the result code (see
         above) and context is an opaque value that will need to be passed to
         subsequent functions.

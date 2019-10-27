@@ -154,6 +154,7 @@ static PyObject* authGSSClientInit(PyObject* self, PyObject* args, PyObject* key
 {
     const char *service = NULL;
     const char *principal = NULL;
+    const char *password = NULL;
     gss_client_state *state = NULL;
     PyObject *pystate = NULL;
     gss_server_state *delegatestate = NULL;
@@ -161,14 +162,14 @@ static PyObject* authGSSClientInit(PyObject* self, PyObject* args, PyObject* key
     gss_OID mech_oid = GSS_C_NO_OID;
     PyObject *pymech_oid = NULL;
     static char *kwlist[] = {
-        "service", "principal", "gssflags", "delegated", "mech_oid", NULL
+        "service", "principal", "gssflags", "delegated", "mech_oid", "password", NULL
     };
     long int gss_flags = GSS_C_MUTUAL_FLAG | GSS_C_SEQUENCE_FLAG;
     int result = 0;
 
     if (! PyArg_ParseTupleAndKeywords(
-        args, keywds, "s|zlOO", kwlist,
-        &service, &principal, &gss_flags, &pydelegatestate, &pymech_oid
+        args, keywds, "s|zlOOz", kwlist,
+        &service, &principal, &gss_flags, &pydelegatestate, &pymech_oid, &password
     )) {
         return NULL;
     }
@@ -194,7 +195,7 @@ static PyObject* authGSSClientInit(PyObject* self, PyObject* args, PyObject* key
     }
 
     result = authenticate_gss_client_init(
-        service, principal, gss_flags, delegatestate, mech_oid, state
+        service, principal, gss_flags, delegatestate, mech_oid, state, password
     );
 
     if (result == AUTH_GSS_ERROR) {

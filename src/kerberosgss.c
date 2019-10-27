@@ -128,7 +128,8 @@ end:
 
 int authenticate_gss_client_init(
     const char* service, const char* principal, long int gss_flags,
-    gss_server_state* delegatestate, gss_OID mech_oid, gss_client_state* state
+    gss_server_state* delegatestate, gss_OID mech_oid, gss_client_state* state,
+    const char *password
 )
 {
     OM_uint32 maj_stat;
@@ -136,7 +137,7 @@ int authenticate_gss_client_init(
     gss_buffer_desc name_token = GSS_C_EMPTY_BUFFER;
     gss_buffer_desc principal_token = GSS_C_EMPTY_BUFFER;
     int ret = AUTH_GSS_COMPLETE;
-    
+
     state->server_name = GSS_C_NO_NAME;
     state->mech_oid = mech_oid;
     state->context = GSS_C_NO_CONTEXT;
@@ -177,10 +178,24 @@ int authenticate_gss_client_init(
     	    goto end;
         }
 
-        maj_stat = gss_acquire_cred(
-            &min_stat, name, GSS_C_INDEFINITE, GSS_C_NO_OID_SET,
-            GSS_C_INITIATE, &state->client_creds, NULL, NULL
-        );
+        if (password != NULL) {
+            gss_buffer_desc gss_password = {
+                .length = strlen(password),
+                .value = password
+            };
+            maj_stat = gss_acquire_cred_with_password(
+                &min_stat, name, &gss_password,
+                GSS_C_INDEFINITE, GSS_C_NO_OID_SET,
+                GSS_C_INITIATE, &state->client_creds, NULL, NULL
+            );
+        } else {
+            printf("No password provided\n");
+            maj_stat = gss_acquire_cred(
+                &min_stat, name, GSS_C_INDEFINITE, GSS_C_NO_OID_SET,
+                GSS_C_INITIATE, &state->client_creds, NULL, NULL
+            );
+        }
+
         if (GSS_ERROR(maj_stat)) {
             set_gss_error(maj_stat, min_stat);
             ret = AUTH_GSS_ERROR;
