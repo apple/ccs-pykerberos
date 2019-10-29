@@ -62,6 +62,12 @@ int authenticate_gss_client_init(
 int authenticate_gss_client_clean(
     gss_client_state *state
 );
+int authenticate_gss_sign(
+    gss_client_state* state, const char* message, unsigned int qop, char **token
+);
+int authenticate_gss_verify(
+    gss_client_state* state, const char* message, const char* token, unsigned int qop
+);
 int authenticate_gss_client_step(
     gss_client_state *state, const char *challenge, struct gss_channel_bindings_struct *channel_bindings
 );

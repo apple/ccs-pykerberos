@@ -278,6 +278,76 @@ static PyObject *channelBindings(PyObject *self, PyObject *args, PyObject* keywd
     return Py_BuildValue("N", pychan_bindings);
 }
 
+static PyObject *authGSSSign(PyObject *self, PyObject *args, PyObject* keywds)
+{
+    gss_client_state *state = NULL;
+    PyObject *pystate = NULL;
+    PyObject *pytoken = NULL;
+    char *message = NULL;
+    char *token = NULL;
+    static char *kwlist[] = {"context", "message", "qop", NULL};
+    int result = 0;
+    unsigned int qop = 0;
+
+    if (! PyArg_ParseTupleAndKeywords(args, keywds, "Os|I", kwlist, &pystate, &message, &qop)) {
+        return NULL;
+    }
+
+    if (! PyCObject_Check(pystate)) {
+        PyErr_SetString(PyExc_TypeError, "Expected a context object");
+        return NULL;
+    }
+
+    state = (gss_client_state *)PyCObject_AsVoidPtr(pystate);
+
+    if (state == NULL) {
+        return NULL;
+    }
+
+    result = authenticate_gss_sign(state, message, qop, &token);
+    if (result == AUTH_GSS_ERROR) {
+        return NULL;
+    }
+
+    pytoken = PyString_FromString(token);
+    free(token);
+
+    return pytoken;
+}
+
+static PyObject *authGSSVerify(PyObject *self, PyObject *args, PyObject* keywds)
+{
+    gss_client_state *state = NULL;
+    PyObject *pystate = NULL;
+    char *message = NULL;
+    char *token = NULL;
+    static char *kwlist[] = {"context", "message", "token", "qop", NULL};
+    int result = 0;
+    unsigned int qop = 0;
+
+    if (! PyArg_ParseTupleAndKeywords(args, keywds, "Oss|I", kwlist, &pystate, &message, &token, &qop)) {
+        return NULL;
+    }
+
+    if (! PyCObject_Check(pystate)) {
+        PyErr_SetString(PyExc_TypeError, "Expected a context object");
+        return NULL;
+    }
+
+    state = (gss_client_state *)PyCObject_AsVoidPtr(pystate);
+
+    if (state == NULL) {
+        return NULL;
+    }
+
+    result = authenticate_gss_verify(state, message, token, qop);
+    if (result == AUTH_GSS_ERROR) {
+        return NULL;
+    }
+
+    return Py_BuildValue("i", result);
+}
+
 static PyObject *authGSSClientStep(PyObject *self, PyObject *args, PyObject* keywds)
 {
     gss_client_state *state = NULL;
@@ -727,6 +797,16 @@ static PyMethodDef KerberosMethods[] = {
         "getServerPrincipalDetails",
         getServerPrincipalDetails, METH_VARARGS,
         "Return the service principal for a given service and hostname."
+    },
+    {
+        "authGSSSign",
+        (PyCFunction)authGSSSign, METH_VARARGS | METH_KEYWORDS,
+        "Compute MIC of the message",
+    },
+    {
+        "authGSSVerify",
+        (PyCFunction)authGSSVerify, METH_VARARGS | METH_KEYWORDS,
+        "Verify MIC of the message",
     },
     {
         "authGSSClientInit",
