@@ -131,7 +131,7 @@ else
 fi
 
 echo "Downloading Python $PYENV"
-wget -q "https://www.python.org/ftp/python/$PYENV/Python-$PYENV.tgz"
+wget -q "https://www.python.org/ftp/python/${PYENV%[ab]*}/Python-$PYENV.tgz"
 tar xzf "Python-$PYENV.tgz"
 cd "Python-$PYENV"
 
