@@ -31,6 +31,7 @@
     // Basic renames (function parameters are the same)
     // No more int objects
     #define PyInt_FromLong PyLong_FromLong
+    #define PyString_FromString PyUnicode_FromString
 #endif
 
 #if PY_VERSION_HEX >= 0x03020000
