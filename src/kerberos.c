@@ -60,11 +60,14 @@
           ob = Py_InitModule3(name, methods, doc);
 #endif
 
-static char krb5_mech_oid_bytes [] = "\x2a\x86\x48\x86\xf7\x12\x01\x02\x02";
-gss_OID_desc krb5_mech_oid = { 9, &krb5_mech_oid_bytes };
+typedef union { char b[16]; uint64_t ull[2]; } align16;
+typedef union { char b[8]; uint64_t ull; } align8;
 
-static char spnego_mech_oid_bytes[] = "\x2b\x06\x01\x05\x05\x02";
-gss_OID_desc spnego_mech_oid = { 6, &spnego_mech_oid_bytes };
+static align16 krb5_mech_oid_bytes = { { 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x12, 0x01, 0x02, 0x02 } };
+gss_OID_desc krb5_mech_oid = { 9, NULL };
+
+static align8 spnego_mech_oid_bytes = { { 0x2b, 0x06, 0x01, 0x05, 0x05, 0x02 } };
+gss_OID_desc spnego_mech_oid = { 6, NULL };
 
 PyObject *KrbException_class;
 PyObject *BasicAuthException_class;
@@ -911,9 +914,13 @@ MOD_INIT(kerberos)
     PyDict_SetItemString(
         d, "GSS_C_TRANS_FLAG", PyInt_FromLong(GSS_C_TRANS_FLAG)
     );
+    krb5_mech_oid.elements =  &krb5_mech_oid_bytes.b;
+
     PyDict_SetItemString(
         d, "GSS_MECH_OID_KRB5", PyCObject_FromVoidPtr(&krb5_mech_oid, NULL)
     );
+
+    spnego_mech_oid.elements = &spnego_mech_oid_bytes.b;
     PyDict_SetItemString(
         d, "GSS_MECH_OID_SPNEGO", PyCObject_FromVoidPtr(&spnego_mech_oid, NULL)
     );
