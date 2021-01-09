@@ -35,6 +35,8 @@ description = "Kerberos high-level interface"
 
 long_description = open(joinpath(dirname(__file__), "README.md")).read()
 
+long_description_content_type = "text/markdown"
+
 url = "https://github.com/apple/ccs-pykerberos"
 
 classifiers = [
@@ -105,12 +107,14 @@ extensions = [
 # Run setup
 #
 
+
 def doSetup():
     setup(
         name=project_name,
         version=version_string,
         description=description,
         long_description=long_description,
+        long_description_content_type=long_description_content_type,
         url=url,
         classifiers=classifiers,
         author=author,
