@@ -33,7 +33,7 @@ version_string = "1.3.1"
 
 description = "Kerberos high-level interface"
 
-long_description = open(joinpath(dirname(__file__), "README.rst")).read()
+long_description = open(joinpath(dirname(__file__), "README.md")).read()
 
 url = "https://github.com/apple/ccs-pykerberos"
 
