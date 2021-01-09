@@ -16,6 +16,7 @@
 
 from os.path import dirname, join as joinpath
 from setuptools import setup, Extension
+from io import open
 
 try:
     from subprocess import getoutput
@@ -33,7 +34,8 @@ version_string = "1.3.1"
 
 description = "Kerberos high-level interface"
 
-long_description = open(joinpath(dirname(__file__), "README.md")).read()
+with open("README.md", "r", encoding="utf-8") as fh:
+    long_description = fh.read()
 
 long_description_content_type = "text/markdown"
 
