@@ -189,7 +189,9 @@ int authenticate_gss_client_init(
                 GSS_C_INITIATE, &state->client_creds, NULL, NULL
             );
         } else {
+#ifdef PRINTFS
             printf("No password provided\n");
+#endif
             maj_stat = gss_acquire_cred(
                 &min_stat, name, GSS_C_INDEFINITE, GSS_C_NO_OID_SET,
                 GSS_C_INITIATE, &state->client_creds, NULL, NULL
