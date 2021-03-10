@@ -65,12 +65,7 @@ static krb5_error_code verify_krb5_user(
         goto end;
     }
 
-    code = krb5_verify_init_creds(context,
-            creds,
-            server,
-            NULL,
-            NULL,
-            NULL);
+    code = krb5_verify_init_creds(context, creds, server, NULL, NULL, NULL);
     krb5_free_principal(context, server);
     /* If we couldn't verify credentials against keytab, return error */
     if(code) {
