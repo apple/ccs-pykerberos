@@ -58,13 +58,14 @@ static krb5_error_code verify_krb5_user(
 #endif
 
     /* Get principal name from service name */
-    ret = krb5_sname_to_principal(context, NULL, service, KRB5_NT_SRV_HST,
+    code = krb5_sname_to_principal(context, NULL, service, KRB5_NT_SRV_HST,
 				   &server);
-    if(ret) {
+    if(code) {
+        set_pwchange_error(context, code);
         goto end;
     }
 
-    ret = krb5_verify_init_creds(context,
+    code = krb5_verify_init_creds(context,
             creds,
             server,
             NULL,
@@ -72,7 +73,8 @@ static krb5_error_code verify_krb5_user(
             NULL);
     krb5_free_principal(context, server);
     /* If we couldn't verify credentials against keytab, return error */
-    if(ret) {
+    if(code) {
+        set_pwchange_error(context, code);
         goto end;
     }
 
