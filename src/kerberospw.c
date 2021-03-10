@@ -44,7 +44,8 @@ static krb5_error_code verify_krb5_user(
     krb5_get_init_creds_opt gic_options;
     krb5_error_code code;
     int ret = 0;
-    
+    krb5_principal server;
+
 #ifdef PRINTFS
     {
         char *name = NULL;
@@ -55,6 +56,25 @@ static krb5_error_code verify_krb5_user(
         free(name);
     }
 #endif
+
+    /* Get principal name from service name */
+    ret = krb5_sname_to_principal(context, NULL, service, KRB5_NT_SRV_HST,
+				   &server);
+    if(ret) {
+        goto end;
+    }
+
+    ret = krb5_verify_init_creds(context,
+            creds,
+            server,
+            NULL,
+            NULL,
+            NULL);
+    krb5_free_principal(context, server);
+    /* If we couldn't verify credentials against keytab, return error */
+    if(ret) {
+        goto end;
+    }
 
     krb5_get_init_creds_opt_init(&gic_options);
     krb5_get_init_creds_opt_set_forwardable(&gic_options, 0);
