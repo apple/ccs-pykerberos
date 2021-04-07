@@ -132,9 +132,10 @@ static krb5_error_code verify_krb5_user(
     krb5_principal server
 ) {
     krb5_creds creds;
-    krb5_get_init_creds_opt gic_options;
+    krb5_get_init_creds_opt *gic_options;
     krb5_error_code ret;
     char *name = NULL;
+    krb5_ccache out_cc = NULL;
 
     memset(&creds, 0, sizeof(creds));
 
@@ -143,13 +144,41 @@ static krb5_error_code verify_krb5_user(
 #ifdef PRINTFS
         printf("Trying to get TGT for user %s\n", name);
 #endif
+
+        char *filepath = malloc(1024);
+        if(filepath == NULL) {
+            set_basicauth_error(context, 1);
+            goto end;
+        }
+        sprintf(filepath, "FILE:/tmp/krb5cc_%s", name);
+        ret = krb5_cc_resolve(context, filepath, &out_cc);
+        if (ret) {
+            set_basicauth_error(context, ret);
+            goto end;
+        }
+        setenv("KRB5CCNAME", filepath, 1);
         free(name);
+        free(filepath);
+    } else {
+        set_basicauth_error(context, ret);
+        goto end;
     }
 
-    krb5_get_init_creds_opt_init(&gic_options);
+    ret = krb5_get_init_creds_opt_alloc(context, &gic_options);
+    if (ret) {
+        set_basicauth_error(context, ret);
+        goto end;
+    }
+
+    ret = krb5_get_init_creds_opt_set_out_ccache(context, gic_options, out_cc);
+    if (ret) {
+        set_basicauth_error(context, ret);
+        goto end;
+    }
+
     ret = krb5_get_init_creds_password(
         context, &creds, principal, (char *)password,
-        NULL, NULL, 0, NULL, &gic_options
+        NULL, NULL, 0, NULL, gic_options
     );
     if (ret) {
         set_basicauth_error(context, ret);
@@ -158,6 +187,12 @@ static krb5_error_code verify_krb5_user(
 
     ret = krb5_verify_init_creds(context, &creds, server, NULL, NULL, NULL);
     /* If we couldn't verify credentials against keytab, return error */
+    if (ret) {
+        set_basicauth_error(context, ret);
+        goto end;
+    }
+
+    ret = krb5_cc_switch(context, out_cc);
     if (ret) {
         set_basicauth_error(context, ret);
         goto end;

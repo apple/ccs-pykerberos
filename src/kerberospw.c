@@ -41,10 +41,11 @@ static krb5_error_code verify_krb5_user(
     const char *service,
     krb5_creds* creds
 ) {
-    krb5_get_init_creds_opt gic_options;
+    krb5_get_init_creds_opt *gic_options;
     krb5_error_code code;
     int ret = 0;
     krb5_principal server;
+    krb5_ccache out_cc = NULL;
 
 #ifdef PRINTFS
     {
@@ -52,6 +53,20 @@ static krb5_error_code verify_krb5_user(
         code = krb5_unparse_name(context, principal, &name);
         if (!code) {
             printf("Trying to get TGT for user %s\n", name);
+
+            char *filepath = malloc(1024);
+            if(filepath == NULL) {
+                set_basicauth_error(context, 1);
+                goto end;
+            }
+            sprintf(filepath, "FILE:/tmp/krb5cc_%s", name);
+            ret = krb5_cc_resolve(context, filepath, &out_cc);
+            if (ret) {
+                set_basicauth_error(context, ret);
+                goto end;
+            }
+            setenv("KRB5CCNAME", filepath, 1);
+            free(filepath);
         }
         free(name);
     }
@@ -73,18 +88,40 @@ static krb5_error_code verify_krb5_user(
         goto end;
     }
 
-    krb5_get_init_creds_opt_init(&gic_options);
-    krb5_get_init_creds_opt_set_forwardable(&gic_options, 0);
-    krb5_get_init_creds_opt_set_proxiable(&gic_options, 0);
-    krb5_get_init_creds_opt_set_renew_life(&gic_options, 0);
+    code = krb5_cc_resolve(context, "FILE:/tmp/krb5cc_%{uid}", &out_cc);
+    if (code) {
+        set_pwchange_error(context, code);
+        goto end;
+    }
+
+    code = krb5_get_init_creds_opt_alloc(context, &gic_options);
+    if (code) {
+        set_pwchange_error(context, code);
+        goto end;
+    }
+
+    krb5_get_init_creds_opt_set_forwardable(gic_options, 0);
+    krb5_get_init_creds_opt_set_proxiable(gic_options, 0);
+    krb5_get_init_creds_opt_set_renew_life(gic_options, 0);
+
+    code = krb5_get_init_creds_opt_set_out_ccache(context, gic_options, out_cc);
+    if (code) {
+        set_pwchange_error(context, code);
+        goto end;
+    }
 
     memset(creds, 0, sizeof(krb5_creds));
     
     code = krb5_get_init_creds_password(
         context, creds, principal,
         (char *)password, NULL, NULL, 0,
-        (char *)service, &gic_options
+        (char *)service, gic_options
     );
+    if (code) {
+        set_pwchange_error(context, code);
+        goto end;
+    }
+    code = krb5_cc_switch(context, out_cc);
     if (code) {
         set_pwchange_error(context, code);
         goto end;
