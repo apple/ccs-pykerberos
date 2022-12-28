@@ -39,7 +39,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 long_description_content_type = "text/markdown"
 
-url = "https://github.com/apple/ccs-pykerberos"
+url = "https://github.com/soft-stech/ccs-pykerberos"
 
 classifiers = [
     "Development Status :: 5 - Production/Stable",
