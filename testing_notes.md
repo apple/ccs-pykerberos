@@ -34,7 +34,7 @@ port = os.environ.get('KERBEROS_PORT', '80')
 
 ## Sample Apache config for a Kerberized site
 
-You can use the package [mod_auth_gssapi](https://github.com/modauthgssapi/mod_auth_gssapi) to secure your Apache site with
+You can use the package [mod_auth_gssapi](https://github.com/gssapi/mod_auth_gssapi) to secure your Apache site with
 Kerberos authentication. For you to do this you can install the package by
 running;
 
