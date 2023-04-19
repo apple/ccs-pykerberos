@@ -10,4 +10,4 @@ Calendar and Contacts Server's licensing terms.
 
 Before submitting the request, please make sure that your request follows
 the [Calendar and Contacts Server's guidelines for contributing
-code](../../../ccs-calendarserver/blob/master/HACKING.rst).
+code](../../../../ccs-calendarserver/blob/master/HACKING.rst).
