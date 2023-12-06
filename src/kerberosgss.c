@@ -766,6 +766,7 @@ int authenticate_gss_server_step(
     }
     strncpy(state->username, (char*) output_token.value, output_token.length);
     state->username[output_token.length] = 0;
+    maj_stat = gss_release_buffer(&min_stat, &output_token);
     
     // Get the target name if no server creds were supplied
     if (state->server_creds == GSS_C_NO_CREDENTIAL) {
@@ -785,8 +786,10 @@ int authenticate_gss_server_step(
         if (GSS_ERROR(maj_stat)) {
             set_gss_error(maj_stat, min_stat);
             ret = AUTH_GSS_ERROR;
+            gss_release_name(&min_stat, &target_name);
             goto end;
         }
+        gss_release_name(&min_stat, &target_name);
         state->targetname = (char *)malloc(output_token.length + 1);
         if (state->targetname == NULL)
         {
