@@ -1,3 +1,11 @@
+# Notice of Archival
+
+The developers of the Calendar and Contacts Server and its related
+projects have each moved on to other things. The time has come to
+officially archive the project. Thank you to all the users and
+contributors. Feel free to fork this project if you wish to continue
+to maintain it.
+
 # PyKerberos Package
 
 This Python package is a high-level wrapper for Kerberos (GSSAPI)
