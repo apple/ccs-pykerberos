@@ -137,6 +137,7 @@ GSS_C_ANON_FLAG       = 64
 GSS_C_PROT_READY_FLAG = 128
 GSS_C_TRANS_FLAG      = 256
 
+GSS_EXT_HAVE_PASSWORD = True
 
 
 def authGSSClientInit(service, **kwargs):
@@ -160,6 +161,8 @@ def authGSSClientInit(service, **kwargs):
 
     @param mech_oid: Optional GGS mech OID
 
+    @param password: Optional string containing the service principal's password
+
     @return: A tuple of (result, context) where result is the result code (see
         above) and context is an opaque value that will need to be passed to
         subsequent functions.
@@ -178,6 +181,29 @@ def authGSSClientClean(context):
     @return: A result code (see above).
     """
 
+
+def authGSSSign(context, message, qop=0):
+    """
+    Creates MIC (signature) of the message
+
+    @param context: The context object returned from L{authGSSClientInit}.
+
+    @param message: The text message (base64 encoded)
+
+    @return: The MIC of the message (base64 encoded).
+    """
+
+
+def authGSSVerify(context, message, token, qop=0):
+    """
+    Verify MIC (signature) of the message
+
+    @param context: The context object returned from L{authGSSClientInit}.
+
+    @param message: The text message (base64 encoded)
+
+    @param token: The MIC of the message (base64 encoded).
+    """
 
 
 def authGSSClientInquireCred(context):

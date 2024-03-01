@@ -17,6 +17,7 @@
 #include <gssapi/gssapi.h>
 #include <gssapi/gssapi_generic.h>
 #include <gssapi/gssapi_krb5.h>
+#include <gssapi/gssapi_ext.h>
 
 #define krb5_get_err_text(context,code) error_message(code)
 
@@ -55,10 +56,17 @@ char* server_principal_details(const char* service, const char* hostname);
 
 int authenticate_gss_client_init(
     const char* service, const char* principal, long int gss_flags,
-    gss_server_state* delegatestate, gss_OID mech_oid, gss_client_state* state
+    gss_server_state* delegatestate, gss_OID mech_oid, gss_client_state* state,
+    const char *password
 );
 int authenticate_gss_client_clean(
     gss_client_state *state
+);
+int authenticate_gss_sign(
+    gss_client_state* state, const char* message, unsigned int qop, char **token
+);
+int authenticate_gss_verify(
+    gss_client_state* state, const char* message, const char* token, unsigned int qop
 );
 int authenticate_gss_client_step(
     gss_client_state *state, const char *challenge, struct gss_channel_bindings_struct *channel_bindings
